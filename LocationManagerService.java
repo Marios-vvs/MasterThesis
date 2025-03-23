@@ -166,6 +166,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public class LocationManagerService extends ILocationManager.Stub implements
         LocationProviderManager.StateChangedListener {
 
+
+
     /**
      * Controls lifecycle of LocationManagerService.
      */
@@ -174,12 +176,15 @@ public class LocationManagerService extends ILocationManager.Stub implements
         private final LifecycleUserInfoHelper mUserInfoHelper;
         private final SystemInjector mSystemInjector;
         private final LocationManagerService mService;
+        private final LocationFudger mLocationFudger;
+
 
         public Lifecycle(Context context) {
             super(context);
             mUserInfoHelper = new LifecycleUserInfoHelper(context);
             mSystemInjector = new SystemInjector(context, mUserInfoHelper);
             mService = new LocationManagerService(context, mSystemInjector);
+            mLocationFudger = new LocationFudger(context);
         }
 
         @Override
