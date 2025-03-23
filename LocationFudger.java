@@ -39,6 +39,11 @@ public class LocationFudger {
 
     private static final String TAG = "TestObfuscation";
 
+    // Constants for checkin gobfuscation settings
+    private static final String KEY_CUSTOM_LOCATION_ENABLED = "custom_location_enabled";
+    private static final String KEY_CUSTOM_LOCATION_STRENGTH = "custom_location_strength";
+
+    private final Context mContext;
 
     // minimum accuracy a coarsened location can have
     private static final float MIN_ACCURACY_M = 200.0f;
@@ -89,8 +94,9 @@ public class LocationFudger {
     @GuardedBy("this")
     @Nullable private LocationResult mCachedCoarseLocationResult;
 
-    public LocationFudger(float accuracyM) {
+    public LocationFudger(float accuracyM, Context context) {
         this(accuracyM, SystemClock.elapsedRealtimeClock(), new SecureRandom());
+        mContext = context;
     }
 
     @VisibleForTesting
@@ -132,6 +138,7 @@ public class LocationFudger {
         return coarseLocationResult;
     }
 
+   
     /**
      * Create a coarse location using two technique, random offsets and snap-to-grid.
      *
@@ -143,6 +150,8 @@ public class LocationFudger {
      * out a random offset.
      */
     public Location createCoarse(Location fine) {
+
+
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
                 return mCachedCoarseLocation;
@@ -151,6 +160,11 @@ public class LocationFudger {
 
         // update the offsets in use
         updateOffsets();
+
+        boolean isCustomEnabled = Settings.Secure.getInt(
+        mContext.getContentResolver(), "custom_location_enabled", 0) == 1;
+        int strength = isCustomEnabled ? Settings.Secure.getInt(
+        mContext.getContentResolver(), "custom_location_strength", 50) : 0;
 
         Location coarse = new Location(fine);
 
@@ -163,11 +177,14 @@ public class LocationFudger {
         double latitude = wrapLatitude(coarse.getLatitude());
         double longitude = wrapLongitude(coarse.getLongitude());
 
-        //Log.d(TAG, "non-obfuscated location coordiantes are: " + latitude + " ," + longitude);
 
         // add offsets - update longitude first using the non-offset latitude
         longitude += wrapLongitude(metersToDegreesLongitude(mLongitudeOffsetM, latitude));
         latitude += wrapLatitude(metersToDegreesLatitude(mLatitudeOffsetM));
+
+         double effectiveAccuracy = isCustomEnabled 
+        ? mAccuracyM * (1.0 + (strength / 100.0))  // Example: 1x–2x accuracy
+        : mAccuracyM;  // Default behavior
 
         // quantize location by snapping to a grid. this is the primary means of obfuscation. it
         // gives nice consistent results and is very effective at hiding the true location (as long
@@ -180,16 +197,6 @@ public class LocationFudger {
         double lonGranularity = metersToDegreesLongitude(mAccuracyM, latitude);
         longitude = wrapLongitude(Math.round(longitude / lonGranularity) * lonGranularity);
 
-        //Log.d(TAG, "quantized location coordiantes are: " + latitude + " ," + longitude);
-
-
-        //double additionalLatOffset = (Math.random() - 0.5) * latGranularity * 0.5;
-        //double additionalLonOffset = (Math.random() - 0.5) * lonGranularity * 0.5;
-        //latitude = wrapLatitude(latitude + additionalLatOffset);
-        //longitude = wrapLongitude(longitude + additionalLonOffset);
-
-        //Log.d(TAG, "additional location location coordiantes are: " + latitude + " ," + longitude);
-
 
         coarse.setLatitude(latitude);
         coarse.setLongitude(longitude);
@@ -199,7 +206,6 @@ public class LocationFudger {
             mCachedFineLocation = fine;
             mCachedCoarseLocation = coarse;
         }
-        //Log.d(TAG, "obfuscated location coordiantes are: " + latitude + " ," + longitude);
         return coarse;
     }
 

@@ -654,10 +654,11 @@
       other   {On / # apps have access to location}
     }</string>
     <!--Location Settings, adding custom obfuscation toggle and slider-->
-    <string name="custom_location_obfuscation">Custom Location Obfuscation</string>
-    <string name="custom_location_obfuscation_summary">Enable user-controlled location precision</string>
-    <string name="custom_location_obfuscation_slider">Obfuscation Strength</string>
-    <string name="custom_location_obfuscation_slider_summary">Drag to adjust location precision</string>
+    <string name="custom_location_category_title">Custom Location Privacy</string>
+    <string name="custom_location_title">Custom Location Obfuscation</string>
+    <string name="custom_location_summary">Enable user-controlled location precision</string>
+    <string name="custom_location_slider_title">Obfuscation Strength</string>
+    <string name="custom_location_slider_summary">Adjust how precise your location appears</string>
     <!-- Location settings, loading the number of apps which have location permission [CHAR LIMIT=30] -->
     <string name="location_settings_loading_app_permission_stats">Loading\u2026</string>
     <!-- Location settings footer warning text when location is on [CHAR LIMIT=NONE] -->

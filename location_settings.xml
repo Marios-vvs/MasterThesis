@@ -41,19 +41,27 @@
         android:summary="@string/assisted_gps_summary"
         settings:controller="com.android.settings.location.AgpsPreferenceController"/>
 
-    <SwitchPreferenceCompat
-        android:key="custom_location_obfuscation"
-        android:title="@string/custom_location_obfuscation"
-        android:summary="@string/custom_location_obfuscation" />
+    <PreferenceCategory
+        android:key="custom_location_category"
+        android:title="@string/custom_location_category_title">
 
-    <SeekBarPreference
-        android:key="custom_location_obfuscation_slider"
-        android:title="@string/custom_location_obfuscation_slider"
-        android:summary="@string/custom_location_obfuscation_slider_summary"
-        android:max="100"  
-        android:defaultValue="50"
-        android:enabled="false"
-        app:showSeekBarValue="true" />
+        <SwitchPreference
+            android:key="custom_location_toggle"
+            android:title="@string/custom_location_title"
+            android:summary="@string/custom_location_summary"
+            android:persistent="false" />
+
+        <SeekBarPreference
+            android:key="custom_location_slider"
+            android:title="@string/custom_location_slider_title"
+            android:summary="@string/custom_location_slider_summary"
+            android:max="100"
+            android:defaultValue="50"
+            android:enabled="false"
+            android:persistent="false"
+            app:showSeekBarValue="true" />
+
+    </PreferenceCategory>
 
     <PreferenceCategory
         android:key="location_advanced_settings"
