@@ -69,6 +69,12 @@ public class LocationSettings extends DashboardFragment implements
     private static final String TAG = "LocationSettings";
     private static final String RECENT_LOCATION_ACCESS_PREF_KEY = "recent_location_access";
 
+    /**
+     * Addition of toggle and slider custom in settings
+     */
+    private static final String KEY_CUSTOM_TOGGLE = "custom_location_toggle";
+    private static final String KEY_SLIDER = "custom_location_slider";
+
     private LocationSwitchBarController mSwitchBarController;
     private LocationEnabler mLocationEnabler;
     private RecentLocationAccessPreferenceController mController;
@@ -143,6 +149,12 @@ public class LocationSettings extends DashboardFragment implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        setupCustomLocationPreferences();
+    }
+
+    @Override
     protected String getLogTag() {
         return TAG;
     }
@@ -185,5 +197,39 @@ public class LocationSettings extends DashboardFragment implements
             switchBar.setTooltipText(getResources().getString(
                     R.string.location_settings_tooltip_text_for_chrome));
         }
+    }
+
+    private void setupCustomLocationPreferences() {
+        // Find preferences
+        SwitchPreference toggle = findPreference(KEY_CUSTOM_TOGGLE);
+        SeekBarPreference slider = findPreference(KEY_SLIDER);
+
+        if (toggle == null || slider == null) {
+            Log.e(TAG, "Custom location preferences not found!");
+            return;
+        }
+
+        // Load saved state
+        boolean isEnabled = Settings.Secure.getInt(getContentResolver(),
+                "custom_location_enabled", 0) == 1;
+        toggle.setChecked(isEnabled);
+        slider.setEnabled(isEnabled);
+
+        // Set toggle listener
+        toggle.setOnPreferenceChangeListener((preference, newValue) -> {
+            boolean enabled = (Boolean) newValue;
+            slider.setEnabled(enabled);
+            Settings.Secure.putInt(getContentResolver(),
+                    "custom_location_enabled", enabled ? 1 : 0);
+            return true;
+        });
+
+        // Set slider listener
+        slider.setOnPreferenceChangeListener((preference, newValue) -> {
+            int value = (Integer) newValue;
+            Settings.Secure.putInt(getContentResolver(),
+                    "custom_location_strength", value);
+            return true;
+        });
     }
 }
