@@ -85,7 +85,10 @@ import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.ServiceManager;
 import android.os.UserHandle;
+<<<<<<< HEAD
 import android.service.voice.VisualQueryDetectedResult;
+=======
+>>>>>>> origin_source
 import android.speech.tts.TextToSpeech;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
@@ -1218,6 +1221,7 @@ public final class Settings {
             "android.settings.REGIONAL_PREFERENCES_SETTINGS";
 
     /**
+<<<<<<< HEAD
      * Activity Action: Show screen for allowing the region configuration.
      * <p>
      * Input: Nothing.
@@ -1281,6 +1285,8 @@ public final class Settings {
             "android.settings.MEASUREMENT_SYSTEM_SETTINGS";
 
     /**
+=======
+>>>>>>> origin_source
      * Activity Action: Show settings to allow configuration of lockscreen.
      * <p>
      * In some cases, a matching Activity may not exist, so ensure you
@@ -2156,6 +2162,26 @@ public final class Settings {
     public static final String ACTION_ZEN_MODE_SETTINGS = "android.settings.ZEN_MODE_SETTINGS";
 
     /**
+<<<<<<< HEAD
+=======
+     * Activity Action: Show Zen Mode visual effects configuration settings.
+     *
+     * @hide
+     */
+    @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
+    public static final String ZEN_MODE_BLOCKED_EFFECTS_SETTINGS =
+            "android.settings.ZEN_MODE_BLOCKED_EFFECTS_SETTINGS";
+
+    /**
+     * Activity Action: Show Zen Mode onboarding activity.
+     *
+     * @hide
+     */
+    @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
+    public static final String ZEN_MODE_ONBOARDING = "android.settings.ZEN_MODE_ONBOARDING";
+
+    /**
+>>>>>>> origin_source
      * Activity Action: Show Zen Mode (aka Do Not Disturb) priority configuration settings.
      */
     @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
@@ -2414,6 +2440,7 @@ public final class Settings {
             "android.settings.ALL_APPS_NOTIFICATION_SETTINGS_FOR_REVIEW";
 
     /**
+<<<<<<< HEAD
      * Activity Action: Show the permission screen for allowing apps to post promoted notifications.
      * Properly formatted priority notifications are elevated in appearance. For example they may be
      * able to use colors, have richer progress bars, show as chips in the status bar, and/or
@@ -2434,6 +2461,8 @@ public final class Settings {
             = "android.settings.APP_NOTIFICATION_PROMOTION_SETTINGS";
 
     /**
+=======
+>>>>>>> origin_source
      * Activity Action: Show notification settings for a single app.
      * <p>
      *     Input: {@link #EXTRA_APP_PACKAGE}, the package to display.
@@ -2469,6 +2498,7 @@ public final class Settings {
             = "android.settings.APP_NOTIFICATION_BUBBLE_SETTINGS";
 
     /**
+<<<<<<< HEAD
      * Activity Action: Show the settings for users to select their preferred SIM subscription
      * when a new SIM subscription has become available.
      * <p>
@@ -2488,6 +2518,8 @@ public final class Settings {
             "android.settings.SIM_PREFERENCE_SETTINGS";
 
     /**
+=======
+>>>>>>> origin_source
      * Intent Extra: The value of {@link android.app.settings.SettingsEnums#EntryPointType} for
      * settings metrics that logs the entry point about physical keyboard settings.
      * <p>
@@ -5555,6 +5587,7 @@ public final class Settings {
         public static final String VOLUME_MASTER = "volume_master";
 
         /**
+<<<<<<< HEAD
          * The mapping of input device to its input gain index.
          *
          * @hide
@@ -5563,6 +5596,8 @@ public final class Settings {
         public static final String INPUT_GAIN_INDEX_SETTINGS = "input_gain_index_settings";
 
         /**
+=======
+>>>>>>> origin_source
          * Master mono (int 1 = mono, 0 = normal).
          *
          * @hide
@@ -5880,6 +5915,22 @@ public final class Settings {
         public static final String ACCELEROMETER_ROTATION = "accelerometer_rotation";
 
         /**
+<<<<<<< HEAD
+=======
+         * Control the type of rotation which can be performed using the accelerometer
+         * if ACCELEROMETER_ROTATION is enabled.
+         * Value is a bitwise combination of
+         * 1 = 0 degrees (portrait)
+         * 2 = 90 degrees (left)
+         * 4 = 180 degrees (inverted portrait)
+         * 8 = 270 degrees (right)
+         * Setting to 0 is effectively orientation lock
+         * @hide
+         */
+        public static final String ACCELEROMETER_ROTATION_ANGLES = "accelerometer_rotation_angles";
+
+        /**
+>>>>>>> origin_source
          * Default screen rotation when no other policy applies.
          * When {@link #ACCELEROMETER_ROTATION} is zero and no on-screen Activity expresses a
          * preference, this rotation value will be used. Must be one of the
@@ -6291,6 +6342,7 @@ public final class Settings {
         public static final String TOUCHPAD_TAP_DRAGGING = "touchpad_tap_dragging";
 
         /**
+<<<<<<< HEAD
          * Whether to enable three finger tap customization on touchpads.
          *
          * @hide
@@ -6299,6 +6351,8 @@ public final class Settings {
                 "touchpad_three_finger_tap_customization";
 
         /**
+=======
+>>>>>>> origin_source
          * Whether to enable a right-click zone on touchpads.
          *
          * When set to 1, pressing to click in a section on the right-hand side of the touchpad will
@@ -6309,6 +6363,7 @@ public final class Settings {
         public static final String TOUCHPAD_RIGHT_CLICK_ZONE = "touchpad_right_click_zone";
 
         /**
+<<<<<<< HEAD
          * Whether to enable system gestures (three- and four-finger swipes) on touchpads.
          *
          * @hide
@@ -6335,6 +6390,8 @@ public final class Settings {
                 "mouse_swap_primary_button";
 
         /**
+=======
+>>>>>>> origin_source
          * Pointer fill style, specified by
          * {@link android.view.PointerIcon.PointerIconVectorStyleFill} constants.
          *
@@ -6401,6 +6458,7 @@ public final class Settings {
         public static final String LOCALE_PREFERENCES = "locale_preferences";
 
         /**
+<<<<<<< HEAD
          * User can change the region from region settings. This records user's preferred region.
          *
          * E.g. : if user's locale is en-US, this will record US
@@ -6409,6 +6467,8 @@ public final class Settings {
         public static final String PREFERRED_REGION = "preferred_region";
 
         /**
+=======
+>>>>>>> origin_source
          * Setting to enable camera flash notification feature.
          * <ul>
          *     <li> 0 = Off
@@ -6439,6 +6499,19 @@ public final class Settings {
                 "screen_flash_notification_color_global";
 
         /**
+<<<<<<< HEAD
+=======
+         * Volume keys control cursor in text fields (default is 0)
+         * 0 - Disabled
+         * 1 - Volume up/down moves cursor left/right
+         * 2 - Volume up/down moves cursor right/left
+         * @hide
+         */
+        @Readable
+        public static final String VOLUME_KEY_CURSOR_CONTROL = "volume_key_cursor_control";
+
+        /**
+>>>>>>> origin_source
          * IMPORTANT: If you add a new public settings you also have to add it to
          * PUBLIC_SETTINGS below. If the new setting is hidden you have to add
          * it to PRIVATE_SETTINGS below. Also add a validator that can validate
@@ -6576,14 +6649,20 @@ public final class Settings {
             PRIVATE_SETTINGS.add(TOUCHPAD_TAP_TO_CLICK);
             PRIVATE_SETTINGS.add(TOUCHPAD_TAP_DRAGGING);
             PRIVATE_SETTINGS.add(TOUCHPAD_RIGHT_CLICK_ZONE);
+<<<<<<< HEAD
             PRIVATE_SETTINGS.add(TOUCHPAD_SYSTEM_GESTURES);
+=======
+>>>>>>> origin_source
             PRIVATE_SETTINGS.add(CAMERA_FLASH_NOTIFICATION);
             PRIVATE_SETTINGS.add(SCREEN_FLASH_NOTIFICATION);
             PRIVATE_SETTINGS.add(SCREEN_FLASH_NOTIFICATION_COLOR);
             PRIVATE_SETTINGS.add(DEFAULT_DEVICE_FONT_SCALE);
+<<<<<<< HEAD
             PRIVATE_SETTINGS.add(MOUSE_REVERSE_VERTICAL_SCROLLING);
             PRIVATE_SETTINGS.add(MOUSE_SWAP_PRIMARY_BUTTON);
             PRIVATE_SETTINGS.add(PREFERRED_REGION);
+=======
+>>>>>>> origin_source
         }
 
         /**
@@ -6970,10 +7049,20 @@ public final class Settings {
         @UnsupportedAppUsage
         private static final HashSet<String> MOVED_TO_GLOBAL;
         static {
+<<<<<<< HEAD
             MOVED_TO_LOCK_SETTINGS = new HashSet<>(3);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_ENABLED);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_VISIBLE);
             MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED);
+=======
+            MOVED_TO_LOCK_SETTINGS = new HashSet<>(6);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_ENABLED);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_VISIBLE);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_PATTERN_SIZE);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_DOTS_VISIBLE);
+            MOVED_TO_LOCK_SETTINGS.add(Secure.LOCK_SHOW_ERROR_PATH);
+>>>>>>> origin_source
 
             MOVED_TO_GLOBAL = new HashSet<>();
             MOVED_TO_GLOBAL.add(Settings.Global.ADB_ENABLED);
@@ -8356,11 +8445,14 @@ public final class Settings {
         public static final String LOCATION_MODE = "location_mode";
 
         /**
+<<<<<<< HEAD
          * Constant to store value of custom location toggle
          */
         public static final String SECURE_CUSTOM_LOCATION_TOGGLE = "custom_location_toggle";
 
         /**
+=======
+>>>>>>> origin_source
          * The App or module that changes the location mode.
          * @hide
          */
@@ -8503,6 +8595,27 @@ public final class Settings {
                 LOCK_PATTERN_TACTILE_FEEDBACK_ENABLED = "lock_pattern_tactile_feedback_enabled";
 
         /**
+<<<<<<< HEAD
+=======
+         * Determines the width and height of the LockPatternView widget
+         * @hide
+         */
+        public static final String LOCK_PATTERN_SIZE = "lock_pattern_size";
+
+        /**
+         * Whether lock pattern will show dots (0 = false, 1 = true)
+         * @hide
+         */
+        public static final String LOCK_DOTS_VISIBLE = "lock_pattern_dotsvisible";
+
+        /**
+         * Whether lockscreen error pattern is visible (0 = false, 1 = true)
+         * @hide
+         */
+        public static final String LOCK_SHOW_ERROR_PATH = "lock_pattern_show_error_path";
+
+        /**
+>>>>>>> origin_source
          * This preference allows the device to be locked given time after screen goes off,
          * subject to current DeviceAdmin policy limits.
          * @hide
@@ -8511,6 +8624,10 @@ public final class Settings {
         @Readable
         public static final String LOCK_SCREEN_LOCK_AFTER_TIMEOUT = "lock_screen_lock_after_timeout";
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin_source
         /**
          * This preference contains the string that shows for owner info on LockScreen.
          * @hide
@@ -8778,6 +8895,7 @@ public final class Settings {
         public static final String ACCESSIBILITY_QS_TARGETS = "accessibility_qs_targets";
 
         /**
+<<<<<<< HEAD
          * Setting specifying the accessibility services, accessibility shortcut targets,
          * or features to be toggled via a keyboard shortcut gesture.
          *
@@ -8791,6 +8909,8 @@ public final class Settings {
                 "accessibility_key_gesture_targets";
 
         /**
+=======
+>>>>>>> origin_source
          * The system class name of magnification controller which is a target to be toggled via
          * accessibility shortcut or accessibility button.
          *
@@ -8905,6 +9025,38 @@ public final class Settings {
         /** @hide */ public static final int ZEN_DURATION_FOREVER = 0;
 
         /**
+<<<<<<< HEAD
+=======
+         * If nonzero, will show the zen upgrade notification when the user toggles DND on/off.
+         * @hide
+         */
+        @Readable
+        public static final String SHOW_ZEN_UPGRADE_NOTIFICATION = "show_zen_upgrade_notification";
+
+        /**
+         * If nonzero, will show the zen update settings suggestion.
+         * @hide
+         */
+        @Readable
+        public static final String SHOW_ZEN_SETTINGS_SUGGESTION = "show_zen_settings_suggestion";
+
+        /**
+         * If nonzero, zen has not been updated to reflect new changes.
+         * @hide
+         */
+        @Readable
+        public static final String ZEN_SETTINGS_UPDATED = "zen_settings_updated";
+
+        /**
+         * If nonzero, zen setting suggestion has been viewed by user
+         * @hide
+         */
+        @Readable
+        public static final String ZEN_SETTINGS_SUGGESTION_VIEWED =
+                "zen_settings_suggestion_viewed";
+
+        /**
+>>>>>>> origin_source
          * Whether the in call notification is enabled to play sound during calls.  The value is
          * boolean (1 or 0).
          * @hide
@@ -10047,12 +10199,15 @@ public final class Settings {
                 "minimal_post_processing_allowed";
 
         /**
+<<<<<<< HEAD
          * Whether to mirror the built-in display on all connected displays.
          * @hide
          */
         public static final String MIRROR_BUILT_IN_DISPLAY = "mirror_built_in_display";
 
         /**
+=======
+>>>>>>> origin_source
          * No mode switching will happen.
          *
          * @see #MATCH_CONTENT_FRAME_RATE
@@ -10884,6 +11039,7 @@ public final class Settings {
                 "lock_screen_show_only_unseen_notifications";
 
         /**
+<<<<<<< HEAD
          * Indicates whether to minimalize the number of notifications to show on the lockscreen.
          * <p>
          * Type: int (0 for false, 1 for true)
@@ -10894,6 +11050,8 @@ public final class Settings {
                 "lock_screen_notification_minimalism";
 
         /**
+=======
+>>>>>>> origin_source
          * Indicates whether snooze options should be shown on notifications
          * <p>
          * Type: int (0 for false, 1 for true)
@@ -11047,6 +11205,7 @@ public final class Settings {
                 "emergency_gesture_ui_last_started_millis";
 
         /**
+<<<<<<< HEAD
          * Whether double tap the power button gesture is enabled.
          *
          * @hide
@@ -11066,6 +11225,8 @@ public final class Settings {
                 "double_tap_power_button_gesture";
 
         /**
+=======
+>>>>>>> origin_source
          * Whether the camera launch gesture to double tap the power button when the screen is off
          * should be disabled.
          *
@@ -11236,12 +11397,15 @@ public final class Settings {
         public static final String SFPS_PERFORMANT_AUTH_ENABLED = "sfps_performant_auth_enabled_v2";
 
         /**
+<<<<<<< HEAD
          * Whether or not the UDFPS device is enabling the screen off unlock settings.
          * @hide
          */
         public static final String SCREEN_OFF_UNLOCK_UDFPS_ENABLED = "screen_off_udfps_enabled";
 
         /**
+=======
+>>>>>>> origin_source
          * Whether or not debugging is enabled.
          * @hide
          */
@@ -11445,8 +11609,12 @@ public final class Settings {
                 "assist_long_press_home_enabled";
 
         /**
+<<<<<<< HEAD
          * Whether all entrypoints (e.g. long-press home, long-press nav handle)
          * can trigger contextual search.
+=======
+         * Whether all entrypoints can trigger search. Replaces individual settings.
+>>>>>>> origin_source
          *
          * @hide
          */
@@ -12785,6 +12953,20 @@ public final class Settings {
                 "extra_automatic_power_save_mode";
 
         /**
+<<<<<<< HEAD
+=======
+         * Whether tethering is allowed to use VPN upstreams. (0 = false, 1 = true)
+         * Any changes here must also be reflected in:
+         * packages/modules/Connectivity/Tethering/src/com/android/networkstack/tethering/
+         * Tethering.java
+         * packages/modules/Connectivity/Tethering/src/com/android/networkstack/tethering/
+         * UpstreamNetworkMonitor.java
+         * @hide
+         */
+        public static final String TETHERING_ALLOW_VPN_UPSTREAMS = "tethering_allow_vpn_upstreams";
+
+        /**
+>>>>>>> origin_source
          * Whether contextual screen timeout is enabled.
          *
          * @hide
@@ -13010,12 +13192,15 @@ public final class Settings {
          */
         @Readable
         public static final String CONTEXTUAL_SEARCH_PACKAGE = "contextual_search_package";
+<<<<<<< HEAD
 
         /**
          * Inetger property which determines whether advanced protection is on or not.
          * @hide
          */
         public static final String ADVANCED_PROTECTION_MODE = "advanced_protection_mode";
+=======
+>>>>>>> origin_source
     }
 
     /**
@@ -18010,6 +18195,15 @@ public final class Settings {
         public static final String FORCE_NON_DEBUGGABLE_FINAL_BUILD_FOR_COMPAT =
                 "force_non_debuggable_final_build_for_compat";
 
+<<<<<<< HEAD
+=======
+        /**
+         * Flag to enable the use of ApplicationInfo for getting not-launched status.
+         *
+         * @hide
+         */
+        public static final String ENABLE_USE_APP_INFO_NOT_LAUNCHED = "use_app_info_not_launched";
+>>>>>>> origin_source
 
         /**
          * Current version of signed configuration applied.
@@ -18191,6 +18385,7 @@ public final class Settings {
         public static final String ONE_HANDED_KEYGUARD_SIDE = "one_handed_keyguard_side";
 
         /**
+<<<<<<< HEAD
          * A semi-colon separated list of Bluetooth hearing devices' local ambient volume data.
          * Each entry is encoded as a key=value list, separated by commas. Ex:
          *
@@ -18227,6 +18422,14 @@ public final class Settings {
          */
         public static final String HEARING_DEVICE_LOCAL_NOTIFICATION =
                 "hearing_device_local_notification";
+=======
+         * A list of uids that are allowed to use restricted networks.
+         *
+         * @hide
+         */
+        public static final String UIDS_ALLOWED_ON_RESTRICTED_NETWORKS =
+                "uids_allowed_on_restricted_networks";
+>>>>>>> origin_source
 
         /**
          * Global settings that shouldn't be persisted.
@@ -18270,6 +18473,13 @@ public final class Settings {
             MOVED_TO_SECURE = new HashSet<>(8);
             MOVED_TO_SECURE.add(Global.INSTALL_NON_MARKET_APPS);
             MOVED_TO_SECURE.add(Global.ZEN_DURATION);
+<<<<<<< HEAD
+=======
+            MOVED_TO_SECURE.add(Global.SHOW_ZEN_UPGRADE_NOTIFICATION);
+            MOVED_TO_SECURE.add(Global.SHOW_ZEN_SETTINGS_SUGGESTION);
+            MOVED_TO_SECURE.add(Global.ZEN_SETTINGS_UPDATED);
+            MOVED_TO_SECURE.add(Global.ZEN_SETTINGS_SUGGESTION_VIEWED);
+>>>>>>> origin_source
             MOVED_TO_SECURE.add(Global.CHARGING_SOUNDS_ENABLED);
             MOVED_TO_SECURE.add(Global.CHARGING_VIBRATION_ENABLED);
             MOVED_TO_SECURE.add(Global.NOTIFICATION_BUBBLES);
@@ -19104,6 +19314,43 @@ public final class Settings {
         @Readable
         public static final String SHOW_MUTE_IN_CRASH_DIALOG = "show_mute_in_crash_dialog";
 
+<<<<<<< HEAD
+=======
+
+        /**
+         * If nonzero, will show the zen upgrade notification when the user toggles DND on/off.
+         * @hide
+         * @deprecated - Use {@link android.provider.Settings.Secure#SHOW_ZEN_UPGRADE_NOTIFICATION}
+         */
+        @Deprecated
+        public static final String SHOW_ZEN_UPGRADE_NOTIFICATION = "show_zen_upgrade_notification";
+
+        /**
+         * If nonzero, will show the zen update settings suggestion.
+         * @hide
+         * @deprecated - Use {@link android.provider.Settings.Secure#SHOW_ZEN_SETTINGS_SUGGESTION}
+         */
+        @Deprecated
+        public static final String SHOW_ZEN_SETTINGS_SUGGESTION = "show_zen_settings_suggestion";
+
+        /**
+         * If nonzero, zen has not been updated to reflect new changes.
+         * @deprecated - Use {@link android.provider.Settings.Secure#ZEN_SETTINGS_UPDATED}
+         * @hide
+         */
+        @Deprecated
+        public static final String ZEN_SETTINGS_UPDATED = "zen_settings_updated";
+
+        /**
+         * If nonzero, zen setting suggestion has been viewed by user
+         * @hide
+         * @deprecated - Use {@link android.provider.Settings.Secure#ZEN_SETTINGS_SUGGESTION_VIEWED}
+         */
+        @Deprecated
+        public static final String ZEN_SETTINGS_SUGGESTION_VIEWED =
+                "zen_settings_suggestion_viewed";
+
+>>>>>>> origin_source
         /**
          * Backup and restore agent timeout parameters.
          * These parameters are represented by a comma-delimited key-value list.
@@ -20393,12 +20640,15 @@ public final class Settings {
             public static final int PHONE_SWITCHING_STATUS_IN_PROGRESS_MIGRATION_SUCCESS = 11;
 
             /**
+<<<<<<< HEAD
              * Phone switching has finished account match step.
              * @hide
              */
             public static final int PHONE_SWITCHING_STATUS_ACCOUNTS_MATCHED = 12;
 
             /**
+=======
+>>>>>>> origin_source
              * Phone switching request source
              * @hide
              */
@@ -20529,6 +20779,7 @@ public final class Settings {
              * @hide
              */
             public static final String AUTO_BEDTIME_MODE = "auto_bedtime_mode";
+<<<<<<< HEAD
 
             /**
              * Indicates that all elements of the system status tray on wear should be rendered
@@ -20552,6 +20803,8 @@ public final class Settings {
              */
             public static final String WEAR_SYSTEM_STATUS_TRAY_CONFIGURATION =
                     "wear_system_status_tray_configuration";
+=======
+>>>>>>> origin_source
         }
     }
 
