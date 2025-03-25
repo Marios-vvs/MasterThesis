@@ -37,9 +37,6 @@ import android.util.Log;
  */
 public class LocationFudger {
 
-    private static final String TAG = "TestObfuscation";
-
-
     // minimum accuracy a coarsened location can have
     private static final float MIN_ACCURACY_M = 200.0f;
 

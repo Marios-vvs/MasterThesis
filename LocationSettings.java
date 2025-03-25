@@ -31,6 +31,7 @@ import android.util.Log;
 
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
+import androidx.preference.SwitchPreference;
 
 import com.android.settings.R;
 import com.android.settings.SettingsActivity;
@@ -68,6 +69,9 @@ public class LocationSettings extends DashboardFragment implements
 
     private static final String TAG = "LocationSettings";
     private static final String RECENT_LOCATION_ACCESS_PREF_KEY = "recent_location_access";
+
+    private static final String KEY_CUSTOM_LOCATION = "custom_location_toggle";
+    private SwitchPreference mCustomLocationPref;
 
     private LocationSwitchBarController mSwitchBarController;
     private LocationEnabler mLocationEnabler;
@@ -134,6 +138,7 @@ public class LocationSettings extends DashboardFragment implements
         return R.xml.location_settings;
     }
 
+    /** 
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
@@ -141,6 +146,32 @@ public class LocationSettings extends DashboardFragment implements
         replaceEnterpriseStringTitle("managed_profile_location_switch",
                 WORK_PROFILE_LOCATION_SWITCH_TITLE, R.string.managed_profile_location_switch_title);
     }
+    */
+
+   @Override  
+   public void onCreate(Bundle icicle) {  
+    super.onCreate(icicle);  
+    
+    replaceEnterpriseStringTitle("managed_profile_location_switch",  
+            WORK_PROFILE_LOCATION_SWITCH_TITLE, R.string.managed_profile_location_switch_title);  
+
+    // Your custom code here  
+    mCustomLocationPref = findPreference(KEY_CUSTOM_LOCATION);  
+    if (mCustomLocationPref != null) {
+        boolean isEnabled = Settings.Secure.getInt(getContentResolver(),
+            Settings.Secure.SECURE_CUSTOM_LOCATION_TOGGLE, 0) == 1;  
+        mCustomLocationPref.setChecked(isEnabled);  
+
+        mCustomLocationPref.setOnPreferenceChangeListener((preference, newValue) -> {  
+            boolean enabled = (Boolean) newValue;  
+            Settings.Secure.putInt(getContentResolver(),  
+                Settings.Secure.SECURE_CUSTOM_LOCATION_TOGGLE, enabled ? 1 : 0);  
+            return true;  
+            });  
+        }
+    }
+
+  
 
     @Override
     protected String getLogTag() {

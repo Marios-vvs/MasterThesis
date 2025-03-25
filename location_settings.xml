@@ -41,6 +41,14 @@
         android:summary="@string/assisted_gps_summary"
         settings:controller="com.android.settings.location.AgpsPreferenceController"/>
 
+    <!-- Addition of custom location toggle button-->
+    <SwitchPreferenceCompat
+        android:key="custom_location_toggle"
+        android:title="@string/custom_location_title"
+        android:summary="@string/custom_location_summary"
+        android:persistent="false"
+        android:defaultValue="false"/>
+
     <PreferenceCategory
         android:key="location_advanced_settings"
         android:layout="@layout/preference_category_no_label">
@@ -68,6 +76,12 @@
             android:key="app_level_permissions"
             android:title="@string/location_app_level_permissions"
             settings:controller="com.android.settings.location.AppLocationPermissionPreferenceController"/>
+        <!-- Edits added from eOS, not sure-->
+            <intent android:action="android.intent.action.MANAGE_PERMISSION_APPS">
+                <extra android:name="android.intent.extra.PERMISSION_NAME"
+                       android:value="android.permission-group.LOCATION"/>
+            </intent>
+
 
         <Preference
             android:fragment="com.android.settings.location.LocationServices"
