@@ -1,90 +1,54 @@
-/*
- * Copyright (C) 2020 The Android Open Source Project
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package com.android.server.location.fudger;
 
 import android.annotation.Nullable;
 import android.location.Location;
 import android.location.LocationResult;
 import android.os.SystemClock;
-
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Random;
-
-
 import android.util.Log;
 
 /**
- * Contains the logic to obfuscate (fudge) locations for coarse applications. The goal is just to
- * prevent applications with only the coarse location permission from receiving a fine location.
+ * Contains the logic to obfuscate (fudge) locations for coarse applications.
+ * This updated version uses a two-dimensional Laplace noise mechanism to add noise
+ * to the latitude and longitude, following the approach in:
+ * "Masking Location Streams in the Presence of Colluding Service Providers" :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}.
  */
 public class LocationFudger {
 
-    // minimum accuracy a coarsened location can have
+    private static final String TAG = "TestObfuscation";
+
+    // minimum accuracy a coarsened location can have (in meters)
     private static final float MIN_ACCURACY_M = 200.0f;
 
-    // how often random offsets are updated
+    // how often the cached obfuscation is updated (for caching purposes)
     @VisibleForTesting
     static final long OFFSET_UPDATE_INTERVAL_MS = 60 * 60 * 1000;
 
-    // the percentage that we change the random offset at every interval. 0.0 indicates the random
-    // offset doesn't change. 1.0 indicates the random offset is completely replaced every interval
-    private static final double CHANGE_PER_INTERVAL = 0.03;  // 3% change
-
-    // weights used to move the random offset. the goal is to iterate on the previous offset, but
-    // keep the resulting standard deviation the same. the variance of two gaussian distributions
-    // summed together is equal to the sum of the variance of each distribution. so some quick
-    // algebra results in the following sqrt calculation to weight in a new offset while keeping the
-    // final standard deviation unchanged.
-    private static final double NEW_WEIGHT = CHANGE_PER_INTERVAL;
-    private static final double OLD_WEIGHT = Math.sqrt(1 - NEW_WEIGHT * NEW_WEIGHT);
-
-    // this number actually varies because the earth is not round, but 111,000 meters is considered
-    // generally acceptable
+    // approximate conversion: 111,000 meters per degree at the equator.
     private static final int APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR = 111_000;
 
-    // we pick a value 1 meter away from 90.0 degrees in order to keep cosine(MAX_LATITUDE) to a
-    // non-zero value, so that we avoid divide by zero errors
-    private static final double MAX_LATITUDE =
-            90.0 - (1.0 / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR);
+    // Avoid division by zero at extreme latitudes.
+    private static final double MAX_LATITUDE = 90.0 - (1.0 / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR);
 
     private final float mAccuracyM;
     private final Clock mClock;
     private final Random mRandom;
 
     @GuardedBy("this")
-    private double mLatitudeOffsetM;
+    private Location mCachedFineLocation;
     @GuardedBy("this")
-    private double mLongitudeOffsetM;
-    @GuardedBy("this")
-    private long mNextUpdateRealtimeMs;
+    private Location mCachedCoarseLocation;
 
     @GuardedBy("this")
-    @Nullable private Location mCachedFineLocation;
+    @Nullable
+    private LocationResult mCachedFineLocationResult;
     @GuardedBy("this")
-    @Nullable private Location mCachedCoarseLocation;
-
-    @GuardedBy("this")
-    @Nullable private LocationResult mCachedFineLocationResult;
-    @GuardedBy("this")
-    @Nullable private LocationResult mCachedCoarseLocationResult;
+    @Nullable
+    private LocationResult mCachedCoarseLocationResult;
 
     public LocationFudger(float accuracyM) {
         this(accuracyM, SystemClock.elapsedRealtimeClock(), new SecureRandom());
@@ -95,22 +59,11 @@ public class LocationFudger {
         mClock = clock;
         mRandom = random;
         mAccuracyM = Math.max(accuracyM, MIN_ACCURACY_M);
-
-        resetOffsets();
     }
 
     /**
-     * Resets the random offsets completely.
-     */
-    public void resetOffsets() {
-        mLatitudeOffsetM = nextRandomOffset();
-        mLongitudeOffsetM = nextRandomOffset();
-        mNextUpdateRealtimeMs = mClock.millis() + OFFSET_UPDATE_INTERVAL_MS;
-    }
-
-    /**
-     * Coarsens a LocationResult by coarsening every location within the location result with
-     * {@link #createCoarse(Location)}.
+     * Coarsens a LocationResult by applying the two-dimensional Laplace noise mechanism
+     * to every location in the result.
      */
     public LocationResult createCoarse(LocationResult fineLocationResult) {
         synchronized (this) {
@@ -130,14 +83,14 @@ public class LocationFudger {
     }
 
     /**
-     * Create a coarse location using two technique, random offsets and snap-to-grid.
+     * Create a coarse location using a two-dimensional Laplace noise mechanism
+     * and snap-to-grid quantization.
      *
-     * First we add a random offset to mitigate against detecting grid transitions. Without a random
-     * offset it is possible to detect a user's position quite accurately when they cross a grid
-     * boundary. The random offset changes very slowly over time, to mitigate against taking many
-     * location samples and averaging them out. Second we snap-to-grid (quantize). This has the nice
-     * property of producing stable results, and mitigating against taking many samples to average
-     * out a random offset.
+     * The algorithm:
+     * 1. Removes fine-grained details (bearing, speed, altitude, extras).
+     * 2. Adds noise by sampling a uniform angle and a noise magnitude from an exponential distribution,
+     *    then converts these offsets (in meters) to degrees.
+     * 3. Snaps the resulting coordinates to a grid based on the target accuracy.
      */
     public Location createCoarse(Location fine) {
         synchronized (this) {
@@ -146,47 +99,32 @@ public class LocationFudger {
             }
         }
 
-        // update the offsets in use
-        updateOffsets();
-
+        // Create a copy of the fine location and remove fields that may leak extra information.
         Location coarse = new Location(fine);
-
-        // clear any fields that could leak more detailed location information
         coarse.removeBearing();
         coarse.removeSpeed();
         coarse.removeAltitude();
         coarse.setExtras(null);
 
+        // Get original coordinates and ensure they are in valid ranges.
         double latitude = wrapLatitude(coarse.getLatitude());
         double longitude = wrapLongitude(coarse.getLongitude());
 
-        //Log.d(TAG, "non-obfuscated location coordiantes are: " + latitude + " ," + longitude);
+        // ADDED: Add two-dimensional Laplace noise to the location.
+        // This mechanism samples a random direction and a noise magnitude, following
+        // a Laplace (exponential for the absolute value) distribution.
+        double[] deltaMeters = nextLaplace2DOffset();
+        // Convert meter offsets to degrees.
+        double deltaLat = metersToDegreesLatitude(deltaMeters[0]);
+        double deltaLon = metersToDegreesLongitude(deltaMeters[1], latitude);
+        latitude = wrapLatitude(latitude + deltaLat);
+        longitude = wrapLongitude(longitude + deltaLon);
 
-        // add offsets - update longitude first using the non-offset latitude
-        longitude += wrapLongitude(metersToDegreesLongitude(mLongitudeOffsetM, latitude));
-        latitude += wrapLatitude(metersToDegreesLatitude(mLatitudeOffsetM));
-
-        // quantize location by snapping to a grid. this is the primary means of obfuscation. it
-        // gives nice consistent results and is very effective at hiding the true location (as long
-        // as you are not sitting on a grid boundary, which the random offsets mitigate).
-        //
-        // note that we quantize the latitude first, since the longitude quantization depends on the
-        // latitude value and so leaks information about the latitude
+        // Snap-to-grid quantization based on the defined accuracy.
         double latGranularity = metersToDegreesLatitude(mAccuracyM);
         latitude = wrapLatitude(Math.round(latitude / latGranularity) * latGranularity);
         double lonGranularity = metersToDegreesLongitude(mAccuracyM, latitude);
         longitude = wrapLongitude(Math.round(longitude / lonGranularity) * lonGranularity);
-
-        //Log.d(TAG, "quantized location coordiantes are: " + latitude + " ," + longitude);
-
-
-        //double additionalLatOffset = (Math.random() - 0.5) * latGranularity * 0.5;
-        //double additionalLonOffset = (Math.random() - 0.5) * lonGranularity * 0.5;
-        //latitude = wrapLatitude(latitude + additionalLatOffset);
-        //longitude = wrapLongitude(longitude + additionalLonOffset);
-
-        //Log.d(TAG, "additional location location coordiantes are: " + latitude + " ," + longitude);
-
 
         coarse.setLatitude(latitude);
         coarse.setLongitude(longitude);
@@ -196,37 +134,38 @@ public class LocationFudger {
             mCachedFineLocation = fine;
             mCachedCoarseLocation = coarse;
         }
-        //Log.d(TAG, "obfuscated location coordiantes are: " + latitude + " ," + longitude);
         return coarse;
     }
 
     /**
-     * Update the random offsets over time.
+     * ADDED: Generates a two-dimensional Laplace noise offset.
+     * The method samples:
+     * - A uniform angle in [0, 2π)
+     * - A noise magnitude (radius) using an exponential distribution with mean b, where
+     *   b is set relative to the target accuracy.
      *
-     * If the random offset was reset for every location fix then an application could more easily
-     * average location results over time, especially when the location is near a grid boundary. On
-     * the other hand if the random offset is constant then if an application finds a way to reverse
-     * engineer the offset they would be able to detect location at grid boundaries very accurately.
-     * So we choose a random offset and then very slowly move it, to make both approaches very hard.
-     * The random offset does not need to be large, because snap-to-grid is the primary obfuscation
-     * mechanism. It just needs to be large enough to stop information leakage as we cross grid
-     * boundaries.
+     * The resulting offset is decomposed into a north-south component and an east-west component, both in meters.
+     *
+     * @return a two-element array where index 0 is the noise in the north-south direction (meters)
+     *         and index 1 is the noise in the east-west direction (meters).
      */
-    private synchronized void updateOffsets() {
-        long now = mClock.millis();
-        if (now < mNextUpdateRealtimeMs) {
-            return;
-        }
-
-        mLatitudeOffsetM = (OLD_WEIGHT * mLatitudeOffsetM) + (NEW_WEIGHT * nextRandomOffset());
-        mLongitudeOffsetM = (OLD_WEIGHT * mLongitudeOffsetM) + (NEW_WEIGHT * nextRandomOffset());
-        mNextUpdateRealtimeMs = now + OFFSET_UPDATE_INTERVAL_MS;
+    private double[] nextLaplace2DOffset() {
+        // Privacy scale parameter; adjust this value to tune the noise level.
+        double b = mAccuracyM / 4.0;
+        // Sample a uniform angle between 0 and 2π.
+        double angle = 2 * Math.PI * mRandom.nextDouble();
+        // Sample noise magnitude from an exponential distribution with mean b.
+        double u = mRandom.nextDouble();
+        double r = -b * Math.log(1 - u);
+        // Decompose the radius into north-south and east-west offsets.
+        double deltaNorth = r * Math.cos(angle);
+        double deltaEast = r * Math.sin(angle);
+        return new double[]{deltaNorth, deltaEast};
     }
 
-    private double nextRandomOffset() {
-        return mRandom.nextGaussian() * (mAccuracyM / 4.0);
-    }
-
+    /**
+     * Ensures that latitude is within valid bounds.
+     */
     private static double wrapLatitude(double lat) {
         if (lat > MAX_LATITUDE) {
             lat = MAX_LATITUDE;
@@ -237,8 +176,11 @@ public class LocationFudger {
         return lat;
     }
 
+    /**
+     * Ensures that longitude is within valid bounds.
+     */
     private static double wrapLongitude(double lon) {
-        lon %= 360.0;  // wraps into range (-360.0, +360.0)
+        lon %= 360.0;  // Wrap into range (-360.0, +360.0)
         if (lon >= 180.0) {
             lon -= 360.0;
         }
@@ -248,12 +190,18 @@ public class LocationFudger {
         return lon;
     }
 
-    private static double metersToDegreesLatitude(double distance) {
-        return distance / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR;
+    /**
+     * Converts a distance in meters to degrees latitude.
+     */
+    private static double metersToDegreesLatitude(double meters) {
+        return meters / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR;
     }
 
-    // requires latitude since longitudinal distances change with distance from equator.
-    private static double metersToDegreesLongitude(double distance, double lat) {
-        return distance / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR / Math.cos(Math.toRadians(lat));
+    /**
+     * Converts a distance in meters to degrees longitude.
+     * This conversion takes into account the current latitude.
+     */
+    private static double metersToDegreesLongitude(double meters, double lat) {
+        return meters / (APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR * Math.cos(Math.toRadians(lat)));
     }
 }
