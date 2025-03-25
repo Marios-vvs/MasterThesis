@@ -16,10 +16,12 @@ import android.util.Log;
  * This updated version uses a two-dimensional Laplace noise mechanism to add noise
  * to the latitude and longitude, following the approach in:
  * "Masking Location Streams in the Presence of Colluding Service Providers" :contentReference[oaicite:0]{index=0}&#8203;:contentReference[oaicite:1]{index=1}.
+ * 
+ * Additionally, log statements are added to print original and obfuscated coordinates.
  */
 public class LocationFudger {
 
-    private static final String TAG = "TestObfuscation";
+    private static final String TAG = "LocationFudger";
 
     // minimum accuracy a coarsened location can have (in meters)
     private static final float MIN_ACCURACY_M = 200.0f;
@@ -87,10 +89,13 @@ public class LocationFudger {
      * and snap-to-grid quantization.
      *
      * The algorithm:
-     * 1. Removes fine-grained details (bearing, speed, altitude, extras).
-     * 2. Adds noise by sampling a uniform angle and a noise magnitude from an exponential distribution,
+     * 1. Logs the original coordinates.
+     * 2. Removes fine-grained details (bearing, speed, altitude, extras).
+     * 3. Adds noise by sampling a uniform angle and a noise magnitude from an exponential distribution,
      *    then converts these offsets (in meters) to degrees.
-     * 3. Snaps the resulting coordinates to a grid based on the target accuracy.
+     * 4. Logs the noise values and the updated coordinates.
+     * 5. Snaps the resulting coordinates to a grid based on the target accuracy.
+     * 6. Logs the final obfuscated coordinates.
      */
     public Location createCoarse(Location fine) {
         synchronized (this) {
@@ -98,6 +103,9 @@ public class LocationFudger {
                 return mCachedCoarseLocation;
             }
         }
+
+        // Log original location coordinates.
+        Log.d(TAG, "Original location: (" + fine.getLatitude() + ", " + fine.getLongitude() + ")");
 
         // Create a copy of the fine location and remove fields that may leak extra information.
         Location coarse = new Location(fine);
@@ -111,20 +119,26 @@ public class LocationFudger {
         double longitude = wrapLongitude(coarse.getLongitude());
 
         // ADDED: Add two-dimensional Laplace noise to the location.
-        // This mechanism samples a random direction and a noise magnitude, following
-        // a Laplace (exponential for the absolute value) distribution.
         double[] deltaMeters = nextLaplace2DOffset();
+        Log.d(TAG, "Laplace noise added (meters): deltaNorth = " + deltaMeters[0] + ", deltaEast = " + deltaMeters[1]);
+
         // Convert meter offsets to degrees.
         double deltaLat = metersToDegreesLatitude(deltaMeters[0]);
         double deltaLon = metersToDegreesLongitude(deltaMeters[1], latitude);
         latitude = wrapLatitude(latitude + deltaLat);
         longitude = wrapLongitude(longitude + deltaLon);
 
+        // Log the coordinates after noise addition.
+        Log.d(TAG, "Location after noise (pre-quantization): (" + latitude + ", " + longitude + ")");
+
         // Snap-to-grid quantization based on the defined accuracy.
         double latGranularity = metersToDegreesLatitude(mAccuracyM);
         latitude = wrapLatitude(Math.round(latitude / latGranularity) * latGranularity);
         double lonGranularity = metersToDegreesLongitude(mAccuracyM, latitude);
         longitude = wrapLongitude(Math.round(longitude / lonGranularity) * lonGranularity);
+
+        // Log final obfuscated location.
+        Log.d(TAG, "Obfuscated location after quantization: (" + latitude + ", " + longitude + ")");
 
         coarse.setLatitude(latitude);
         coarse.setLongitude(longitude);
