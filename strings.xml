@@ -3730,7 +3730,7 @@
     <!-- Summary for app permission on Location settings page when location is off [CHAR LIMIT=NONE] -->
     <string name="location_app_permission_summary_location_off">Location is off</string>
     <!-- Location settings screen. This is the button that allows custom obfuscation -->
-    <string name="custom_location_title">Custom Location</string>  
+    <string name="custom_location">Custom Location</string>  
     <!-- Summary for custom location on Location settings page when location is on -->
     <string name="custom_location_summary">Enable location obfuscation</string>  
     <!--
