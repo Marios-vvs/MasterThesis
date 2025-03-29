@@ -13378,6 +13378,13 @@ public final class Settings {
         @Readable
         public static final String ASSISTED_GPS_ENABLED = "assisted_gps_enabled";
 
+         /**
+         * Whether custom location should be enabled or not.
+         * @hide
+         */
+         @Readable
+        public static final String CUSTOM_LOCATION_ENABLED = "custom_location_enabled";
+
         /**
          * Whether bluetooth is enabled/disabled
          * 0=disabled. 1=enabled.
