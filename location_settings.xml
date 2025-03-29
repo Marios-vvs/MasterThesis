@@ -38,7 +38,7 @@
     <SwitchPreferenceCompat
         android:key="assisted_gps"
         android:title="@string/assisted_gps"
-        android:summary="@string/t_summary"
+        android:summary="@string/assisted_gps_summary"
         settings:controller="com.android.settings.location.AgpsPreferenceController"/>
 
     <SwitchPreferenceCompat
@@ -46,8 +46,6 @@
         android:title="@string/custom_location"
         android:summary="@string/custom_location_summary"
         settings:controller="com.android.settings.location.CustomLocationPreferenceController"/>
-
-    
 
     <PreferenceCategory
         android:key="location_advanced_settings"
@@ -76,12 +74,6 @@
             android:key="app_level_permissions"
             android:title="@string/location_app_level_permissions"
             settings:controller="com.android.settings.location.AppLocationPermissionPreferenceController"/>
-        <!-- Edits added from eOS, not sure-->
-            <intent android:action="android.intent.action.MANAGE_PERMISSION_APPS">
-                <extra android:name="android.intent.extra.PERMISSION_NAME"
-                       android:value="android.permission-group.LOCATION"/>
-            </intent>
-
 
         <Preference
             android:fragment="com.android.settings.location.LocationServices"
