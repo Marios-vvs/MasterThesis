@@ -38,8 +38,14 @@
     <SwitchPreferenceCompat
         android:key="assisted_gps"
         android:title="@string/assisted_gps"
-        android:summary="@string/assisted_gps_summary"
+        android:summary="@string/t_summary"
         settings:controller="com.android.settings.location.AgpsPreferenceController"/>
+
+    <SwitchPreferenceCompat
+        android:key="custom_location"
+        android:title="@string/custom_location"
+        android:summary="@string/custom_location"
+        settings:controller="com.android.settings.location.CustomLocationPreferenceController"/>
 
     <!-- Addition of custom location toggle button-->
     <SwitchPreferenceCompat
