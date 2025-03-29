@@ -70,9 +70,6 @@ public class LocationSettings extends DashboardFragment implements
     private static final String TAG = "LocationSettings";
     private static final String RECENT_LOCATION_ACCESS_PREF_KEY = "recent_location_access";
 
-    private static final String KEY_CUSTOM_LOCATION = "custom_location_toggle";
-    private SwitchPreference mCustomLocationPref;
-
     private LocationSwitchBarController mSwitchBarController;
     private LocationEnabler mLocationEnabler;
     private RecentLocationAccessPreferenceController mController;
