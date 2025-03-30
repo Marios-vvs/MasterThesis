@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2011 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,204 +14,191 @@
  * limitations under the License.
  */
 
-package com.android.settings.location;
+package com.android.server.location.settings;
 
-import static android.app.admin.DevicePolicyResources.Strings.Settings.WORK_PROFILE_LOCATION_SWITCH_TITLE;
+import static android.content.pm.PackageManager.FEATURE_AUTOMOTIVE;
 
-import android.app.settings.SettingsEnums;
+import android.app.ActivityManager;
 import android.content.Context;
-import android.database.ContentObserver;
-import android.location.SettingInjectorService;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.os.SystemProperties;
-import android.provider.Settings;
-import android.util.Log;
+import android.os.Environment;
+import android.os.RemoteException;
+import android.util.IndentingPrintWriter;
+import android.util.SparseArray;
 
-import androidx.preference.Preference;
-import androidx.preference.PreferenceGroup;
-import androidx.preference.SwitchPreference;
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.FgThread;
 
-import com.android.settings.R;
-import com.android.settings.SettingsActivity;
-import com.android.settings.dashboard.DashboardFragment;
-import com.android.settings.search.BaseSearchIndexProvider;
-import com.android.settings.widget.SettingsMainSwitchBar;
-import com.android.settingslib.location.RecentLocationApps;
-import com.android.settingslib.search.SearchIndexable;
-
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
+import java.io.DataInput;
+import java.io.DataOutput;
+import java.io.File;
+import java.io.FileDescriptor;
+import java.io.IOException;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 
 /**
- * System location settings (Settings &gt; Location). The screen has three parts:
- * <ul>
- *     <li>Platform location controls</li>
- *     <ul>
- *         <li>In switch bar: location primary switch. Used to toggle location on and off.
- *         </li>
- *     </ul>
- *     <li>Recent location requests: automatically populated by {@link RecentLocationApps}</li>
- *     <li>Location services: multi-app settings provided from outside the Android framework. Each
- *     is injected by a system-partition app via the {@link SettingInjectorService} API.</li>
- * </ul>
- * <p>
- * Note that as of KitKat, the {@link SettingInjectorService} is the preferred method for OEMs to
- * add their own settings to this page, rather than directly modifying the framework code. Among
- * other things, this simplifies integration with future changes to the default (AOSP)
- * implementation.
+ * Accessor for location user settings. Ensure there is only ever one instance as multiple instances
+ * don't play nicely with each other.
  */
-@SearchIndexable
-public class LocationSettings extends DashboardFragment implements
-        LocationEnabler.LocationModeChangeListener {
+public class LocationSettings {
 
-    private static final String TAG = "LocationSettings";
-    private static final String RECENT_LOCATION_ACCESS_PREF_KEY = "recent_location_access";
-
-    private LocationSwitchBarController mSwitchBarController;
-    private LocationEnabler mLocationEnabler;
-    private RecentLocationAccessPreferenceController mController;
-    private ContentObserver mContentObserver;
-
-    /**
-     * Read-only boot property used to enable/disable geolocation toggle as part of privacy hub
-     * feature for chrome.
-     */
-    private static final String RO_BOOT_ENABLE_PRIVACY_HUB_FOR_CHROME =
-            "ro.boot.enable_privacy_hub_for_chrome";
-
-    @Override
-    public int getMetricsCategory() {
-        return SettingsEnums.LOCATION;
+    /** Listens for changes to location user settings. */
+    public interface LocationUserSettingsListener {
+        /** Invoked when location user settings have changed for the given user. */
+        void onLocationUserSettingsChanged(int userId, LocationUserSettings oldSettings,
+                LocationUserSettings newSettings);
     }
 
-    @Override
-    public void onActivityCreated(Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        final SettingsActivity activity = (SettingsActivity) getActivity();
-        final SettingsMainSwitchBar switchBar = activity.getSwitchBar();
-        switchBar.setTitle(getContext().getString(R.string.location_settings_primary_switch_title));
-        updateChromeSwitchBarPreference(switchBar);
-        switchBar.show();
-        mSwitchBarController = new LocationSwitchBarController(activity, switchBar,
-                getSettingsLifecycle());
-        mLocationEnabler = new LocationEnabler(getContext(), this, getSettingsLifecycle());
-        mContentObserver = new ContentObserver(new Handler(Looper.getMainLooper())) {
-            @Override
-            public void onChange(boolean selfChange) {
-                mController.updateShowSystem();
+    private static final String LOCATION_DIRNAME = "location";
+    private static final String LOCATION_SETTINGS_FILENAME = "settings";
+
+    final Context mContext;
+
+    @GuardedBy("mUserSettings")
+    private final SparseArray<LocationUserSettingsStore> mUserSettings;
+    private final CopyOnWriteArrayList<LocationUserSettingsListener> mUserSettingsListeners;
+
+    public LocationSettings(Context context) {
+        mContext = context;
+        mUserSettings = new SparseArray<>(1);
+        mUserSettingsListeners = new CopyOnWriteArrayList<>();
+    }
+
+    /** Registers a listener for changes to location user settings. */
+    public final void registerLocationUserSettingsListener(LocationUserSettingsListener listener) {
+        mUserSettingsListeners.add(listener);
+    }
+
+    /** Unregisters a listener for changes to location user settings. */
+    public final void unregisterLocationUserSettingsListener(
+            LocationUserSettingsListener listener) {
+        mUserSettingsListeners.remove(listener);
+    }
+
+    protected File getUserSettingsDir(int userId) {
+        return Environment.getDataSystemDeDirectory(userId);
+    }
+
+    protected LocationUserSettingsStore createUserSettingsStore(int userId, File file) {
+        return new LocationUserSettingsStore(userId, file);
+    }
+
+    private LocationUserSettingsStore getUserSettingsStore(int userId) {
+        synchronized (mUserSettings) {
+            LocationUserSettingsStore settingsStore = mUserSettings.get(userId);
+            if (settingsStore == null) {
+                File file = new File(new File(getUserSettingsDir(userId), LOCATION_DIRNAME),
+                        LOCATION_SETTINGS_FILENAME);
+                settingsStore = createUserSettingsStore(userId, file);
+                mUserSettings.put(userId, settingsStore);
             }
-        };
-        getContentResolver().registerContentObserver(
-                Settings.Secure.getUriFor(
-                        Settings.Secure.LOCATION_SHOW_SYSTEM_OPS), /* notifyForDescendants= */
-                false, mContentObserver);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-
-        use(AppLocationPermissionPreferenceController.class).init(this);
-        mController = use(RecentLocationAccessPreferenceController.class);
-        mController.init(this);
-        use(RecentLocationAccessSeeAllButtonPreferenceController.class).init(this);
-        use(LocationForWorkPreferenceController.class).init(this);
-        use(LocationSettingsFooterPreferenceController.class).init(this);
-        use(LocationForPrivateProfilePreferenceController.class).init(this);
-        use(AgpsPreferenceController.class).init(this);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        getContentResolver().unregisterContentObserver(mContentObserver);
-    }
-
-    @Override
-    protected int getPreferenceScreenResId() {
-        return R.xml.location_settings;
-    }
-
-    /** 
-    @Override
-    public void onCreate(Bundle icicle) {
-        super.onCreate(icicle);
-
-        replaceEnterpriseStringTitle("managed_profile_location_switch",
-                WORK_PROFILE_LOCATION_SWITCH_TITLE, R.string.managed_profile_location_switch_title);
-    }
-    */
-
-   @Override  
-   public void onCreate(Bundle icicle) {  
-    super.onCreate(icicle);  
-    
-    replaceEnterpriseStringTitle("managed_profile_location_switch",  
-            WORK_PROFILE_LOCATION_SWITCH_TITLE, R.string.managed_profile_location_switch_title);  
-
-    // Your custom code here  
-    mCustomLocationPref = findPreference(KEY_CUSTOM_LOCATION);  
-    if (mCustomLocationPref != null) {
-        boolean isEnabled = Settings.Secure.getInt(getContentResolver(),
-            Settings.Secure.SECURE_CUSTOM_LOCATION_TOGGLE, 0) == 1;  
-        mCustomLocationPref.setChecked(isEnabled);  
-
-        mCustomLocationPref.setOnPreferenceChangeListener((preference, newValue) -> {  
-            boolean enabled = (Boolean) newValue;  
-            Settings.Secure.putInt(getContentResolver(),  
-                Settings.Secure.SECURE_CUSTOM_LOCATION_TOGGLE, enabled ? 1 : 0);  
-            return true;  
-            });  
+            return settingsStore;
         }
     }
 
-  
-
-    @Override
-    protected String getLogTag() {
-        return TAG;
+    /** Retrieves the current state of location user settings. */
+    public final LocationUserSettings getUserSettings(int userId) {
+        return getUserSettingsStore(userId).get();
     }
 
-    @Override
-    public void onLocationModeChanged(int mode, boolean restricted) {
-        if (mLocationEnabler.isEnabled(mode)) {
-            scrollToPreference(RECENT_LOCATION_ACCESS_PREF_KEY);
+    /** Updates the current state of location user settings for the given user. */
+    public final void updateUserSettings(int userId,
+            Function<LocationUserSettings, LocationUserSettings> updater) {
+        getUserSettingsStore(userId).update(updater);
+    }
+
+    /** Dumps info for debugging. */
+    public final void dump(FileDescriptor fd, IndentingPrintWriter ipw, String[] args) {
+        int[] userIds;
+        try {
+            userIds = ActivityManager.getService().getRunningUserIds();
+        } catch (RemoteException e) {
+            throw e.rethrowFromSystemServer();
+        }
+
+        if (mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
+            ipw.print("ADAS Location Setting: ");
+            ipw.increaseIndent();
+            if (userIds.length > 1) {
+                ipw.println();
+                for (int userId : userIds) {
+                    ipw.print("[u");
+                    ipw.print(userId);
+                    ipw.print("] ");
+                    ipw.println(getUserSettings(userId).isAdasGnssLocationEnabled());
+                }
+            } else {
+                ipw.println(getUserSettings(userIds[0]).isAdasGnssLocationEnabled());
+            }
+            ipw.decreaseIndent();
         }
     }
 
-    static void addPreferencesSorted(List<Preference> prefs, PreferenceGroup container) {
-        // If there's some items to display, sort the items and add them to the container.
-        Collections.sort(prefs,
-                Comparator.comparing(lhs -> lhs.getTitle().toString()));
-        for (Preference entry : prefs) {
-            container.addPreference(entry);
+    @VisibleForTesting
+    final void flushFiles() throws InterruptedException {
+        synchronized (mUserSettings) {
+            int size = mUserSettings.size();
+            for (int i = 0; i < size; i++) {
+                mUserSettings.valueAt(i).flushFile();
+            }
         }
     }
 
-    @Override
-    public int getHelpResource() {
-        return R.string.help_url_location_access;
+    @VisibleForTesting
+    final void deleteFiles() throws InterruptedException {
+        synchronized (mUserSettings) {
+            int size = mUserSettings.size();
+            for (int i = 0; i < size; i++) {
+                mUserSettings.valueAt(i).deleteFile();
+            }
+        }
     }
 
-    /**
-     * For Search.
-     */
-    public static final BaseSearchIndexProvider SEARCH_INDEX_DATA_PROVIDER =
-            new BaseSearchIndexProvider(R.xml.location_settings);
+    protected final void fireListeners(int userId, LocationUserSettings oldSettings,
+            LocationUserSettings newSettings) {
+        for (LocationUserSettingsListener listener : mUserSettingsListeners) {
+            listener.onLocationUserSettingsChanged(userId, oldSettings, newSettings);
+        }
+    }
 
-    /**
-     * Update switchbar config in case of Chrome devices and location is managed by chrome.
-     */
-    private void updateChromeSwitchBarPreference(final SettingsMainSwitchBar switchBar) {
-        if (getContext().getResources().getBoolean(R.bool.config_disable_location_toggle_for_chrome)
-                && SystemProperties.getBoolean(RO_BOOT_ENABLE_PRIVACY_HUB_FOR_CHROME, false)) {
-            Log.i(TAG, "Disabling location toggle for chrome devices");
-            switchBar.setClickable(false);
-            switchBar.setTooltipText(getResources().getString(
-                    R.string.location_settings_tooltip_text_for_chrome));
+    class LocationUserSettingsStore extends SettingsStore<LocationUserSettings> {
+
+        protected final int mUserId;
+
+        LocationUserSettingsStore(int userId, File file) {
+            super(file);
+            mUserId = userId;
+        }
+
+        @Override
+        protected LocationUserSettings read(int version, DataInput in) throws IOException {
+            return filterSettings(LocationUserSettings.read(mContext.getResources(), version, in));
+        }
+
+        @Override
+        protected void write(DataOutput out, LocationUserSettings settings) throws IOException {
+            settings.write(out);
+        }
+
+        @Override
+        public void update(Function<LocationUserSettings, LocationUserSettings> updater) {
+            super.update(settings -> filterSettings(updater.apply(settings)));
+        }
+
+        @Override
+        protected void onChange(LocationUserSettings oldSettings,
+                LocationUserSettings newSettings) {
+            FgThread.getExecutor().execute(() -> fireListeners(mUserId, oldSettings, newSettings));
+        }
+
+        private LocationUserSettings filterSettings(LocationUserSettings settings) {
+            if (settings.isAdasGnssLocationEnabled()
+                    && !mContext.getPackageManager().hasSystemFeature(FEATURE_AUTOMOTIVE)) {
+                // prevent non-automotive devices from ever enabling this
+                settings = settings.withAdasGnssLocationEnabled(false);
+            }
+            return settings;
         }
     }
 }
