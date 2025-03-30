@@ -31,7 +31,7 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
 
         mLocationAccess = findViewById(R.id.location_checkbox);
         mLocationAgpsAccess = findViewById(R.id.location_agps_checkbox);
-        mCustomLocationAccess = findViewById(R.id.custom_location_checkbox)
+        mCustomLocationAccess = findViewById(R.id.custom_location_checkbox);
         mLocationManager = getSystemService(LocationManager.class);
         mUserManager = getSystemService(UserManager.class);
         View locationAccessView = findViewById(R.id.location);
