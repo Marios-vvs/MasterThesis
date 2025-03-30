@@ -18,6 +18,7 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
 
     private CheckBox mLocationAccess;
     private CheckBox mLocationAgpsAccess;
+    private CheckBox mCustomLocationAccess;
 
     private LocationManager mLocationManager;
 
@@ -30,17 +31,22 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
 
         mLocationAccess = findViewById(R.id.location_checkbox);
         mLocationAgpsAccess = findViewById(R.id.location_agps_checkbox);
+        mCustomLocationAccess = findViewById(R.id.custom_location_checkbox)
         mLocationManager = getSystemService(LocationManager.class);
         mUserManager = getSystemService(UserManager.class);
         View locationAccessView = findViewById(R.id.location);
         locationAccessView.setOnClickListener(
                 v -> mLocationAccess.setChecked(!mLocationAccess.isChecked()));
         View locationAgpsAccessView = findViewById(R.id.location_agps);
+        View customLocationAccessView = findViewById(R.id.custom_location);
         if (mUserManager.isMainUser()) {
             locationAgpsAccessView.setOnClickListener(
                     v -> mLocationAgpsAccess.setChecked(!mLocationAgpsAccess.isChecked()));
+            customLocationAccessView.setOnClickListener(
+                    v -> mCustomLocationAccess.setChecked(!mCustomLocationAccess.isChecked()));
         } else {
             locationAgpsAccessView.setVisibility(View.GONE);
+            customLocationAccessView.setVisibility(View.GONE);
         }
     }
 
@@ -66,7 +72,7 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
                 mLocationAgpsAccess.isChecked() ? 1 : 0);
         super.onNextPressed();
         Settings.Global.putInt(getContentResolver(), Settings.Global.CUSTOM_LOCATION_ENABLED,
-                mLocationAgpsAccess.isChecked() ? 1 : 0);
+                mCustomLocationAccess.isChecked() ? 1 : 0);
         super.onNextPressed();
     }
 
