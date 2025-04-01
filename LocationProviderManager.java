@@ -142,6 +142,9 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executor;
 import java.util.function.Predicate;
 
+import android.provider.Settings;
+
+
 /**
  * Manages all aspects of a single location provider.
  */
