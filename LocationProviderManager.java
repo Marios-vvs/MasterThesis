@@ -2633,6 +2633,8 @@ public class LocationProviderManager extends
             processed = locationResult;
         }
 
+        /*
+
         boolean isCustomEnabled = Settings.Global.getInt(
             mContext.getContentResolver(),
             Settings.Global.CUSTOM_LOCATION_ENABLED,
@@ -2643,8 +2645,8 @@ public class LocationProviderManager extends
             processed = mLocationFudger.createCoarse(processed);
         }
 
-        /**
-         * if(isCustomEnabled){
+        
+        if(isCustomEnabled){
             ArrayList<Location> obfuscatedLocations = new ArrayList<>();
             for (Location location : processed.asList()){
                 Location obfuscated = mLocationFudger.createCoarse(location);
@@ -2841,7 +2843,14 @@ public class LocationProviderManager extends
 
     @Nullable Location getPermittedLocation(@Nullable Location fineLocation,
             @PermissionLevel int permissionLevel) {
-        switch (permissionLevel) {
+
+        boolean isCustomEnabled = Settings.Global.getInt(
+            mContext.getContentResolver(),
+            Settings.Global.CUSTOM_LOCATION_ENABLED,
+            0
+        ) == 1;
+
+        /* switch (permissionLevel) {
             case PERMISSION_FINE:
                 return fineLocation;
             case PERMISSION_COARSE:
@@ -2850,6 +2859,13 @@ public class LocationProviderManager extends
                 // shouldn't be possible to have a client added without location permissions
                 throw new AssertionError();
         }
+        */
+
+       if(isCustomEnabled){
+            return fineLocation != null ? mLocationFudger.createCoarse(fineLocation) : null;
+       } else{
+            return fineLocation;
+       }
     }
 
     @Nullable LocationResult getPermittedLocationResult(
