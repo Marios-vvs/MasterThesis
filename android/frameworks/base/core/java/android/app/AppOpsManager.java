@@ -910,6 +910,9 @@ public class AppOpsManager {
     /** @hide Access to fine location information. */
     @UnsupportedAppUsage
     public static final int OP_FINE_LOCATION = AppProtoEnums.APP_OP_FINE_LOCATION;
+     /** @hide Access to custom obfuscated location information. */
+    @UnsupportedAppUsage
+    public static final int OP_CUSTOM_LOCATION = AppProtoEnums.APP_OP_CUSTOM_LOCATION;
     /** @hide Causing GPS to run. */
     @UnsupportedAppUsage
     public static final int OP_GPS = AppProtoEnums.APP_OP_GPS;
@@ -1306,6 +1309,16 @@ public class AppOpsManager {
     public static final int OP_COARSE_LOCATION_SOURCE = AppProtoEnums.APP_OP_COARSE_LOCATION_SOURCE;
 
     /**
+     * Custom location being accessed by a location source, which is
+     * a component that already has location data since it is the one
+     * that produces location, which is it is a data source for
+     * location data.
+     *
+     * @hide
+     */
+    public static final int OP_CUSTOM_LOCATION_SOURCE = AppProtoEnums.APP_OP_CUSTOM_LOCATION_SOURCE;
+
+    /**
      * Allow apps to create the requests to manage the media files without user confirmation.
      *
      * @see android.Manifest.permission#MANAGE_MEDIA
@@ -1620,6 +1633,7 @@ public class AppOpsManager {
     @StringDef(prefix = { "OPSTR_" }, value = {
             OPSTR_COARSE_LOCATION,
             OPSTR_FINE_LOCATION,
+            OPSTR_CUSTOM_LOCATION,
             OPSTR_MONITOR_LOCATION,
             OPSTR_MONITOR_HIGH_POWER_LOCATION,
             OPSTR_GET_USAGE_STATS,
@@ -1729,6 +1743,7 @@ public class AppOpsManager {
             OPSTR_SCHEDULE_EXACT_ALARM,
             OPSTR_FINE_LOCATION_SOURCE,
             OPSTR_COARSE_LOCATION_SOURCE,
+            OPSTR_CUSTOM_LOCATION_SOURCE,
             OPSTR_MANAGE_MEDIA,
             OPSTR_UWB_RANGING,
             OPSTR_NEARBY_WIFI_DEVICES,
@@ -1770,6 +1785,8 @@ public class AppOpsManager {
     /** Access to fine location information. */
     public static final String OPSTR_FINE_LOCATION =
             "android:fine_location";
+    /** Access to coarse location information. */
+    public static final String OPSTR_CUSTOM_LOCATION = "android:custom_location";
     /** Continually monitoring location data. */
     public static final String OPSTR_MONITOR_LOCATION
             = "android:monitor_location";
@@ -2198,6 +2215,16 @@ public class AppOpsManager {
     public static final String OPSTR_COARSE_LOCATION_SOURCE = "android:coarse_location_source";
 
     /**
+     * Custom location being accessed by a location source, which is
+     * a component that already has location since it is the one that
+     * produces location.
+     *
+     * @hide
+     */
+    public static final String OPSTR_CUSTOM_LOCATION_SOURCE = "android:custom_location_source";
+
+
+    /**
      * Camera is being recorded in sandboxed detection process.
      *
      * @hide
@@ -2539,6 +2566,7 @@ public class AppOpsManager {
             // Location
             OP_COARSE_LOCATION,
             OP_FINE_LOCATION,
+            OP_CUSTOM_LOCATION,
             // Phone
             OP_READ_PHONE_STATE,
             OP_READ_PHONE_NUMBERS,
