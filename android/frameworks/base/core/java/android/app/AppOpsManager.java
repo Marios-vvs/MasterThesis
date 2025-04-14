@@ -910,6 +910,9 @@ public class AppOpsManager {
     /** @hide Access to fine location information. */
     @UnsupportedAppUsage
     public static final int OP_FINE_LOCATION = AppProtoEnums.APP_OP_FINE_LOCATION;
+    /** @hide Access to custom obfsucation location information. */
+    @UnsupportedAppUsage
+    public static final int OP_CUSTOM_LOCATION = AppProtoEnums.APP_OP_CUSTOM_LOCATION;
     /** @hide Causing GPS to run. */
     @UnsupportedAppUsage
     public static final int OP_GPS = AppProtoEnums.APP_OP_GPS;
@@ -1608,9 +1611,10 @@ public class AppOpsManager {
             AppProtoEnums.APP_OP_RECEIVE_SENSITIVE_NOTIFICATIONS;
 
     /** @hide */
+    // Incremented to 150 from original 149 due to addition of OP_CUSTOM_LOCATION
     @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.R, trackingBug = 170729553)
-    public static final int _NUM_OP = 149;
-
+    public static final int _NUM_OP = 150;
+    
     /**
      * All app ops represented as strings.
      *
@@ -1620,6 +1624,7 @@ public class AppOpsManager {
     @StringDef(prefix = { "OPSTR_" }, value = {
             OPSTR_COARSE_LOCATION,
             OPSTR_FINE_LOCATION,
+            OPSTR_CUSTOM_LOCATION,
             OPSTR_MONITOR_LOCATION,
             OPSTR_MONITOR_HIGH_POWER_LOCATION,
             OPSTR_GET_USAGE_STATS,
@@ -1770,6 +1775,9 @@ public class AppOpsManager {
     /** Access to fine location information. */
     public static final String OPSTR_FINE_LOCATION =
             "android:fine_location";
+    /** Access to CUSTOM location information. */
+    public static final String OPSTR_CUSTOM_LOCATION =
+            "android:custom_location";
     /** Continually monitoring location data. */
     public static final String OPSTR_MONITOR_LOCATION
             = "android:monitor_location";
@@ -2539,6 +2547,7 @@ public class AppOpsManager {
             // Location
             OP_COARSE_LOCATION,
             OP_FINE_LOCATION,
+            OP_CUSTOM_LOCATION,
             // Phone
             OP_READ_PHONE_STATE,
             OP_READ_PHONE_NUMBERS,
@@ -2620,6 +2629,11 @@ public class AppOpsManager {
             .setDefaultMode(AppOpsManager.MODE_ALLOWED).build(),
         new AppOpInfo.Builder(OP_FINE_LOCATION, OPSTR_FINE_LOCATION, "FINE_LOCATION")
             .setPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
+            .setRestriction(UserManager.DISALLOW_SHARE_LOCATION)
+            .setAllowSystemRestrictionBypass(new RestrictionBypass(true, false, false))
+            .setDefaultMode(AppOpsManager.MODE_ALLOWED).build(),
+        new AppOpInfo.Builder(OP_CUSTOM_LOCATION, OPSTR_CUSTOM_LOCATION, "CUSTOM_LOCATION")
+            //.setPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
             .setRestriction(UserManager.DISALLOW_SHARE_LOCATION)
             .setAllowSystemRestrictionBypass(new RestrictionBypass(true, false, false))
             .setDefaultMode(AppOpsManager.MODE_ALLOWED).build(),

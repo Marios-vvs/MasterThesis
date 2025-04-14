@@ -2847,13 +2847,13 @@ public class LocationProviderManager extends
     @Nullable Location getPermittedLocation(@Nullable Location fineLocation,
             @PermissionLevel int permissionLevel) {
 
-        boolean isCustomEnabled = Settings.Global.getInt(
+        /*boolean isCustomEnabled = Settings.Global.getInt(
             mContext.getContentResolver(),
             Settings.Global.CUSTOM_LOCATION_ENABLED,
             0
-        ) == 1;
+        ) == 1;*/
 
-        /* switch (permissionLevel) {
+        switch (permissionLevel) {
             case PERMISSION_FINE:
                 return fineLocation;
             case PERMISSION_COARSE:
@@ -2862,7 +2862,6 @@ public class LocationProviderManager extends
                 // shouldn't be possible to have a client added without location permissions
                 throw new AssertionError();
         }
-        */
 
        if(isCustomEnabled){
             return fineLocation != null ? mLocationFudger.createCoarse(fineLocation) : null;
@@ -2874,13 +2873,13 @@ public class LocationProviderManager extends
     @Nullable LocationResult getPermittedLocationResult(
             @Nullable LocationResult fineLocationResult, @PermissionLevel int permissionLevel) {
 
-        boolean isCustomEnabled = Settings.Global.getInt(
+        /* boolean isCustomEnabled = Settings.Global.getInt(
             mContext.getContentResolver(),
             Settings.Global.CUSTOM_LOCATION_ENABLED,
             0
-        ) == 1;
+        ) == 1;*/
 
-        /**switch (permissionLevel) {
+        switch (permissionLevel) {
             case PERMISSION_FINE:
                 return fineLocationResult;
             case PERMISSION_COARSE:
@@ -2889,7 +2888,7 @@ public class LocationProviderManager extends
             default:
                 // shouldn't be possible to have a client added without location permissions
                 throw new AssertionError();
-        }*/
+        }
 
         if(isCustomEnabled){
             return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult) : null;

@@ -1020,6 +1020,7 @@ public class LocationManagerService extends ILocationManager.Stub implements
     @Override
     public Location getLastLocation(String provider, LastLocationRequest request,
             String packageName, @Nullable String attributionTag) {
+        
         CallerIdentity identity = CallerIdentity.fromBinder(mContext, packageName, attributionTag);
         int permissionLevel = LocationPermissions.getPermissionLevel(mContext, identity.getUid(),
                 identity.getPid());

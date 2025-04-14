@@ -620,8 +620,14 @@
     <!-- Title for location accuracy switch in location settings. [CHAR LIMIT=60] -->
     <string name="app_permission_location_accuracy">Use precise location</string>
 
+    <!-- Title for custom location switch in location settings. [CHAR LIMIT=60] -->
+    <string name="app_permission_custom_location">Use custom location (obfuscated)</string>
+
     <!-- Subtitle for location accuracy switch in location settings. [CHAR LIMIT=none] -->
     <string name="app_permission_location_accuracy_subtitle">When precise location is off, apps can access your approximate location</string>
+
+    <!-- Subtitle for custom location switch in location settings. [CHAR LIMIT=none] -->
+    <string name="app_permission_custom_location_subtitle">If enabled, the app will receive a randomized approximate location instead of your precise location.</string>
 
     <!-- Title for app permission [CHAR LIMIT=30] -->
     <string name="app_permission_title"><xliff:g id="perm" example="location">%1$s</xliff:g> permission</string>

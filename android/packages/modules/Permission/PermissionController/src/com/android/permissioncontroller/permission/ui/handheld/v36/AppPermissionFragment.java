@@ -44,6 +44,7 @@ import static com.android.permissioncontroller.permission.ui.handheld.UtilsKt.pr
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.app.Dialog;
 import android.app.role.RoleManager;
 import android.content.Context;
@@ -132,6 +133,8 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
     private @NonNull SelectorWithWidgetPreference mDenyButton;
     private @NonNull SelectorWithWidgetPreference mDenyForegroundButton;
     private @NonNull PermissionSwitchPreference mLocationAccuracySwitch;
+    private @NonNull PermissionSwitchPreference mCustomLocationSwitch;
+    
     private @NonNull PermissionTwoTargetPreference mDetails;
     private @NonNull PermissionPreference mFooterLink1;
     private @NonNull PermissionPreference mFooterLink2;
@@ -224,6 +227,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         mDenyButton = requirePreference("app_permission_deny_radio_button");
         mDenyForegroundButton = requirePreference("app_permission_deny_foreground_radio_button");
         mLocationAccuracySwitch = requirePreference("app_permission_location_accuracy_switch");
+        mCustomLocationSwitch = requirePreference("app_permission_custom_location_switch");
         mDetails = requirePreference("app_permission_details");
         mFooterLink1 = requirePreference("app_permission_footer_link_1");
         mFooterLink2 = requirePreference("app_permission_footer_link_2");
@@ -285,6 +289,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             mDenyButton.setVisible(false);
             mDenyForegroundButton.setVisible(false);
             mLocationAccuracySwitch.setVisible(false);
+            mCustomLocationSwitch.setVisible(false);
             mSelectButton.setVisible(false);
             mSelectButton.setExtraWidgetOnClickListener(null);
         }
@@ -483,11 +488,36 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
+        if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
+            mCustomLocationSwitch.setVisible(true);
+            updateCustomLocationSwitchState();
+            
+            mCustomLocationSwitch.setOnPreferenceChangeListener((pref, newValue) -> {
+                boolean enabled = (Boolean) newValue;
+                AppOpsManager appOps = getContext().getSystemService(AppOpsManager.class);
+                int mode = enabled ? AppOpsManager.MODE_IGNORED : AppOpsManager.MODE_ALLOWED;
+                appOps.setMode(AppOpsManager.OP_CUSTOM_LOCATION,
+                getActivity().getApplicationInfo().uid,
+                mPackageName, mode);
+                return true;
+            });
+        } else {
+            mCustomLocationSwitch.setVisible(false);
+        }
+
         mIsInitialLoad = false;
 
         if (mViewModel.getFullStorageStateLiveData().isInitialized()) {
             setSpecialStorageState(mViewModel.getFullStorageStateLiveData().getValue());
         }
+    }
+
+    private void updateCustomLocationSwitchState() {
+        AppOpsManager appOps = getContext().getSystemService(AppOpsManager.class);
+        int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION,
+            getActivity().getApplicationInfo().uid, mPackageName);
+        boolean enabled = (mode != AppOpsManager.MODE_ALLOWED);
+        mCustomLocationSwitch.setChecked(enabled);
     }
 
     private void allowButtonFrameClickListener() {
@@ -710,4 +740,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         b.show();
     }
 }
+
+
+
 // LINT.ThenChange(../max35/LegacyAppPermissionFragment.java)
