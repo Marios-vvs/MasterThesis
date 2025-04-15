@@ -472,6 +472,18 @@
         <item>gid</item>
     </string-array>
 
+    <string-array name="app_notification_sound_timeout_entries">
+        <item>15 seconds</item>
+        <item>30 seconds</item>
+        <item>1 minute</item>
+    </string-array>
+
+    <string-array name="app_notification_sound_timeout_values">
+        <item>15000</item>
+        <item>30000</item>
+        <item>60000</item>
+    </string-array>
+
     <!-- User display names for app ops codes -->
     <string-array name="app_ops_summaries">
         <item>coarse location</item>
