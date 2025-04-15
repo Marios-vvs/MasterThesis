@@ -912,7 +912,8 @@ public class AppOpsManager {
     public static final int OP_FINE_LOCATION = AppProtoEnums.APP_OP_FINE_LOCATION;
     /** @hide Access to custom obfsucation location information. */
     @UnsupportedAppUsage
-    public static final int OP_CUSTOM_LOCATION = AppProtoEnums.APP_OP_CUSTOM_LOCATION;
+    // public static final int OP_CUSTOM_LOCATION = AppProtoEnums.APP_OP_CUSTOM_LOCATION;
+    public static final int OP_CUSTOM_LOCATION = 150;
     /** @hide Causing GPS to run. */
     @UnsupportedAppUsage
     public static final int OP_GPS = AppProtoEnums.APP_OP_GPS;
