@@ -87,7 +87,6 @@ message GlobalSettingsProto {
     optional App app = 13;
 
     optional SettingProto assisted_gps_enabled = 14 [ (android.privacy).dest = DEST_AUTOMATIC ];
-    optional SettingProto custom_loation_enabled = 16 [ (android.privacy).dest = DEST_AUTOMATIC];
     optional SettingProto audio_safe_volume_state = 15 [ (android.privacy).dest = DEST_AUTOMATIC ];
     optional SettingProto audio_safe_csd_current_value = 157 [ (android.privacy).dest = DEST_AUTOMATIC ];
     optional SettingProto audio_safe_csd_next_warning = 158 [ (android.privacy).dest = DEST_AUTOMATIC ];
