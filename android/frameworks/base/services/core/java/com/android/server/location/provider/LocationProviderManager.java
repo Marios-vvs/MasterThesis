@@ -927,6 +927,25 @@ public class LocationProviderManager extends
                 return null;
             }
 
+            boolean shouldObfuscate = false;
+            if(fineLocationResult != null){
+                AppOpsManager appOps = mContext.getSystemService(AppOpsManager.class);
+                int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION,
+                                                    getIdentity().getUid(),
+                                                    getIdentity().getPackageName());
+                shouldObfuscate = (mode == AppOpsManager.MODE_ALLOWED);
+
+                if (D) {
+                    Log.d(TAG, mName + " provider registration " + getIdentity().getPackageName()
+                            + ": OP_CUSTOM_LOCATION mode=" + mode
+                            + ", shouldObfuscate=" + shouldObfuscate);
+                }
+
+                if(shouldObfuscate){
+                    fineLocationResult = mLocationFudger.createCoarse(fineLocationResult)
+                }
+            }
+
             LocationResult permittedLocationResult = Objects.requireNonNull(
                     getPermittedLocationResult(fineLocationResult, getPermissionLevel()));
 
