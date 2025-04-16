@@ -120,6 +120,9 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
     private static final long POST_DELAY_MS = 20;
     private static final long EDIT_PHOTOS_BUTTON_ANIMATION_LENGTH_MS = 200L;
 
+    private static final int OP_CUSTOM_LOCATION = 150;
+
+
     private @NonNull AppPermissionViewModel mViewModel;
 
     private @NonNull PermissionPreferenceCategory mAppPermissionRationaleContainer;
