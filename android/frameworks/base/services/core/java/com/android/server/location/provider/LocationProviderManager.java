@@ -942,7 +942,7 @@ public class LocationProviderManager extends
                 }
 
                 if(shouldObfuscate){
-                    fineLocationResult = mLocationFudger.createCoarse(fineLocationResult)
+                    fineLocationResult = mLocationFudger.createCoarse(fineLocationResult);
                 }
             }
 
