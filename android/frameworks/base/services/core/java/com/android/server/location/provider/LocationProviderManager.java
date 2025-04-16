@@ -2882,11 +2882,11 @@ public class LocationProviderManager extends
                 throw new AssertionError();
         }
 
-       if(isCustomEnabled){
+        /* if(isCustomEnabled){
             return fineLocation != null ? mLocationFudger.createCoarse(fineLocation) : null;
-       } else{
+        } else{
             return fineLocation;
-       }
+        } */
     }
 
     @Nullable LocationResult getPermittedLocationResult(
@@ -2909,11 +2909,11 @@ public class LocationProviderManager extends
                 throw new AssertionError();
         }
 
-        if(isCustomEnabled){
+        /* if(isCustomEnabled){
             return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult) : null;
         } else{
             return fineLocationResult;
-        }
+        } */
     }
 
     public void dump(FileDescriptor fd, IndentingPrintWriter ipw, String[] args) {
