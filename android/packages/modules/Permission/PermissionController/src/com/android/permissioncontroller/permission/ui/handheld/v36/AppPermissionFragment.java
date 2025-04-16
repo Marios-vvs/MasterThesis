@@ -64,6 +64,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
+import android.Manifest;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -488,7 +489,8 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
-        if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
+        //if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
+        if ("android.permission-group.LOCATION".equals(mPermGroupName)) {
             mCustomLocationSwitch.setVisible(true);
             updateCustomLocationSwitchState();
             
@@ -497,8 +499,8 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
                 AppOpsManager appOps = getContext().getSystemService(AppOpsManager.class);
                 int mode = enabled ? AppOpsManager.MODE_IGNORED : AppOpsManager.MODE_ALLOWED;
                 appOps.setMode(AppOpsManager.OP_CUSTOM_LOCATION,
-                getActivity().getApplicationInfo().uid,
-                mPackageName, mode);
+                    getActivity().getApplicationInfo().uid,
+                    mPackageName, mode);
                 return true;
             });
         } else {
@@ -516,7 +518,8 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         AppOpsManager appOps = getContext().getSystemService(AppOpsManager.class);
         int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION,
             getActivity().getApplicationInfo().uid, mPackageName);
-        boolean enabled = (mode != AppOpsManager.MODE_ALLOWED);
+        //boolean enabled = (mode != AppOpsManager.MODE_ALLOWED);
+        boolean enabled = (mode == AppOpsManager.MODE_IGNORED);
         mCustomLocationSwitch.setChecked(enabled);
     }
 
