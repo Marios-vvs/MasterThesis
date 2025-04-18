@@ -501,7 +501,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
                 boolean enabled = (Boolean) newValue;
                 AppOpsManager appOps = getContext().getSystemService(AppOpsManager.class);
                 int mode = enabled ? AppOpsManager.MODE_IGNORED : AppOpsManager.MODE_ALLOWED;
-                appOps.setMode(AppOpsManager.OP_CUSTOM_LOCATION,
+                appOps.setMode(OP_CUSTOM_LOCATION,
                     getActivity().getApplicationInfo().uid,
                     mPackageName, mode);
                 return true;
@@ -519,7 +519,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
     private void updateCustomLocationSwitchState() {
         AppOpsManager appOps = getContext().getSystemService(AppOpsManager.class);
-        int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION,
+        int mode = appOps.checkOpNoThrow(OP_CUSTOM_LOCATION,
             getActivity().getApplicationInfo().uid, mPackageName);
         //boolean enabled = (mode != AppOpsManager.MODE_ALLOWED);
         boolean enabled = (mode == AppOpsManager.MODE_IGNORED);
