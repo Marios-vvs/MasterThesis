@@ -514,12 +514,31 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         }
     }
 
+    private int getUidForPackage(String packageName, UserHandle user) {
+        try {
+            return requireContext()
+                .getPackageManager()
+                .getApplicationInfoAsUser(packageName, 0, user.getIdentifier())
+                .uid;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(LOG_TAG, "Package not found: " + packageName, e);
+            return -1;
+        }
+    }
+
     private boolean isCustomLocationEnabledForApp(String packageName, UserHandle user) {
-        return false;
+        AppOpsManager appOps = requireContext().getSystemService(AppOpsManager.class);
+        int uid = getUidForPackage(packageName, user);
+        int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName);
+        return mode == AppOpsManager.MODE_ALLOWED;
     }
 
     private void setCustomLocationForApp(String packageName, UserHandle user, boolean enabled) {
-         Log.d(LOG_TAG, "Custom Location for " + packageName + " set to " + enabled);
+        AppOpsManager appOps = requireContext().getSystemService(AppOpsManager.class);
+        int uid = getUidForPackage(packageName, user);
+        appOps.setMode(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName,
+                        enabled ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED);
+        Log.d(LOG_TAG, "Custom Location for " + packageName + " set to " + enabled);
     }
 
 
