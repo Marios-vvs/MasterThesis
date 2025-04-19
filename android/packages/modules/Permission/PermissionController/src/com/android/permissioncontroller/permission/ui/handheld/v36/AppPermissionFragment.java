@@ -81,6 +81,7 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandle
 import com.android.permissioncontroller.permission.ui.handheld.AllAppPermissionsFragment;
 import com.android.permissioncontroller.permission.ui.handheld.AppPermissionGroupsFragment;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionAppsFragment;
+import com.android.permissioncontroller.permission.ui.handheld.PermissionFooterPreference;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionPreference;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionPreferenceCategory;
 import com.android.permissioncontroller.permission.ui.handheld.PermissionSelectorWithWidgetPreference;
@@ -119,8 +120,6 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
     private static final String LOG_TAG = "AppPermissionFragment";
     private static final long POST_DELAY_MS = 20;
     private static final long EDIT_PHOTOS_BUTTON_ANIMATION_LENGTH_MS = 200L;
-
-    private static final int OP_CUSTOM_LOCATION = 150;
 
 
     private @NonNull AppPermissionViewModel mViewModel;
@@ -475,6 +474,20 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             // Don't actually toggle the switch yet. (Allow livedata observer to do so.)
             return false;
         });
+        
+        if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
+            mCustomLocationSwitch.setVisible(true);
+            
+            boolean isCustomLocationEnabled = isCustomLocationEnabledForApp(mPackageName, mUser);
+            mCustomLocationSwitch.setChecked(isCustomLocationEnabled);
+            
+            mCustomLocationSwitch.setOnPreferenceChangeListener((pref, newValue) -> {
+                setCustomLocationForApp(mPackageName, mUser, (Boolean) newValue);
+                return true;
+                });
+        } else {
+            mCustomLocationSwitch.setVisible(false);
+        }
 
         setButtonState(mAllowButton, states.get(ButtonType.ALLOW));
         setButtonState(mAllowAlwaysButton, states.get(ButtonType.ALLOW_ALWAYS));
@@ -492,23 +505,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
-        //if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
-        if ("android.permission-group.LOCATION".equals(mPermGroupName)) {
-            mCustomLocationSwitch.setVisible(true);
-            updateCustomLocationSwitchState();
-            
-            mCustomLocationSwitch.setOnPreferenceChangeListener((pref, newValue) -> {
-                boolean enabled = (Boolean) newValue;
-                AppOpsManager appOps = getContext().getSystemService(AppOpsManager.class);
-                int mode = enabled ? AppOpsManager.MODE_IGNORED : AppOpsManager.MODE_ALLOWED;
-                appOps.setMode(OP_CUSTOM_LOCATION,
-                    getActivity().getApplicationInfo().uid,
-                    mPackageName, mode);
-                return true;
-            });
-        } else {
-            mCustomLocationSwitch.setVisible(false);
-        }
+
 
         mIsInitialLoad = false;
 
@@ -517,14 +514,14 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         }
     }
 
-    private void updateCustomLocationSwitchState() {
-        AppOpsManager appOps = getContext().getSystemService(AppOpsManager.class);
-        int mode = appOps.checkOpNoThrow(OP_CUSTOM_LOCATION,
-            getActivity().getApplicationInfo().uid, mPackageName);
-        //boolean enabled = (mode != AppOpsManager.MODE_ALLOWED);
-        boolean enabled = (mode == AppOpsManager.MODE_IGNORED);
-        mCustomLocationSwitch.setChecked(enabled);
+    private boolean isCustomLocationEnabledForApp(String packageName, UserHandle user) {
+        return false;
     }
+
+    private void setCustomLocationForApp(String packageName, UserHandle user, boolean enabled) {
+         Log.d(LOG_TAG, "Custom Location for " + packageName + " set to " + enabled);
+    }
+
 
     private void allowButtonFrameClickListener() {
         if (!mAllowButton.isEnabled()) {
