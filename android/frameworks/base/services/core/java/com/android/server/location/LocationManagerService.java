@@ -108,6 +108,7 @@ import com.android.server.FgThread;
 import com.android.server.LocalServices;
 import com.android.server.SystemService;
 import com.android.server.location.eventlog.LocationEventLog;
+import com.android.server.location.fudger.LocationFudger;
 import com.android.server.location.geofence.GeofenceManager;
 import com.android.server.location.geofence.GeofenceProxy;
 import com.android.server.location.gnss.GnssConfiguration;
@@ -257,6 +258,7 @@ public class LocationManagerService extends ILocationManager.Stub implements
     private final LocalService mLocalService;
 
     private final GeofenceManager mGeofenceManager;
+    private final LocationFudger mLocationFudger;
     private volatile @Nullable GnssManagerService mGnssManagerService = null;
     private ProxyGeocodeProvider mGeocodeProvider;
 
@@ -288,6 +290,7 @@ public class LocationManagerService extends ILocationManager.Stub implements
         LocalServices.addService(LocationManagerInternal.class, mLocalService);
 
         mGeofenceManager = new GeofenceManager(mContext, injector);
+        mLocationFudger = new LocationFudger(200.0f);
 
         mInjector.getLocationSettings().registerLocationUserSettingsListener(
                 this::onLocationUserSettingsChanged);

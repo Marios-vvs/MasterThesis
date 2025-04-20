@@ -927,6 +927,7 @@ public class LocationProviderManager extends
                 return null;
             }
 
+            /**
             boolean shouldObfuscate = false;
             if(fineLocationResult != null){
                 AppOpsManager appOps = mContext.getSystemService(AppOpsManager.class);
@@ -945,6 +946,7 @@ public class LocationProviderManager extends
                     fineLocationResult = mLocationFudger.createCoarse(fineLocationResult);
                 }
             }
+            */
 
             LocationResult permittedLocationResult = Objects.requireNonNull(
                     getPermittedLocationResult(fineLocationResult, getPermissionLevel()));
