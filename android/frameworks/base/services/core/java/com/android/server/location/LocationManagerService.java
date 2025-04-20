@@ -1048,8 +1048,21 @@ public class LocationManagerService extends ILocationManager.Stub implements
             return null;
         }
 
-        return manager.getLastLocation(request, identity, permissionLevel);
+        Location location = manager.getLastLocation(request, identity, permissionLevel);
 
+        AppOpsManager appOps = mContext.getSystemService(AppOpsManager.class);
+        int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION,
+                identity.getUid(), identity.getPackageName());
+        boolean obfuscate = mode == AppOpsManager.MODE_ALLOWED;
+
+        if (location != null && obfuscate) {
+            location = mLocationFudger.createCoarse(location);
+            Log.d(TAG, "Returning obfuscated location to " + identity.getPackageName());
+        }
+
+        return location;
+
+        //return manager.getLastLocation(request, identity, permissionLevel);
     }
 
     private LastLocationRequest validateLastLocationRequest(String provider,
