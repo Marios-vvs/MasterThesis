@@ -2866,9 +2866,12 @@ public class LocationProviderManager extends
     @Nullable Location getPermittedLocation(@Nullable Location fineLocation,
             @PermissionLevel int permissionLevel) {
 
-        AppOpsManager appOps = context.getSystemService(AppOpsManager.class);
-        int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName);
-        boolean obfuscate = (mode == AppOpsManager.MODE_ALLOWED);        
+        /**
+         * AppOpsManager appOps = context.getSystemService(AppOpsManager.class);
+         * int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName);
+         * boolean obfuscate = (mode == AppOpsManager.MODE_ALLOWED);         
+         */
+        
 
         /*boolean isCustomEnabled = Settings.Global.getInt(
             mContext.getContentResolver(),
@@ -2902,9 +2905,11 @@ public class LocationProviderManager extends
             0
         ) == 1;*/
 
-        AppOpsManager appOps = context.getSystemService(AppOpsManager.class);
-        int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName);
-        boolean obfuscate = (mode == AppOpsManager.MODE_ALLOWED); 
+        /**
+         * AppOpsManager appOps = context.getSystemService(AppOpsManager.class);
+         * int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName);
+         * boolean obfuscate = (mode == AppOpsManager.MODE_ALLOWED); 
+         */
 
         switch (permissionLevel) {
             case PERMISSION_FINE:
