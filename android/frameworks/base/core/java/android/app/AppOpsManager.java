@@ -18,6 +18,7 @@ package android.app;
 
 
 import static android.location.flags.Flags.FLAG_LOCATION_BYPASS;
+import static android.location.flags.Flags.FLAG_CUSTOM_LOCATION;
 import static android.media.audio.Flags.roForegroundAudioControl;
 import static android.permission.flags.Flags.FLAG_OP_ENABLE_MOBILE_DATA_BY_USER;
 import static android.service.notification.Flags.FLAG_REDACT_SENSITIVE_NOTIFICATIONS_FROM_UNTRUSTED_LISTENERS;
@@ -2506,7 +2507,7 @@ public class AppOpsManager {
             "android:receive_sensitive_notifications";
 
      /** Access to CUSTOM location information. */
-    @FlaggedApi(android.location.flags.Flags.FLAG_CUSTOM_LOCATION)
+    @FlaggedApi(FLAG_CUSTOM_LOCATION)
     public static final String OPSTR_CUSTOM_LOCATION =
             "android:custom_location";
 

@@ -170,9 +170,9 @@ flag {
 }
 
 flag {
-    name: "custom_location_feature"
+    name: "custom_location"
     namespace: "location"
     description: "Controls whether custom per-app location obfuscation is enabled"
-    bug: "your_bug_or_ticket_number"  // Ideally link to a tracking issue or placeholder
+    bug: "123456789"
     is_exported: true
 }
