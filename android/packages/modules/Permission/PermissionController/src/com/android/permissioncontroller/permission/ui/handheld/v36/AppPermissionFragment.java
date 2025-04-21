@@ -50,6 +50,7 @@ import android.app.role.RoleManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -120,6 +121,8 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
     private static final String LOG_TAG = "AppPermissionFragment";
     private static final long POST_DELAY_MS = 20;
     private static final long EDIT_PHOTOS_BUTTON_ANIMATION_LENGTH_MS = 200L;
+
+    private static final int OP_CUSTOM_LOCATION = 150;
 
 
     private @NonNull AppPermissionViewModel mViewModel;
@@ -518,7 +521,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         try {
             return requireContext()
                 .getPackageManager()
-                .getApplicationInfoAsUser(packageName, 0, user.getIdentifier())
+                .getApplicationInfoAsUser(packageName, 0, user)
                 .uid;
         } catch (PackageManager.NameNotFoundException e) {
             Log.e(LOG_TAG, "Package not found: " + packageName, e);
