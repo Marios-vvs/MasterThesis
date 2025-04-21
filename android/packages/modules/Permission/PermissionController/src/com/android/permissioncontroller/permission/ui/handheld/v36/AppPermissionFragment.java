@@ -532,15 +532,19 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
     private boolean isCustomLocationEnabledForApp(String packageName, UserHandle user) {
         AppOpsManager appOps = requireContext().getSystemService(AppOpsManager.class);
         int uid = getUidForPackage(packageName, user);
-        int mode = appOps.checkOpNoThrow(OP_CUSTOM_LOCATION, uid, packageName);
+        //int mode = appOps.checkOpNoThrow(OP_CUSTOM_LOCATION, uid, packageName);
+        int mode = appOps.checkOpNoThrow("android:custom_location", uid, packageName);
         return mode == AppOpsManager.MODE_ALLOWED;
     }
 
     private void setCustomLocationForApp(String packageName, UserHandle user, boolean enabled) {
         AppOpsManager appOps = requireContext().getSystemService(AppOpsManager.class);
         int uid = getUidForPackage(packageName, user);
-        appOps.setMode(OP_CUSTOM_LOCATION, uid, packageName,
+        //appOps.setMode(OP_CUSTOM_LOCATION, uid, packageName,
+        //                enabled ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED);
+        appOps.setMode("android:custom_location", uid, packageName,
                         enabled ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED);
+
         Log.d(LOG_TAG, "Custom Location for " + packageName + " set to " + enabled);
     }
 
