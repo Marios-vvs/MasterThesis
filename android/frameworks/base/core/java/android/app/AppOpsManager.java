@@ -2507,7 +2507,8 @@ public class AppOpsManager {
             "android:receive_sensitive_notifications";
 
      /** Access to CUSTOM location information. */
-    @FlaggedApi(FLAG_CUSTOM_LOCATION)
+    // @FlaggedApi(FLAG_CUSTOM_LOCATION)
+    /** @hide */
     public static final String OPSTR_CUSTOM_LOCATION =
             "android:custom_location";
 
