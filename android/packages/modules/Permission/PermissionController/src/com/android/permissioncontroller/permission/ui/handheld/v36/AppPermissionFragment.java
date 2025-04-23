@@ -122,7 +122,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
     private static final long POST_DELAY_MS = 20;
     private static final long EDIT_PHOTOS_BUTTON_ANIMATION_LENGTH_MS = 200L;
 
-    private static final int OP_CUSTOM_LOCATION = 150;
+    // private static final int OP_CUSTOM_LOCATION = 150;
 
 
     private @NonNull AppPermissionViewModel mViewModel;
@@ -481,13 +481,13 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
             mCustomLocationSwitch.setVisible(true);
             
-            boolean isCustomLocationEnabled = isCustomLocationEnabledForApp(mPackageName, mUser);
-            mCustomLocationSwitch.setChecked(isCustomLocationEnabled);
+            //boolean isCustomLocationEnabled = isCustomLocationEnabledForApp(mPackageName, mUser);
+            //mCustomLocationSwitch.setChecked(isCustomLocationEnabled);
             
-            mCustomLocationSwitch.setOnPreferenceChangeListener((pref, newValue) -> {
-                setCustomLocationForApp(mPackageName, mUser, (Boolean) newValue);
-                return true;
-                });
+            //mCustomLocationSwitch.setOnPreferenceChangeListener((pref, newValue) -> {
+            //    setCustomLocationForApp(mPackageName, mUser, (Boolean) newValue);
+            //    return true;
+            //    });
         } else {
             mCustomLocationSwitch.setVisible(false);
         }
@@ -529,15 +529,15 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         }
     }
 
-    private boolean isCustomLocationEnabledForApp(String packageName, UserHandle user) {
+    /* private boolean isCustomLocationEnabledForApp(String packageName, UserHandle user) {
         AppOpsManager appOps = requireContext().getSystemService(AppOpsManager.class);
         int uid = getUidForPackage(packageName, user);
         //int mode = appOps.checkOpNoThrow(OP_CUSTOM_LOCATION, uid, packageName);
         int mode = appOps.checkOpNoThrow("android:custom_location", uid, packageName);
         return mode == AppOpsManager.MODE_ALLOWED;
-    }
+    } */
 
-    private void setCustomLocationForApp(String packageName, UserHandle user, boolean enabled) {
+    /* private void setCustomLocationForApp(String packageName, UserHandle user, boolean enabled) {
         AppOpsManager appOps = requireContext().getSystemService(AppOpsManager.class);
         int uid = getUidForPackage(packageName, user);
         //appOps.setMode(OP_CUSTOM_LOCATION, uid, packageName,
@@ -546,7 +546,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
                         enabled ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED);
 
         Log.d(LOG_TAG, "Custom Location for " + packageName + " set to " + enabled);
-    }
+    } */
 
 
     private void allowButtonFrameClickListener() {

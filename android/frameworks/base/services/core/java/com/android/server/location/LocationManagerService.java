@@ -1053,6 +1053,7 @@ public class LocationManagerService extends ILocationManager.Stub implements
 
         Location location = manager.getLastLocation(request, identity, permissionLevel);
 
+        /** 
         AppOpsManager appOps = mContext.getSystemService(AppOpsManager.class);
         int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION,
                 identity.getUid(), identity.getPackageName());
@@ -1062,6 +1063,8 @@ public class LocationManagerService extends ILocationManager.Stub implements
             location = mLocationFudger.createCoarse(location);
             Log.d(TAG, "Returning obfuscated location to " + identity.getPackageName());
         }
+
+        */
 
         return location;
 

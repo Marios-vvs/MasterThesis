@@ -168,11 +168,3 @@ flag {
     description: "Flag for GNSS assistance interface"
     bug: "209078566"
 }
-
-flag {
-    name: "custom_location"
-    namespace: "location"
-    description: "Controls whether custom per-app location obfuscation is enabled"
-    bug: "123456789"
-    is_exported: true
-}
