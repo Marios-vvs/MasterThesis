@@ -295,10 +295,12 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             mDenyButton.setVisible(false);
             mDenyForegroundButton.setVisible(false);
             mLocationAccuracySwitch.setVisible(false);
-            mCustomLocationSwitch.setVisible(false);
             mSelectButton.setVisible(false);
             mSelectButton.setExtraWidgetOnClickListener(null);
         }
+
+        mCustomLocationSwitch.setVisible(true);
+
 
         if (mViewModel.getFullStorageStateLiveData().isInitialized() && mIsStorageGroup) {
             setSpecialStorageState(mViewModel.getFullStorageStateLiveData().getValue());
@@ -477,20 +479,10 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             // Don't actually toggle the switch yet. (Allow livedata observer to do so.)
             return false;
         });
-        
-        if (Manifest.permission_group.LOCATION.equals(mPermGroupName)) {
-            mCustomLocationSwitch.setVisible(true);
-            
-            //boolean isCustomLocationEnabled = isCustomLocationEnabledForApp(mPackageName, mUser);
-            //mCustomLocationSwitch.setChecked(isCustomLocationEnabled);
-            
-            //mCustomLocationSwitch.setOnPreferenceChangeListener((pref, newValue) -> {
-            //    setCustomLocationForApp(mPackageName, mUser, (Boolean) newValue);
-            //    return true;
-            //    });
-        } else {
-            mCustomLocationSwitch.setVisible(false);
-        }
+
+        mCustomLocationSwitch.setOnPreferenceChangeListener((preference,newValue)->{
+            return true;
+        });
 
         setButtonState(mAllowButton, states.get(ButtonType.ALLOW));
         setButtonState(mAllowAlwaysButton, states.get(ButtonType.ALLOW_ALWAYS));
