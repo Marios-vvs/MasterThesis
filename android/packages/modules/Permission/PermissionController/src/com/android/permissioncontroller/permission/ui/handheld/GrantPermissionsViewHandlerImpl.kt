@@ -94,6 +94,8 @@ class GrantPermissionsViewHandlerImpl(
     private val LOCATION_ACCURACY_IMAGE_DIAMETER =
         mActivity.resources.getDimension(R.dimen.location_accuracy_image_size)
 
+    private const val ACCESS_CUSTOM_LOCATION = "android.permission.ACCESS_CUSTOM_LOCATION"
+
     // Configuration of the current dialog
     private var groupName: String? = null
     private var groupCount: Int = 0
@@ -522,9 +524,9 @@ class GrantPermissionsViewHandlerImpl(
                 R.id.permission_location_accuracy_radio_fine ->
                     affectedForegroundPermissions =
                         listOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
-                // R.id.permission_location_accuracy_radio_custom ->
-                //    affectedForegroundPermissions = 
-                //        listOf(ACCESS_CUSTOM_LOCATION, ACCESS_COARSE_LOCATION)
+                R.id.permission_location_accuracy_radio_custom ->
+                    affectedForegroundPermissions = 
+                        listOf(ACCESS_CUSTOM_LOCATION, ACCESS_COARSE_LOCATION)
             }
         } else if (locationVisibilities[DIALOG_WITH_FINE_LOCATION_ONLY]) {
             affectedForegroundPermissions = listOf(ACCESS_FINE_LOCATION)
