@@ -106,11 +106,11 @@
                         android:id="@+id/permission_location_accuracy_radio_coarse"
                         android:text="@string/permgrouprequest_coarselocation_imagetext"
                         style="@style/PermissionLocationAccuracyRadioCoarse" />
-                     
+
                     <RadioButton
-                        android:id="@+id/permission_location_accuracy_radio_custom"
-                        android:text="@string/permgrouprequest_customlocation_imagetext"
-                        style="@style/PermissionLocationAccuracyRadioCustom" />
+                        android:id="@+id/permission_location_accuracy_radio_coarse"
+                        android:text="@string/permgrouprequest_coarselocation_imagetext"
+                        style="@style/PermissionLocationAccuracyRadioCoarse" />
                 </RadioGroup>
 
                 <ImageView

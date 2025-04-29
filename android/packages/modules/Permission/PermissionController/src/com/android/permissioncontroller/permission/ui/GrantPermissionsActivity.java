@@ -18,7 +18,6 @@ package com.android.permissioncontroller.permission.ui;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-// import static android.Manifest.permission.ACCESS_CUSTOM_LOCATION;
 import static android.Manifest.permission_group.LOCATION;
 import static android.Manifest.permission_group.READ_MEDIA_VISUAL;
 import static android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
@@ -115,9 +114,6 @@ public class GrantPermissionsActivity extends SettingsActivity
 
     private static final String LOG_TAG = "GrantPermissionsActivity";
 
-    // private static final String ACCESS_CUSTOM_LOCATION = "android.permission.ACCESS_CUSTOM_LOCATION";
-
-
     private static final String KEY_SESSION_ID = GrantPermissionsActivity.class.getName()
             + "_REQUEST_ID";
     public static final String KEY_RESTRICTED_REQUESTED_PERMISSIONS =
@@ -154,7 +150,6 @@ public class GrantPermissionsActivity extends SettingsActivity
     public static final int DIALOG_WITH_BOTH_LOCATIONS = 3;
     public static final int DIALOG_WITH_FINE_LOCATION_ONLY = 4;
     public static final int DIALOG_WITH_COARSE_LOCATION_ONLY = 5;
-    // public static final int CUSTOM_RADIO_BUTTON = 6;
 
     // The maximum number of dialogs we will allow the same package, on the same task, to launch
     // simultaneously

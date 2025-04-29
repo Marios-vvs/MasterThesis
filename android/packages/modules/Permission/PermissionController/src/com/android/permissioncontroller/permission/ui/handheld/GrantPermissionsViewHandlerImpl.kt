@@ -19,7 +19,6 @@ package com.android.permissioncontroller.permission.ui.handheld
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-// import android.Manifest.permission.ACCESS_CUSTOM_LOCATION
 import android.app.Activity
 import android.graphics.Typeface
 import android.graphics.drawable.Icon
@@ -54,7 +53,6 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.A
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ONE_TIME_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_SELECTED_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.COARSE_RADIO_BUTTON
-// import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.CUSTOM_RADIO_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DENY_AND_DONT_ASK_AGAIN_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DENY_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DIALOG_WITH_BOTH_LOCATIONS
@@ -254,7 +252,6 @@ class GrantPermissionsViewHandlerImpl(
         fineRadioButton = locationViews[FINE_RADIO_BUTTON] as RadioButton
         coarseRadioButton!!.setOnClickListener(this)
         fineRadioButton!!.setOnClickListener(this)
-        // (locationViews[CUSTOM_RADIO_BUTTON] as RadioButton).setOnClickListener(this)
         this.locationViews = locationViews
 
         if (groupName != null) {
@@ -497,14 +494,6 @@ class GrantPermissionsViewHandlerImpl(
             return
         }
 
-        // if (id == R.id.permission_location_accuracy_radio_custom) {
-        //    if (selectedPrecision != CUSTOM_RADIO_BUTTON) {
-        //        (locationViews[CUSTOM_RADIO_BUTTON] as RadioButton).isChecked = true
-        //        selectedPrecision = CUSTOM_RADIO_BUTTON
-        //    }
-        //    return
-        // }
-
         if (locationVisibilities[LOCATION_ACCURACY_LAYOUT]) {
             isLocationPermissionDialogActionClicked = true
         }
@@ -522,9 +511,6 @@ class GrantPermissionsViewHandlerImpl(
                 R.id.permission_location_accuracy_radio_fine ->
                     affectedForegroundPermissions =
                         listOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
-                // R.id.permission_location_accuracy_radio_custom ->
-                //    affectedForegroundPermissions = 
-                //        listOf(ACCESS_CUSTOM_LOCATION, ACCESS_COARSE_LOCATION)
             }
         } else if (locationVisibilities[DIALOG_WITH_FINE_LOCATION_ONLY]) {
             affectedForegroundPermissions = listOf(ACCESS_FINE_LOCATION)
@@ -639,8 +625,6 @@ class GrantPermissionsViewHandlerImpl(
 
     companion object {
         private val TAG = GrantPermissionsViewHandlerImpl::class.java.simpleName
-
-        // private const val ACCESS_CUSTOM_LOCATION = "android.permission.ACCESS_CUSTOM_LOCATION"
 
         const val ARG_GROUP_NAME = "ARG_GROUP_NAME"
         const val ARG_GROUP_COUNT = "ARG_GROUP_COUNT"
