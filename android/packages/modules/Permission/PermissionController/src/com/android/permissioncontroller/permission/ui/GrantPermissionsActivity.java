@@ -18,7 +18,7 @@ package com.android.permissioncontroller.permission.ui;
 
 import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.ACCESS_CUSTOM_LOCATION;
+// import static android.Manifest.permission.ACCESS_CUSTOM_LOCATION;
 import static android.Manifest.permission_group.LOCATION;
 import static android.Manifest.permission_group.READ_MEDIA_VISUAL;
 import static android.view.WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM;
@@ -114,6 +114,9 @@ public class GrantPermissionsActivity extends SettingsActivity
         implements GrantPermissionsViewHandler.ResultListener {
 
     private static final String LOG_TAG = "GrantPermissionsActivity";
+
+    private static final String ACCESS_CUSTOM_LOCATION = "android.permission.ACCESS_CUSTOM_LOCATION";
+
 
     private static final String KEY_SESSION_ID = GrantPermissionsActivity.class.getName()
             + "_REQUEST_ID";
