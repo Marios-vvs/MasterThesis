@@ -115,7 +115,7 @@ public class GrantPermissionsActivity extends SettingsActivity
 
     private static final String LOG_TAG = "GrantPermissionsActivity";
 
-    private static final String ACCESS_CUSTOM_LOCATION = "android.permission.ACCESS_CUSTOM_LOCATION";
+    // private static final String ACCESS_CUSTOM_LOCATION = "android.permission.ACCESS_CUSTOM_LOCATION";
 
 
     private static final String KEY_SESSION_ID = GrantPermissionsActivity.class.getName()
@@ -154,7 +154,7 @@ public class GrantPermissionsActivity extends SettingsActivity
     public static final int DIALOG_WITH_BOTH_LOCATIONS = 3;
     public static final int DIALOG_WITH_FINE_LOCATION_ONLY = 4;
     public static final int DIALOG_WITH_COARSE_LOCATION_ONLY = 5;
-    public static final int CUSTOM_RADIO_BUTTON = 6;
+    // public static final int CUSTOM_RADIO_BUTTON = 6;
 
     // The maximum number of dialogs we will allow the same package, on the same task, to launch
     // simultaneously
@@ -163,8 +163,7 @@ public class GrantPermissionsActivity extends SettingsActivity
     public static final Map<String, Integer> PERMISSION_TO_BIT_SHIFT =
             Map.of(
                     ACCESS_COARSE_LOCATION, 0,
-                    ACCESS_FINE_LOCATION, 1,
-                    ACCESS_CUSTOM_LOCATION,2);
+                    ACCESS_FINE_LOCATION, 1);
 
     public static final String INTENT_PHOTOS_SELECTED = "intent_extra_result";
 

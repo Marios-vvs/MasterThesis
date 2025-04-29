@@ -1415,13 +1415,13 @@
     <!-- Allows an app to access obfusctaed location.
          Alternatively, you might want {@link #ACCESS_FINE_LOCATION}.
          <p>Protection level: dangerous
-    -->
+    
     <permission android:name="android.permission.ACCESS_CUSTOM_LOCATION"
         android:permissionGroup="android.permission-group.UNDEFINED"
         android:label="@string/permlab_accessCustomLocation"
         android:description="@string/permdesc_accessCustomLocation"
         android:backgroundPermission="android.permission.ACCESS_BACKGROUND_LOCATION"
-        android:protectionLevel="dangerous|instant" />
+        android:protectionLevel="dangerous|instant" /> -->
 
     <!-- Allows an app to access location in the background. If you're requesting this permission,
          you must also request either {@link #ACCESS_COARSE_LOCATION} or
