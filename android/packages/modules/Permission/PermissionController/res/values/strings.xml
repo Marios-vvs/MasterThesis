@@ -1487,6 +1487,8 @@ Allow <xliff:g id="app_name" example="Gmail">%4$s</xliff:g> to upload a bug repo
     <string name="permgrouprequest_finelocation_imagetext">Precise</string>
     <!-- Text for the COARSE location image [CHAR LIMIT=20] -->
     <string name="permgrouprequest_coarselocation_imagetext">Approximate</string>
+    <!-- Text for the COARSE location image [CHAR LIMIT=20] -->
+    <string name="permgrouprequest_customlocation_imagetext">custom</string>
 
     <!-- Message shown to the user when the apps requests permission from this group. If ever possible this should stay below 80 characters (assuming the parameters takes 20 characters). Don't abbreviate until the message reaches 120 characters though. [CHAR LIMIT=120] -->
     <string name="permgrouprequest_calendar">Allow
