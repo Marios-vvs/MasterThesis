@@ -522,9 +522,9 @@ class GrantPermissionsViewHandlerImpl(
                 R.id.permission_location_accuracy_radio_fine ->
                     affectedForegroundPermissions =
                         listOf(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION)
-                R.id.permission_location_accuracy_radio_custom ->
-                    affectedForegroundPermissions = 
-                        listOf(ACCESS_CUSTOM_LOCATION, ACCESS_COARSE_LOCATION)
+                // R.id.permission_location_accuracy_radio_custom ->
+                //    affectedForegroundPermissions = 
+                //        listOf(ACCESS_CUSTOM_LOCATION, ACCESS_COARSE_LOCATION)
             }
         } else if (locationVisibilities[DIALOG_WITH_FINE_LOCATION_ONLY]) {
             affectedForegroundPermissions = listOf(ACCESS_FINE_LOCATION)
