@@ -19,7 +19,7 @@ package com.android.permissioncontroller.permission.ui.handheld
 
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.Manifest.permission.ACCESS_CUSTOM_LOCATION
+// import android.Manifest.permission.ACCESS_CUSTOM_LOCATION
 import android.app.Activity
 import android.graphics.Typeface
 import android.graphics.drawable.Icon
