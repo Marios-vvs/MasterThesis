@@ -94,8 +94,6 @@ class GrantPermissionsViewHandlerImpl(
     private val LOCATION_ACCURACY_IMAGE_DIAMETER =
         mActivity.resources.getDimension(R.dimen.location_accuracy_image_size)
 
-    private const val ACCESS_CUSTOM_LOCATION = "android.permission.ACCESS_CUSTOM_LOCATION"
-
     // Configuration of the current dialog
     private var groupName: String? = null
     private var groupCount: Int = 0
@@ -641,6 +639,8 @@ class GrantPermissionsViewHandlerImpl(
 
     companion object {
         private val TAG = GrantPermissionsViewHandlerImpl::class.java.simpleName
+
+        private const val ACCESS_CUSTOM_LOCATION = "android.permission.ACCESS_CUSTOM_LOCATION"
 
         const val ARG_GROUP_NAME = "ARG_GROUP_NAME"
         const val ARG_GROUP_COUNT = "ARG_GROUP_COUNT"
