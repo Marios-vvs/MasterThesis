@@ -5,7 +5,7 @@ import android.location.LocationResult;
 
 public interface LocationObfuscator {
     Location obfuscate(Location fine);
-    default LocationResult obfuscate(LocationResult fineResult) {
+    default LocationResult createCoarse(LocationResult fineResult) {
         return fineResult.map(this::obfuscate);
     }
 }
