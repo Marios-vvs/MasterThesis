@@ -35,7 +35,7 @@ import android.util.Log;
  * Contains the logic to obfuscate (fudge) locations for coarse applications. The goal is just to
  * prevent applications with only the coarse location permission from receiving a fine location.
  */
-public class LocationFudger {
+public class LocationFudger implements LocationObfuscator{
 
     // minimum accuracy a coarsened location can have
     private static final float MIN_ACCURACY_M = 200.0f;
