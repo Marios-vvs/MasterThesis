@@ -488,7 +488,6 @@
     <string-array name="app_ops_summaries">
         <item>coarse location</item>
         <item>fine location</item>
-        <item>custom location</item>
         <item>GPS</item>
         <item>vibrate</item>
         <item>read contacts</item>
@@ -552,6 +551,7 @@
         <item>get accounts</item>
         <item>run in background</item>
         <item>accessibility volume</item>
+        <item>custom location</item>
     </string-array>
 
     <!-- User display names for app ops codes -->

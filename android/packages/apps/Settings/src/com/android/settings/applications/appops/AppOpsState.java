@@ -97,14 +97,15 @@ public class AppOpsState {
     public static final OpsTemplate LOCATION_TEMPLATE = new OpsTemplate(
             new int[] { AppOpsManager.OP_COARSE_LOCATION,
                     AppOpsManager.OP_FINE_LOCATION,
-                    // AppOpsManager.OP_CUSTOM_LOCATION,
                     AppOpsManager.OP_GPS,
                     AppOpsManager.OP_WIFI_SCAN,
                     AppOpsManager.OP_NEIGHBORING_CELLS,
                     AppOpsManager.OP_MONITOR_LOCATION,
-                    AppOpsManager.OP_MONITOR_HIGH_POWER_LOCATION },
+                    AppOpsManager.OP_MONITOR_HIGH_POWER_LOCATION
+                    AppOpsManager.OP_CUSTOM_LOCATION },
             new boolean[] { true,
                     true,
+                    false,
                     false,
                     false,
                     false,

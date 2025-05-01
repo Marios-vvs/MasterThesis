@@ -1608,14 +1608,14 @@ public class AppOpsManager {
     public static final int OP_RECEIVE_SENSITIVE_NOTIFICATIONS =
             AppProtoEnums.APP_OP_RECEIVE_SENSITIVE_NOTIFICATIONS;
 
-    /** @hide Access to custom obfsucation location information. */
     //public static final int OP_CUSTOM_LOCATION = AppProtoEnums.APP_OP_CUSTOM_LOCATION;
-    // public static final int OP_CUSTOM_LOCATION = 150;
+    public static final int OP_CUSTOM_LOCATION = 149;
 
+    
     /** @hide */
     // Incremented to 150 from original 149 due to addition of OP_CUSTOM_LOCATION
     @UnsupportedAppUsage(maxTargetSdk = Build.VERSION_CODES.R, trackingBug = 170729553)
-    public static final int _NUM_OP = 149;
+    public static final int _NUM_OP = 150;
     
     /**
      * All app ops represented as strings.
@@ -1626,7 +1626,6 @@ public class AppOpsManager {
     @StringDef(prefix = { "OPSTR_" }, value = {
             OPSTR_COARSE_LOCATION,
             OPSTR_FINE_LOCATION,
-            // OPSTR_CUSTOM_LOCATION,
             OPSTR_MONITOR_LOCATION,
             OPSTR_MONITOR_HIGH_POWER_LOCATION,
             OPSTR_GET_USAGE_STATS,
@@ -1769,6 +1768,7 @@ public class AppOpsManager {
             OPSTR_UNARCHIVAL_CONFIRMATION,
             OPSTR_EMERGENCY_LOCATION,
             OPSTR_RECEIVE_SENSITIVE_NOTIFICATIONS,
+            OPSTR_CUSTOM_LOCATION,
     })
     public @interface AppOpString {}
 
@@ -2507,22 +2507,9 @@ public class AppOpsManager {
             "android:receive_sensitive_notifications";
 
      /** Access to CUSTOM location information. */
-    // @FlaggedApi(FLAG_CUSTOM_LOCATION)
-    /** @hide */
-    //public static final String OPSTR_CUSTOM_LOCATION =
-    //        "android:custom_location";
+     /** @hide */
+    public static final String OPSTR_CUSTOM_LOCATION = "android:custom_location";
 
-    // To be placed in location.aconfig //
-
-    /*flag {
-        name: "custom_location"
-        namespace: "location"
-        description: "Controls whether custom per-app location obfuscation is enabled"
-        bug: "123456789"
-        is_exported: true
-    }*/
-
-    
 
 
     /** {@link #sAppOpsToNote} not initialized yet for this op */
@@ -2565,7 +2552,6 @@ public class AppOpsManager {
             // Location
             OP_COARSE_LOCATION,
             OP_FINE_LOCATION,
-            //OP_CUSTOM_LOCATION,
             // Phone
             OP_READ_PHONE_STATE,
             OP_READ_PHONE_NUMBERS,
@@ -2599,6 +2585,8 @@ public class AppOpsManager {
             OP_NEARBY_WIFI_DEVICES,
             // Notifications
             OP_POST_NOTIFICATION,
+            // Obfuscation
+            OP_CUSTOM_LOCATION,
     };
 
     /**
@@ -3106,11 +3094,10 @@ public class AppOpsManager {
         new AppOpInfo.Builder(OP_RECEIVE_SENSITIVE_NOTIFICATIONS,
                 OPSTR_RECEIVE_SENSITIVE_NOTIFICATIONS, "RECEIVE_SENSITIVE_NOTIFICATIONS")
                 .setDefaultMode(MODE_IGNORED).build(),
-        //new AppOpInfo.Builder(OP_CUSTOM_LOCATION, OPSTR_CUSTOM_LOCATION, "CUSTOM_LOCATION")
-        //    .setPermission(android.Manifest.permission.ACCESS_FINE_LOCATION)
-        //    .setRestriction(UserManager.DISALLOW_SHARE_LOCATION)
-        //    .setAllowSystemRestrictionBypass(new RestrictionBypass(true, false, false))
-        //    .setDefaultMode(AppOpsManager.MODE_ALLOWED).build(),
+        new AppOpInfo.Builder(OP_CUSTOM_LOCATION, OPSTR_CUSTOM_LOCATION, "CUSTOM_LOCATION")
+            .setRestriction(UserManager.DISALLOW_SHARE_LOCATION)
+            .setAllowSystemRestrictionBypass(new RestrictionBypass(true, false, false))
+            .setDefaultMode(AppOpsManager.MODE_IGNORED).build()
     };
 
     // The number of longs needed to form a full bitmask of app ops
