@@ -101,7 +101,7 @@ public class AppOpsState {
                     AppOpsManager.OP_WIFI_SCAN,
                     AppOpsManager.OP_NEIGHBORING_CELLS,
                     AppOpsManager.OP_MONITOR_LOCATION,
-                    AppOpsManager.OP_MONITOR_HIGH_POWER_LOCATION
+                    AppOpsManager.OP_MONITOR_HIGH_POWER_LOCATION,
                     AppOpsManager.OP_CUSTOM_LOCATION },
             new boolean[] { true,
                     true,
