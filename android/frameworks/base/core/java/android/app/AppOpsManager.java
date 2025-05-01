@@ -1608,6 +1608,7 @@ public class AppOpsManager {
     public static final int OP_RECEIVE_SENSITIVE_NOTIFICATIONS =
             AppProtoEnums.APP_OP_RECEIVE_SENSITIVE_NOTIFICATIONS;
 
+    /** @hide Custom location permission (user-defined obfuscation). */
     //public static final int OP_CUSTOM_LOCATION = AppProtoEnums.APP_OP_CUSTOM_LOCATION;
     public static final int OP_CUSTOM_LOCATION = 149;
 
