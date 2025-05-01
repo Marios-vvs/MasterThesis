@@ -621,7 +621,7 @@
     <string name="app_permission_location_accuracy">Use precise location</string>
 
     <!-- Title for custom location switch in location settings. [CHAR LIMIT=60] -->
-    <string name="app_permission_custom_location">Use custom location (obfuscated)</string>
+    <string name="grant_dialog_button_custom_location">Custom location</string>
 
     <!-- Subtitle for location accuracy switch in location settings. [CHAR LIMIT=none] -->
     <string name="app_permission_location_accuracy_subtitle">When precise location is off, apps can access your approximate location</string>
