@@ -53,6 +53,7 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.A
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_ONE_TIME_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.ALLOW_SELECTED_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.COARSE_RADIO_BUTTON
+import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.CUSTOM_LOCATION_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DENY_AND_DONT_ASK_AGAIN_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DENY_BUTTON
 import com.android.permissioncontroller.permission.ui.GrantPermissionsActivity.DIALOG_WITH_BOTH_LOCATIONS
@@ -73,6 +74,7 @@ import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandle
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_DO_NOT_ASK_AGAIN
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_MORE
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ALWAYS
+import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_CUSTOM_LOCATION
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_FOREGROUND_ONLY
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ONE_TIME
 import com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_USER_SELECTED
@@ -608,6 +610,17 @@ class GrantPermissionsViewHandlerImpl(
                     DENIED_DO_NOT_ASK_AGAIN
                 )
             }
+            CUSTOM_LOCATION_BUTTON -> {
+                view.performAccessibilityAction(
+                    AccessibilityNodeInfo.ACTION_CLEAR_ACCESSIBILITY_FOCUS,
+                    null
+                )
+                resultListener.onPermissionGrantResult(
+                    groupName,
+                    affectedForegroundPermissions,
+                    GRANTED_CUSTOM_LOCATION 
+                )
+            }
         }
     }
 
@@ -685,6 +698,10 @@ class GrantPermissionsViewHandlerImpl(
             LOCATION_RES_ID_TO_NUM.put(
                 R.id.permission_location_accuracy_radio_coarse,
                 COARSE_RADIO_BUTTON
+            )
+            LOCATION_RES_ID_TO_NUM.put(
+                R.id.permission_custom_location_button,
+                CUSTOM_LOCATION_BUTTON
             )
             LOCATION_RES_ID_TO_NUM.put(
                 R.id.permission_location_accuracy_radio_group,

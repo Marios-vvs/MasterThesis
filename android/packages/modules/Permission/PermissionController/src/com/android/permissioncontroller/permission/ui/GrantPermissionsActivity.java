@@ -29,6 +29,7 @@ import static com.android.permissioncontroller.permission.ui.GrantPermissionsVie
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_DO_NOT_ASK_AGAIN;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.DENIED_MORE;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ALWAYS;
+import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_CUSTOM_LOCATION;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_FOREGROUND_ONLY;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_ONE_TIME;
 import static com.android.permissioncontroller.permission.ui.GrantPermissionsViewHandler.GRANTED_USER_SELECTED;
@@ -125,7 +126,7 @@ public class GrantPermissionsActivity extends SettingsActivity
 
     public static final String ANNOTATION_ID = "link";
 
-    public static final int NEXT_BUTTON = 15;
+    public static final int NEXT_BUTTON = 16;
     public static final int ALLOW_BUTTON = 0;
     public static final int ALLOW_ALWAYS_BUTTON = 1; // Used in auto
     public static final int ALLOW_FOREGROUND_BUTTON = 2;
@@ -150,6 +151,9 @@ public class GrantPermissionsActivity extends SettingsActivity
     public static final int DIALOG_WITH_BOTH_LOCATIONS = 3;
     public static final int DIALOG_WITH_FINE_LOCATION_ONLY = 4;
     public static final int DIALOG_WITH_COARSE_LOCATION_ONLY = 5;
+
+    // button to implement custom location obfuscation
+    public static final int CUSTOM_LOCATION_BUTTON = 15;
 
     // The maximum number of dialogs we will allow the same package, on the same task, to launch
     // simultaneously
@@ -989,6 +993,13 @@ public class GrantPermissionsActivity extends SettingsActivity
             return;
         }
 
+        if (result == GRANTED_CUSTOM_LOCATION) {
+            Log.i(LOG_TAG, "Custom location selected for group: " + name);
+            mViewModel.onPermissionGrantResult(name, affectedForegroundPermissions, result);
+            proceedToNextRequestOrFinish();
+            return;
+        }
+
         if (name == null || name.equals(mPreMergeShownGroupName)) {
             mPreMergeShownGroupName = null;
         }
@@ -1139,6 +1150,22 @@ public class GrantPermissionsActivity extends SettingsActivity
     private void setResultAndFinish() {
         if (setResultIfNeeded(RESULT_OK)) {
             finishAfterTransition();
+        }
+    }
+
+    /**
+     * Continues to the next permission request in the queue, or finishes the activity
+     * if all requests have been handled.
+    */
+    private void proceedToNextRequestOrFinish() {
+        if (!mRequestInfos.isEmpty()) {
+            mRequestInfos.remove(0);
+        }
+        
+        if (mRequestInfos.isEmpty()) {
+            setResultAndFinish();
+        } else {
+            onRequestInfoLoad(mRequestInfos);
         }
     }
 
