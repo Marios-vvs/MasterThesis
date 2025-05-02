@@ -850,7 +850,7 @@ public class GrantPermissionsActivity extends SettingsActivity
             case ONE_TIME_FG, SETTINGS_LINK_WITH_OT, LOCATION_TWO_BUTTON_COARSE_HIGHLIGHT,
                     LOCATION_TWO_BUTTON_FINE_HIGHLIGHT, LOCATION_COARSE_ONLY,
                     LOCATION_FINE_UPGRADE ->
-                buttons.addAll(Arrays.asList(ALLOW_FOREGROUND_BUTTON, ALLOW_ONE_TIME_BUTTON));
+                buttons.addAll(Arrays.asList(ALLOW_FOREGROUND_BUTTON, ALLOW_ONE_TIME_BUTTON, CUSTOM_LOCATION_BUTTON));
             case SELECT_PHOTOS, SELECT_MORE_PHOTOS ->
                 buttons.addAll(Arrays.asList(ALLOW_ALL_BUTTON, ALLOW_SELECTED_BUTTON));
         }
