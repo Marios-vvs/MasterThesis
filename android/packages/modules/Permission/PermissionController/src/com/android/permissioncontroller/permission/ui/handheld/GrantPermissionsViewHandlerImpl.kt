@@ -689,6 +689,10 @@ class GrantPermissionsViewHandlerImpl(
                 R.id.permission_dont_allow_more_selected_button,
                 DONT_ALLOW_MORE_SELECTED_BUTTON
             )
+            BUTTON_RES_ID_TO_NUM.put(
+                R.id.permission_custom_location_button,
+                CUSTOM_LOCATION_BUTTON
+            )
 
             LOCATION_RES_ID_TO_NUM.put(R.id.permission_location_accuracy, LOCATION_ACCURACY_LAYOUT)
             LOCATION_RES_ID_TO_NUM.put(
@@ -698,10 +702,6 @@ class GrantPermissionsViewHandlerImpl(
             LOCATION_RES_ID_TO_NUM.put(
                 R.id.permission_location_accuracy_radio_coarse,
                 COARSE_RADIO_BUTTON
-            )
-            LOCATION_RES_ID_TO_NUM.put(
-                R.id.permission_custom_location_button,
-                CUSTOM_LOCATION_BUTTON
             )
             LOCATION_RES_ID_TO_NUM.put(
                 R.id.permission_location_accuracy_radio_group,
