@@ -57,7 +57,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
-import anddroid.provider.Settings;
+import android.provider.Settings;
 import android.text.BidiFormatter;
 import android.util.ArrayMap;
 import android.util.Log;
@@ -511,8 +511,11 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
+        // boolean shouldShowCustomLocationSwitch =
+        //    Manifest.permission_group.LOCATION.equals(mPermGroupName);
+        
         boolean shouldShowCustomLocationSwitch =
-            Manifest.permission_group.LOCATION.equals(mPermGroupName);
+            mPermGroupName != null && mPermGroupName.endsWith("LOCATION");
             
         if (shouldShowCustomLocationSwitch) {
             mCustomLocationSwitch.setVisible(true);
