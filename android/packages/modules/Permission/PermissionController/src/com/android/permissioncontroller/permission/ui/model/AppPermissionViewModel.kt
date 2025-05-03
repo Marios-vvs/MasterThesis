@@ -679,7 +679,7 @@ class AppPermissionViewModel(
                     customLocationState.isShown = true
                 }
                 if (group.foreground.isSystemFixed || group.foreground.isPolicyFixed) {
-                    customLocationState.isEnabled = true
+                    customLocationState.isEnabled = false
                     
                 }
 
