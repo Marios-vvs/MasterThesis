@@ -511,25 +511,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
-        // boolean shouldShowCustomLocationSwitch =
-        //    Manifest.permission_group.LOCATION.equals(mPermGroupName);
-        
-        boolean shouldShowCustomLocationSwitch =
-            mPermGroupName != null && mPermGroupName.endsWith("LOCATION");
-            
-        if (shouldShowCustomLocationSwitch) {
-            mCustomLocationSwitch.setVisible(true);
-            
-            boolean isEnabled = Settings.Secure.getInt(
-                getContext().getContentResolver(),
-                getCustomLocationKey(mPackageName),
-                0) == 1;
-            
-            Log.d(LOG_TAG, "Custom Location initial state for " + mPackageName + ": " + isEnabled);
-            mCustomLocationSwitch.setChecked(isEnabled);
-        } else {
-            mCustomLocationSwitch.setVisible(false);
-        }
+        setButtonState(mCustomLocationSwitch, states.get(ButtonType.CUSTOM_LOCATION));
 
         mIsInitialLoad = false;
 
@@ -682,7 +664,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             ButtonState state = currentStates.get(button);
             boolean isChecked = button == buttonToMarkChecked
                     // Don't uncheck the Location Accuracy switch, if it is checked
-                    || (button == ButtonType.LOCATION_ACCURACY && state.isChecked());
+                    || ((button == ButtonType.LOCATION_ACCURACY || button == ButtonType.CUSTOM_LOCATION) && state.isChecked());
             ButtonState newState = new ButtonState(isChecked, state.isEnabled(), state.isShown(),
                     state.getCustomRequest());
             newStates.put(button, newState);
