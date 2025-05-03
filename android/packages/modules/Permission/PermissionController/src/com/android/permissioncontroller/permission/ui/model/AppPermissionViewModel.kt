@@ -680,6 +680,7 @@ class AppPermissionViewModel(
                 }
                 if (group.foreground.isSystemFixed || group.foreground.isPolicyFixed) {
                     customLocationState.isEnabled = true
+                    
                 }
 
                 Log.d(LOG_TAG, "shouldShowCustomLocation=$shouldShowCustomLocation for group=$permGroupName")

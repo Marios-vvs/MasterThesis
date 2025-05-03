@@ -515,6 +515,9 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         Log.d(LOG_TAG, "Initializing custom location switch preference...");
         setButtonState(mCustomLocationSwitch, states.get(ButtonType.CUSTOM_LOCATION));
+        mCustomLocationSwitch.setVisible(customLocationState.isShown());
+        mCustomLocationSwitch.setEnabled(customLocationState.isEnabled());
+        mCustomLocationSwitch.setChecked(customLocationState.isChecked());
         Log.d(LOG_TAG, "Custom location switch initialized: " + (mCustomLocationSwitch != null));
 
         mIsInitialLoad = false;
