@@ -679,8 +679,11 @@ class AppPermissionViewModel(
                     customLocationState.isShown = true
                 }
                 if (group.foreground.isSystemFixed || group.foreground.isPolicyFixed) {
-                    customLocationState.isEnabled = false
+                    customLocationState.isEnabled = true
                 }
+
+                Log.d(LOG_TAG, "shouldShowCustomLocation=$shouldShowCustomLocation for group=$permGroupName")
+                Log.d(LOG_TAG, "ACCESS_FINE_LOCATION present: ${group.permissions.containsKey(ACCESS_FINE_LOCATION)}")
 
                 if (value == null) {
                     logAppPermissionFragmentViewed()
@@ -740,8 +743,10 @@ class AppPermissionViewModel(
     }
 
     private fun isCustomLocationAvailableForApp(group: LightAppPermGroup): Boolean {
+        Log.d(LOG_TAG, "isCustomLocationAvailableForApp: isLocationAccuracyEnabled=${isLocationAccuracyEnabled()} targetSdk=${group.packageInfo.targetSdkVersion}")
         return isLocationAccuracyEnabled() &&
             group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.S
+        
     }
 
     private fun isFineLocationChecked(group: LightAppPermGroup): Boolean {

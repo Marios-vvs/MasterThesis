@@ -495,6 +495,8 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             return true;
         });
 
+        Log.d(LOG_TAG, "Custom location button state: " + states.get(ButtonType.CUSTOM_LOCATION));
+
         setButtonState(mAllowButton, states.get(ButtonType.ALLOW));
         setButtonState(mAllowAlwaysButton, states.get(ButtonType.ALLOW_ALWAYS));
         setButtonState(mAllowForegroundButton, states.get(ButtonType.ALLOW_FOREGROUND));
@@ -511,7 +513,9 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
+        Log.d(LOG_TAG, "Initializing custom location switch preference...");
         setButtonState(mCustomLocationSwitch, states.get(ButtonType.CUSTOM_LOCATION));
+        Log.d(LOG_TAG, "Custom location switch initialized: " + (mCustomLocationSwitch != null));
 
         mIsInitialLoad = false;
 
