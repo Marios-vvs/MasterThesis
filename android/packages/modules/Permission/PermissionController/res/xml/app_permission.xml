@@ -77,6 +77,12 @@
         android:title="@string/app_permission_custom_location"
         app:isPreferenceVisible="true" />
 
+    <com.android.permissioncontroller.permission.ui.handheld.PermissionSwitchPreference
+        android:key="app_permission_custom_location_switch"
+        android:title="@string/app_permission_custom_location_subtitle"
+        android:summary="@string/app_permission_custom_location"
+        app:isPreferenceVisible="false" />
+
     <com.android.permissioncontroller.permission.ui.handheld.PermissionTwoTargetPreference
         android:key="app_permission_details"
         android:selectable="false"
