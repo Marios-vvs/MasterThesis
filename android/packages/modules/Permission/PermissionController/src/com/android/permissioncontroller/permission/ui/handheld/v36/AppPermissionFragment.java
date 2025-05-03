@@ -122,8 +122,6 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
     private static final long POST_DELAY_MS = 20;
     private static final long EDIT_PHOTOS_BUTTON_ANIMATION_LENGTH_MS = 200L;
 
-    // private static final int OP_CUSTOM_LOCATION = 150;
-
 
     private @NonNull AppPermissionViewModel mViewModel;
 
@@ -299,7 +297,6 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             mSelectButton.setExtraWidgetOnClickListener(null);
         }
 
-        mCustomLocationSwitch.setVisible(true);
 
 
         if (mViewModel.getFullStorageStateLiveData().isInitialized() && mIsStorageGroup) {
@@ -370,6 +367,10 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private static String getCustomLocationKey(String packageName) {
+        return "custom_location_enabled_for_" + packageName;
     }
 
     private void setRadioButtonsState(Map<ButtonType, ButtonState> states) {
@@ -480,7 +481,16 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             return false;
         });
 
-        mCustomLocationSwitch.setOnPreferenceChangeListener((preference,newValue)->{
+        mCustomLocationSwitch.setOnPreferenceChangeListener((pref, newValue) -> {
+            boolean enabled = (Boolean) newValue;
+            
+            Settings.Secure.putInt(
+                getContext().getContentResolver(),
+                getCustomLocationKey(mPackageName),
+                enabled ? 1 : 0
+            );
+
+            Log.d(LOG_TAG, "Custom Location toggled for " + mPackageName + ": " + enabled);
             return true;
         });
 
@@ -500,7 +510,23 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
-
+        boolean shouldShowCustomLocationSwitch =
+            Manifest.permission_group.LOCATION.equals(mPermGroupName)
+            && mViewModel.hasGrantedPermission(Manifest.permission.ACCESS_FINE_LOCATION);
+            
+        if (shouldShowCustomLocationSwitch) {
+            mCustomLocationSwitch.setVisible(true);
+            
+            boolean isEnabled = Settings.Secure.getInt(
+                getContext().getContentResolver(),
+                getCustomLocationKey(mPackageName),
+                0) == 1;
+            
+            Log.d(LOG_TAG, "Custom Location initial state for " + mPackageName + ": " + isEnabled);
+            mCustomLocationSwitch.setChecked(isEnabled);
+        } else {
+            mCustomLocationSwitch.setVisible(false);
+        }
 
         mIsInitialLoad = false;
 
@@ -520,25 +546,6 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             return -1;
         }
     }
-
-    /* private boolean isCustomLocationEnabledForApp(String packageName, UserHandle user) {
-        AppOpsManager appOps = requireContext().getSystemService(AppOpsManager.class);
-        int uid = getUidForPackage(packageName, user);
-        //int mode = appOps.checkOpNoThrow(OP_CUSTOM_LOCATION, uid, packageName);
-        int mode = appOps.checkOpNoThrow("android:custom_location", uid, packageName);
-        return mode == AppOpsManager.MODE_ALLOWED;
-    } */
-
-    /* private void setCustomLocationForApp(String packageName, UserHandle user, boolean enabled) {
-        AppOpsManager appOps = requireContext().getSystemService(AppOpsManager.class);
-        int uid = getUidForPackage(packageName, user);
-        //appOps.setMode(OP_CUSTOM_LOCATION, uid, packageName,
-        //                enabled ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED);
-        appOps.setMode("android:custom_location", uid, packageName,
-                        enabled ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED);
-
-        Log.d(LOG_TAG, "Custom Location for " + packageName + " set to " + enabled);
-    } */
 
 
     private void allowButtonFrameClickListener() {
