@@ -75,6 +75,7 @@ import com.android.permissioncontroller.permission.ui.model.AppPermissionViewMod
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.DENY_FOREGROUND
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.LOCATION_ACCURACY
 import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.SELECT_PHOTOS
+import com.android.permissioncontroller.permission.ui.model.AppPermissionViewModel.ButtonType.CUSTOM_LOCATION
 import com.android.permissioncontroller.permission.ui.v33.AdvancedConfirmDialogArgs
 import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity
 import com.android.permissioncontroller.permission.ui.v34.PermissionRationaleActivity.EXTRA_SHOULD_SHOW_SETTINGS_SECTION
