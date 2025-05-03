@@ -514,6 +514,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
         Log.d(LOG_TAG, "Initializing custom location switch preference...");
+        ButtonState customLocationState = states.get(ButtonType.CUSTOM_LOCATION);
         setButtonState(mCustomLocationSwitch, states.get(ButtonType.CUSTOM_LOCATION));
         mCustomLocationSwitch.setVisible(customLocationState.isShown());
         mCustomLocationSwitch.setEnabled(customLocationState.isEnabled());
