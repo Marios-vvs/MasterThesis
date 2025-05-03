@@ -467,7 +467,8 @@ class AppPermissionViewModel(
                     DENY to deniedState,
                     DENY_FOREGROUND to ButtonState(),
                     LOCATION_ACCURACY to ButtonState(),
-                    SELECT_PHOTOS to ButtonState()
+                    SELECT_PHOTOS to ButtonState(),
+                    CUSTOM_LOCATION to ButtonState()
                 )
             }
 
