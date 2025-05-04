@@ -32,7 +32,9 @@ import android.app.AppOpsManager
 import android.app.AppOpsManager.MODE_ALLOWED
 import android.app.AppOpsManager.MODE_FOREGROUND
 import android.app.AppOpsManager.MODE_IGNORED
+import android.app.AppOpsManager.OP_CUSTOM_LOCATION
 import android.app.AppOpsManager.OPSTR_AUTO_REVOKE_PERMISSIONS_IF_UNUSED
+import android.app.AppOpsManager.OPSTR_CUSTOM_LOCATION
 import android.app.AppOpsManager.permissionToOp
 import android.app.Application
 import android.content.Context
