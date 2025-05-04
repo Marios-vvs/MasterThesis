@@ -206,10 +206,11 @@ object KotlinUtils {
     *
     * Whether the custom location feature is enabled 
     */
-    @ChecksSdkIntAtLeast(Build.VERSION_CODE.S)
+    @ChecksSdkIntAtLeast(Build.VERSION_CODES.S)
     fun isCustomLocationEnabled(): Boolean {
         return SdkLevel.isAtLeastS()
     }
+
 
     /**
      * Whether the Photo Picker Prompt is enabled
