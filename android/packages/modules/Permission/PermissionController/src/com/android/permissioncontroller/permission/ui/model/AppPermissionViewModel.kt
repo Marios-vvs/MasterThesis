@@ -149,7 +149,11 @@ class AppPermissionViewModel(
             GRANT_STORAGE_SUPERGROUP.value or GRANT_FOREGROUND.value
         ),
         REVOKE_STORAGE_SUPERGROUP_CONFIRMED(REVOKE_STORAGE_SUPERGROUP.value or REVOKE_BOTH.value),
-        PHOTOS_SELECTED(1 shl 9);
+        PHOTOS_SELECTED(1 shl 9),
+
+        GRANT_CUSTOM_LOCATION(1 shl 10),
+        REVOKE_CUSTOM_LOCATION(1 shl 11);
+
 
         infix fun andValue(other: ChangeRequest): Int {
             return value and other.value
@@ -673,14 +677,14 @@ class AppPermissionViewModel(
                         isCustomLocationAvailableForApp(group) &&
                             group.permissions.containsKey(ACCESS_FINE_LOCATION)
                 }
+                val hasCustom = KotlinUtils.isCustomLocationAppOpAllowed(app, packageName, user)
                 val customLocationState =
-                    ButtonState(isFineLocationChecked(group), true, false, null)
+                    ButtonState(hasCustom, true, false, null)
                 if (shouldShowCustomLocation == true && !deniedState.isChecked) {
                     customLocationState.isShown = true
                 }
                 if (group.foreground.isSystemFixed || group.foreground.isPolicyFixed) {
                     customLocationState.isEnabled = false
-                    
                 }
 
                 Log.d(LOG_TAG, "shouldShowCustomLocation=$shouldShowCustomLocation for group=$permGroupName")
@@ -744,10 +748,8 @@ class AppPermissionViewModel(
     }
 
     private fun isCustomLocationAvailableForApp(group: LightAppPermGroup): Boolean {
-        Log.d(LOG_TAG, "isCustomLocationAvailableForApp: isLocationAccuracyEnabled=${isLocationAccuracyEnabled()} targetSdk=${group.packageInfo.targetSdkVersion}")
-        return isLocationAccuracyEnabled() &&
-            group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.S
-        
+        return isCustomLocationEnabled() &&
+            group.packageInfo.targetSdkVersion >= Build.VERSION_CODES.S   
     }
 
     private fun isFineLocationChecked(group: LightAppPermGroup): Boolean {
@@ -968,6 +970,16 @@ class AppPermissionViewModel(
                 logPermissionChanges(group, newGroup, buttonClicked)
             }
             KotlinUtils.setFlagsWhenLocationAccuracyChanged(app, group, false)
+            return
+        }
+
+        if (changeRequest == ChangeRequest.GRANT_CUSTOM_LOCATION) {
+            KotlinUtils.setCustomLocationAppOp(app, packageName, user, MODE_ALLOWED)
+            return
+        }
+        
+        if (changeRequest == ChangeRequest.REVOKE_CUSTOM_LOCATION) {
+            KotlinUtils.setCustomLocationAppOp(app, packageName, user, MODE_IGNORED)
             return
         }
 

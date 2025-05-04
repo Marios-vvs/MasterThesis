@@ -294,6 +294,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             mDenyButton.setVisible(false);
             mDenyForegroundButton.setVisible(false);
             mLocationAccuracySwitch.setVisible(false);
+            mCustomLocationSwitch.setVisible(false);
             mSelectButton.setVisible(false);
             mSelectButton.setExtraWidgetOnClickListener(null);
         }
@@ -485,14 +486,22 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         mCustomLocationSwitch.setOnPreferenceChangeListener((pref, newValue) -> {
             boolean enabled = (Boolean) newValue;
             
-            Settings.Secure.putInt(
-                getContext().getContentResolver(),
-                getCustomLocationKey(mPackageName),
-                enabled ? 1 : 0
-            );
+            /**
+            * Settings.Secure.putInt(
+            *    getContext().getContentResolver(),
+            *    getCustomLocationKey(mPackageName),
+            *    enabled ? 1 : 0
+            * );
+            */
 
-            Log.d(LOG_TAG, "Custom Location toggled for " + mPackageName + ": " + enabled);
-            return true;
+             ChangeRequest customLocationChange = enabled
+            ? ChangeRequest.GRANT_CUSTOM_LOCATION
+            : ChangeRequest.REVOKE_CUSTOM_LOCATION;
+
+            mViewModel.requestChange(false, this, this, customLocationChange, -1);
+
+            // Return false so that LiveData re-applies the switch state based on AppOps
+            return false;
         });
 
         Log.d(LOG_TAG, "Custom location button state: " + states.get(ButtonType.CUSTOM_LOCATION));
