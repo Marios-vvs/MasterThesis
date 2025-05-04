@@ -2510,8 +2510,6 @@ public class AppOpsManager {
 
      /** Access to CUSTOM location information. */
      /** @hide */
-     @SystemApi
-     @FlaggedApi(FLAG_CUSTOM_LOCATION_OBFUSCATION)
     public static final String OPSTR_CUSTOM_LOCATION = "android:custom_location";
 
 
@@ -3099,6 +3097,7 @@ public class AppOpsManager {
                 OPSTR_RECEIVE_SENSITIVE_NOTIFICATIONS, "RECEIVE_SENSITIVE_NOTIFICATIONS")
                 .setDefaultMode(MODE_IGNORED).build(),
         new AppOpInfo.Builder(OP_CUSTOM_LOCATION, OPSTR_CUSTOM_LOCATION, "CUSTOM_LOCATION")
+            .setPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION)
             .setRestriction(UserManager.DISALLOW_SHARE_LOCATION)
             .setAllowSystemRestrictionBypass(new RestrictionBypass(true, false, false))
             .setDefaultMode(AppOpsManager.MODE_IGNORED).build()
