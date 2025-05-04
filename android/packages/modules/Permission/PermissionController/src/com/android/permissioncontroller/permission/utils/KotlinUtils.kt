@@ -1050,7 +1050,7 @@ object KotlinUtils {
     ) {
         val uid = context.packageManager.getApplicationInfoAsUser(packageName, 0, user).uid
         val aom = context.getSystemService(AppOpsManager::class.java)!!
-        aom.setMode(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName, mode)
+        aom.setMode(OP_CUSTOM_LOCATION, uid, packageName, mode)
     }
 
     fun isCustomLocationAppOpAllowed(
@@ -1060,7 +1060,7 @@ object KotlinUtils {
     ): Boolean {
         val uid = context.packageManager.getApplicationInfoAsUser(packageName, 0, user).uid
         val aom = context.getSystemService(AppOpsManager::class.java)!!
-        return aom.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, packageName) ==
+        return aom.checkOpNoThrow(OPSTR_CUSTOM_LOCATION, uid, packageName) ==
             AppOpsManager.MODE_ALLOWED
     }
 
