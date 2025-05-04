@@ -18,7 +18,7 @@ package android.app;
 
 
 import static android.location.flags.Flags.FLAG_LOCATION_BYPASS;
-// import static android.location.flags.Flags.FLAG_CUSTOM_LOCATION;
+import static android.location.flags.Flags.FLAG_CUSTOM_LOCATION_OBFUSCATION;
 import static android.media.audio.Flags.roForegroundAudioControl;
 import static android.permission.flags.Flags.FLAG_OP_ENABLE_MOBILE_DATA_BY_USER;
 import static android.service.notification.Flags.FLAG_REDACT_SENSITIVE_NOTIFICATIONS_FROM_UNTRUSTED_LISTENERS;
@@ -2487,7 +2487,7 @@ public class AppOpsManager {
      * user location setting is off, but only during pre-defined emergency sessions.
      *
      * <p>This op is only used for tracking, not for permissions, so it is still the client's
-     * responsibility to check the {@link Manifest.permission.LOCATION_BYPASS} permission
+     * responsibility to check the {@link Manifest.permission.LOCATION_and } permission
      * appropriately.
      *
      * @hide
