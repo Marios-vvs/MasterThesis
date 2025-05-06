@@ -1060,8 +1060,8 @@ object KotlinUtils {
         packageName: String,
         user: UserHandle
     ): Boolean {
-        val uid = context.packageManager.getApplicationInfoAsUser(packageName, 0, user).uid
-        val aom = context.getSystemService(AppOpsManager::class.java)!!
+        // val uid = context.packageManager.getApplicationInfoAsUser(packageName, 0, user).uid
+        // val aom = context.getSystemService(AppOpsManager::class.java)!!
         //return aom.checkOpNoThrow(OPSTR_CUSTOM_LOCATION, uid, packageName) ==
         //    AppOpsManager.MODE_ALLOWED
         Log.i(
