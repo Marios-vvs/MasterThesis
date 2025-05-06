@@ -3098,10 +3098,9 @@ public class AppOpsManager {
                 OPSTR_RECEIVE_SENSITIVE_NOTIFICATIONS, "RECEIVE_SENSITIVE_NOTIFICATIONS")
                 .setDefaultMode(MODE_IGNORED).build(),
         new AppOpInfo.Builder(OP_CUSTOM_LOCATION, OPSTR_CUSTOM_LOCATION, "CUSTOM_LOCATION")
-            .setPermission(android.Manifest.permission.ACCESS_CUSTOM_LOCATION)
-            .setRestriction(UserManager.DISALLOW_SHARE_LOCATION)
-            .setAllowSystemRestrictionBypass(new RestrictionBypass(true, false, false))
-            .setDefaultMode(AppOpsManager.MODE_ALLOWED).build()
+                .setRestriction(UserManager.DISALLOW_SHARE_LOCATION)
+                .setAllowSystemRestrictionBypass(new RestrictionBypass(true, false, false))
+                .setDefaultMode(AppOpsManager.MODE_ALLOWED).build()
     };
 
     // The number of longs needed to form a full bitmask of app ops
