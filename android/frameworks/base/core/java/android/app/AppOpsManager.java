@@ -2511,6 +2511,8 @@ public class AppOpsManager {
 
      /** Access to CUSTOM location information. */
     /* @hide */
+    @SystemApi
+    @FlaggedApi(FLAG_CUSTOM_LOCATION_OBFUSCATION)
     public static final String OPSTR_CUSTOM_LOCATION = "android:custom_location";
 
 
