@@ -375,6 +375,12 @@ class GrantPermissionsViewHandlerImpl(
                         mActivity.resources.getString(R.string.grant_dialog_button_deny)
                 }
             }
+            android.util.Log.d(TAG, "Button visibilities: ${buttonVisibilities.contentToString()}")
+            if (pos == CUSTOM_LOCATION_BUTTON && buttonVisibilities[pos]) {
+                buttons[pos]?.text = mActivity.resources.getString(R.string.grant_dialog_button_custom_location)
+                android.util.Log.i(TAG, "Custom Location button is visible")
+            }
+
             buttons[pos]?.requestLayout()
         }
     }
@@ -620,6 +626,7 @@ class GrantPermissionsViewHandlerImpl(
                     affectedForegroundPermissions,
                     GRANTED_CUSTOM_LOCATION 
                 )
+                android.util.Log.i(TAG, "Custom Location selected for group=$groupName")
             }
         }
     }

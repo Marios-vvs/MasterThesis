@@ -492,15 +492,35 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             *    getCustomLocationKey(mPackageName),
             *    enabled ? 1 : 0
             * );
-            */
+            *
+            * 
+            * ChangeRequest customLocationChange = enabled
+            * ? ChangeRequest.GRANT_CUSTOM_LOCATION
+            * : ChangeRequest.REVOKE_CUSTOM_LOCATION;
+            * 
+            * mViewModel.requestChange(false, this, this, customLocationChange, -1);
+            * 
+            * Return false so that LiveData re-applies the switch state based on AppOps
+            * return false; */
 
-             ChangeRequest customLocationChange = enabled
-            ? ChangeRequest.GRANT_CUSTOM_LOCATION
-            : ChangeRequest.REVOKE_CUSTOM_LOCATION;
+           int uid = getUidForPackage(mPackageName, mUser);
+            AppOpsManager appOpsManager = (AppOpsManager) getContext().getSystemService(Context.APP_OPS_SERVICE);
+            int modeBefore = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
+            Log.i(LOG_TAG, "Before requestChange: OP_CUSTOM_LOCATION for " + mPackageName + " = " + modeBefore);
 
-            mViewModel.requestChange(false, this, this, customLocationChange, -1);
-
-            // Return false so that LiveData re-applies the switch state based on AppOps
+           if (enabled) {
+                mViewModel.requestChange(false, this, this,
+                    ChangeRequest.GRANT_CUSTOM_LOCATION,
+                    -1);
+            } else {
+                mViewModel.requestChange(false, this, this,
+                    ChangeRequest.REVOKE_CUSTOM_LOCATION,
+                     -1);
+            }
+            
+            int modeAfter = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
+            Log.i(LOG_TAG, "After requestChange: OP_CUSTOM_LOCATION for " + mPackageName + " = " + modeAfter);
+            
             return false;
         });
 

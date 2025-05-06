@@ -974,14 +974,15 @@ class AppPermissionViewModel(
             KotlinUtils.setFlagsWhenLocationAccuracyChanged(app, group, false)
             return
         }
+        
 
         if (changeRequest == ChangeRequest.GRANT_CUSTOM_LOCATION) {
             KotlinUtils.setCustomLocationAppOp(app, packageName, user, MODE_ALLOWED)
             return
         }
-        
         if (changeRequest == ChangeRequest.REVOKE_CUSTOM_LOCATION) {
             KotlinUtils.setCustomLocationAppOp(app, packageName, user, MODE_IGNORED)
+
             return
         }
 
