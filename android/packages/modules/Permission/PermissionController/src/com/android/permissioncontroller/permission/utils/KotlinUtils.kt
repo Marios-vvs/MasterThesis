@@ -1053,8 +1053,6 @@ object KotlinUtils {
         LOG_TAG,
         "setCustomLocationAppOp called with context=$context, packageName=$packageName, user=$user, mode=$mode"
         )
-        return false
-
     }
 
     fun isCustomLocationAppOpAllowed(
