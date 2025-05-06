@@ -1043,36 +1043,33 @@ object KotlinUtils {
 
 
     fun setCustomLocationAppOp(
-        context: Context,
+        app: Application,
         packageName: String,
         user: UserHandle,
         mode: Int
     ) {
-         Log.i(
-        LOG_TAG,
-        "setCustomLocationAppOp called with context=$context, packageName=$packageName, user=$user, mode=$mode"
-        )
+        val userContext = Utils.getUserContext(app, user)
+        val uid = userContext.packageManager.getApplicationInfo(packageName, 0).uid
+        val appOpsManager = app.getSystemService(AppOpsManager::class.java)!!
 
-        val uid = context.packageManager.getApplicationInfoAsUser(packageName, 0, user).uid
-        val aom = context.getSystemService(AppOpsManager::class.java)!!
-        aom.setMode(OP_CUSTOM_LOCATION, uid, packageName, mode)
+        Log.i(LOG_TAG, "Setting custom location app op: uid=$uid, package=$packageName, mode=$mode")
+        appOpsManager.setUidMode("android:custom_location", uid, mode)
     }
 
     fun isCustomLocationAppOpAllowed(
-        context: Context,
+        app: Application,
         packageName: String,
         user: UserHandle
     ): Boolean {
-        Log.i(
-        LOG_TAG,
-        "isCustomLocationAppOpAllowed called with context=$context, packageName=$packageName, user=$user"
-        )
+        val userContext = Utils.getUserContext(app, user)
+        val uid = userContext.packageManager.getApplicationInfo(packageName, 0).uid
+        val appOpsManager = app.getSystemService(AppOpsManager::class.java)!!
 
-        val uid = context.packageManager.getApplicationInfoAsUser(packageName, 0, user).uid
-        val aom = context.getSystemService(AppOpsManager::class.java)!!
-        return aom.checkOpNoThrow(OPSTR_CUSTOM_LOCATION, uid, packageName) == AppOpsManager.MODE_ALLOWED
+        val result = appOpsManager.unsafeCheckOpNoThrow("android:custom_location", uid, packageName)
+        Log.i(LOG_TAG, "Queried custom location app op: uid=$uid, package=$packageName, mode=$result")
+
+        return result == AppOpsManager.MODE_ALLOWED
     }
-
 
 
 
