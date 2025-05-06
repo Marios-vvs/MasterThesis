@@ -1609,8 +1609,9 @@ public class AppOpsManager {
             AppProtoEnums.APP_OP_RECEIVE_SENSITIVE_NOTIFICATIONS;
 
     
+    //public static final int OP_CUSTOM_LOCATION = AppProtoEnums.APP_OP_CUSTOM_LOCATION;
     /** @hide Custom location permission (user-defined obfuscation). */
-    public static final int OP_CUSTOM_LOCATION = AppProtoEnums.APP_OP_CUSTOM_LOCATION;
+    public static final int OP_CUSTOM_LOCATION = 149;
     
 
     
@@ -2509,7 +2510,7 @@ public class AppOpsManager {
             "android:receive_sensitive_notifications";
 
      /** Access to CUSTOM location information. */
-     /** @hide */
+    /* @hide */
     public static final String OPSTR_CUSTOM_LOCATION = "android:custom_location";
 
 

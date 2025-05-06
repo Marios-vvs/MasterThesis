@@ -149,9 +149,9 @@
          OP_RECORD_INCOMING_PHONE_AUDIO = 115,
          OP_NEARBY_WIFI_DEVICES = 116,
          // CUSTOM_LOCATION
-         OP_CUSTOM_LOCATION = 149,
-         // _NUM_OP increased to 150 from 117 to accomodate OP_CUSTOM_LOCATION
-         _NUM_OP = 150
+         OP_CUSTOM_LOCATION = 117,
+         // _NUM_OP increased to 118 from 117 to accomodate OP_CUSTOM_LOCATION
+         _NUM_OP = 118
      };
  
      enum {
