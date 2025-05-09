@@ -239,6 +239,9 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
         mFooterStorageSpecialAppAccess =
                 requirePreference("app_permission_footer_storage_special_app_access");
         mAdditionalInfo = requirePreference("app_permission_additional_info");
+
+        Log.d(LOG_TAG, "AppPermissionFragment: Preferences loaded from XML");
+
     }
 
     @SuppressWarnings("TypeParameterUnusedInFormals")
@@ -294,7 +297,7 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             mDenyButton.setVisible(false);
             mDenyForegroundButton.setVisible(false);
             mLocationAccuracySwitch.setVisible(false);
-            mCustomLocationSwitch.setVisible(false);
+            // mCustomLocationSwitch.setVisible(false);
             mSelectButton.setVisible(false);
             mSelectButton.setExtraWidgetOnClickListener(null);
         }
@@ -376,6 +379,13 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
     }
 
     private void setRadioButtonsState(Map<ButtonType, ButtonState> states) {
+
+        Log.d(LOG_TAG, "Button states received:");
+        for (Map.Entry<ButtonType, ButtonState> entry : states.entrySet()) {
+            Log.d(LOG_TAG, "  " + entry.getKey() + " -> " + entry.getValue());
+        }
+
+
         if (states == null && !mViewModel.getButtonStateLiveData().isStale()) {
             pressBack(this);
             Log.w(LOG_TAG, "invalid package " + mPackageName + " or perm group "
@@ -504,14 +514,14 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
             * return false; */
 
            int uid = getUidForPackage(mPackageName, mUser);
-            AppOpsManager appOpsManager = (AppOpsManager) getContext().getSystemService(Context.APP_OPS_SERVICE);
-            int modeBefore = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
-            Log.i(LOG_TAG, "Before requestChange: OP_CUSTOM_LOCATION for " + mPackageName + " = " + modeBefore);
+           AppOpsManager appOpsManager = (AppOpsManager) getContext().getSystemService(Context.APP_OPS_SERVICE);
+           int modeBefore = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
+           Log.i(LOG_TAG, "Before requestChange: OP_CUSTOM_LOCATION for " + mPackageName + " = " + modeBefore);
 
            if (enabled) {
                 mViewModel.requestChange(false, this, this,
                     ChangeRequest.GRANT_CUSTOM_LOCATION,
-                    -1);
+                    1);
             } else {
                 mViewModel.requestChange(false, this, this,
                     ChangeRequest.REVOKE_CUSTOM_LOCATION,
@@ -542,13 +552,31 @@ public class AppPermissionFragment extends SettingsWithLargeHeader
 
         setButtonState(mLocationAccuracySwitch, states.get(ButtonType.LOCATION_ACCURACY));
 
-        Log.d(LOG_TAG, "Initializing custom location switch preference...");
-        // ButtonState customLocationState = states.get(ButtonType.CUSTOM_LOCATION);
-        setButtonState(mCustomLocationSwitch, states.get(ButtonType.CUSTOM_LOCATION));
-        // mCustomLocationSwitch.setVisible(customLocationState.isShown());
-        // mCustomLocationSwitch.setEnabled(customLocationState.isEnabled());
-        // mCustomLocationSwitch.setChecked(customLocationState.isChecked());
-        Log.d(LOG_TAG, "Custom location switch initialized: " + (mCustomLocationSwitch != null));
+        /** Log.d(LOG_TAG, "Initializing custom location switch preference...");
+        * ButtonState customLocationState = states.get(ButtonType.CUSTOM_LOCATION);
+        * setButtonState(mCustomLocationSwitch, states.get(ButtonType.CUSTOM_LOCATION));
+        * mCustomLocationSwitch.setVisible(customLocationState.isShown());
+        * mCustomLocationSwitch.setEnabled(customLocationState.isEnabled());
+        * mCustomLocationSwitch.setChecked(customLocationState.isChecked());
+        * Log.d(LOG_TAG, "Custom location switch initialized: " + (mCustomLocationSwitch != null));
+        */
+
+        ButtonState customLocationState = states.get(ButtonType.CUSTOM_LOCATION);
+
+        if (customLocationState == null) {
+            Log.w(LOG_TAG, "ButtonState for CUSTOM_LOCATION is missing! Using fallback.");
+            mCustomLocationSwitch.setVisible(false);
+            mCustomLocationSwitch.setEnabled(false);
+            mCustomLocationSwitch.setChecked(false);
+        } else {
+            Log.d(LOG_TAG, "CustomLocation ButtonState: shown=" + customLocationState.isShown() +
+                    ", enabled=" + customLocationState.isEnabled() +
+                    ", checked=" + customLocationState.isChecked());
+
+            mCustomLocationSwitch.setVisible(customLocationState.isShown());
+            mCustomLocationSwitch.setEnabled(customLocationState.isEnabled());
+            mCustomLocationSwitch.setChecked(customLocationState.isChecked());
+        }
 
         mIsInitialLoad = false;
 
