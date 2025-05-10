@@ -44,11 +44,13 @@ import static com.android.permissioncontroller.permission.ui.handheld.UtilsKt.pr
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.AppOpsManager;
 import android.app.Dialog;
 import android.app.role.RoleManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -495,7 +497,7 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
                 Log.d(LOG_TAG, "Before AppOps change: OP_CUSTOM_LOCATION = " + before);
 
                 ChangeRequest req = enabled ? ChangeRequest.GRANT_CUSTOM_LOCATION : ChangeRequest.REVOKE_CUSTOM_LOCATION;
-                mViewModel.requestChange(false, this, this, req);
+                mViewModel.requestChange(false, this, this, req, 1);
 
                 int after = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
                 Log.d(LOG_TAG, "After AppOps change: OP_CUSTOM_LOCATION = " + after);
