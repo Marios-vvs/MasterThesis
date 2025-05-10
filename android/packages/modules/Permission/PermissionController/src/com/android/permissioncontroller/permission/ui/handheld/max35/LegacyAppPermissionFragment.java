@@ -133,6 +133,8 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
     private @NonNull View mSelectPhotosDivider;
     private @NonNull View mLocationAccuracy;
     private @NonNull Switch mLocationAccuracySwitch;
+    private @NonNull Switch mCustomLocationSwitch;
+
     private @NonNull View mDivider;
     private @NonNull ViewGroup mWidgetFrame;
     private @NonNull TextView mPermissionDetails;
@@ -266,6 +268,7 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
         mPermissionDetails = root.requireViewById(R.id.permission_details);
         mLocationAccuracy = root.requireViewById(R.id.location_accuracy);
         mLocationAccuracySwitch = root.requireViewById(R.id.location_accuracy_switch);
+        mCustomLocationSwitch = root.requireViewById(R.id.custom_location_switch);
         mAllowLimitedPhotosLayout = root.requireViewById(R.id.radio_select_layout);
         mEditSelectedPhotosButton = root.requireViewById(R.id.edit_selected_button);
         mSelectPhotosDivider = root.requireViewById(R.id.edit_photos_divider);
@@ -464,6 +467,38 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
             }
         });
 
+        ButtonState customLocationState = states.get(ButtonType.CUSTOM_LOCATION);
+        if (customLocationState == null || !customLocationState.isShown()) {
+            Log.d(LOG_TAG, "Custom location switch not shown. Hiding it.");
+            mCustomLocation.setVisibility(View.GONE);
+        } else {
+            Log.d(LOG_TAG, "Custom location switch shown. Setting state: checked="
+                    + customLocationState.isChecked() + ", enabled=" + customLocationState.isEnabled());
+
+            mCustomLocation.setVisibility(View.VISIBLE);
+            mCustomLocationSwitch.setChecked(customLocationState.isChecked());
+            mCustomLocationSwitch.setEnabled(customLocationState.isEnabled());
+
+            mCustomLocation.setOnClickListener((v) -> {
+                Log.d(LOG_TAG, "Custom location container clicked");
+                mCustomLocationSwitch.performClick();
+
+                boolean enabled = mCustomLocationSwitch.isChecked();
+                Log.d(LOG_TAG, "Custom location switch new state: " + enabled);
+
+                int uid = getUidForPackage(mPackageName, mUser);
+                AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
+                int before = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
+                Log.d(LOG_TAG, "Before AppOps change: OP_CUSTOM_LOCATION = " + before);
+
+                ChangeRequest req = enabled ? ChangeRequest.GRANT_CUSTOM_LOCATION : ChangeRequest.REVOKE_CUSTOM_LOCATION;
+                mViewModel.requestChange(false, this, this, req);
+
+                int after = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
+                Log.d(LOG_TAG, "After AppOps change: OP_CUSTOM_LOCATION = " + after);
+            });
+        }
+
         setButtonState(mAllowButton, states.get(ButtonType.ALLOW));
         setButtonState(mAllowAlwaysButton, states.get(ButtonType.ALLOW_ALWAYS));
         setButtonState(mAllowForegroundButton, states.get(ButtonType.ALLOW_FOREGROUND));
@@ -494,6 +529,18 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
 
         if (mViewModel.getFullStorageStateLiveData().isInitialized()) {
             setSpecialStorageState(mViewModel.getFullStorageStateLiveData().getValue());
+        }
+    }
+
+    private int getUidForPackage(String packageName, UserHandle user) {
+        try {
+            return requireContext()
+                .getPackageManager()
+                .getApplicationInfoAsUser(packageName, 0, user)
+                .uid;
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(LOG_TAG, "Package not found: " + packageName, e);
+            return -1;
         }
     }
 
