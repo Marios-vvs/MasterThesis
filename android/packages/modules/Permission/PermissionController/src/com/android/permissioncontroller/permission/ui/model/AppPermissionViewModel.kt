@@ -683,23 +683,13 @@ class AppPermissionViewModel(
                             group.permissions.containsKey(ACCESS_FINE_LOCATION)
                 }
                 val hasCustom = KotlinUtils.isCustomLocationAppOpAllowed(app, packageName, user)
-                val newCustomLocationState = ButtonState(
-                    isChecked = hasCustom,
-                    isEnabled = !(group.foreground.isSystemFixed || group.foreground.isPolicyFixed),
-                    isShown = shouldShowCustomLocation == true && !deniedState.isChecked,
-                    customRequest = null
-                )
-
-                // Avoid flickering: reuse previous state if identical
-                val customLocationState = if (prevCustomLocationState != null &&
-                    prevCustomLocationState!!.isChecked == newCustomLocationState.isChecked &&
-                    prevCustomLocationState!!.isEnabled == newCustomLocationState.isEnabled &&
-                    prevCustomLocationState!!.isShown == newCustomLocationState.isShown
-                ) {
-                    prevCustomLocationState!!
-                } else {
-                    prevCustomLocationState = newCustomLocationState
-                    newCustomLocationState
+                val customLocationState =
+                    ButtonState(hasCustom, true, false, null)
+                if (shouldShowCustomLocation == true && !deniedState.isChecked) {
+                    customLocationState.isShown = true
+                }
+                if (group.foreground.isSystemFixed || group.foreground.isPolicyFixed) {
+                    customLocationState.isEnabled = false
                 }
 
                 Log.d(LOG_TAG, "shouldShowCustomLocation=$shouldShowCustomLocation for group=$permGroupName")
