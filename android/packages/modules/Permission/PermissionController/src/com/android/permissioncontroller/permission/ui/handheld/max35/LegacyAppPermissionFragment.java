@@ -501,7 +501,6 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
 
                 int after = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
                 Log.d(LOG_TAG, "After AppOps change: OP_CUSTOM_LOCATION = " + after);
-                return false;
             });
         }
 
