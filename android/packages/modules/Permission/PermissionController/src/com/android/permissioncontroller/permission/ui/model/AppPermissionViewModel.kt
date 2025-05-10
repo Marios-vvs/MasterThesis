@@ -982,7 +982,6 @@ class AppPermissionViewModel(
         }
         if (changeRequest == ChangeRequest.REVOKE_CUSTOM_LOCATION) {
             KotlinUtils.setCustomLocationAppOp(app, packageName, user, MODE_IGNORED)
-
             return
         }
 
