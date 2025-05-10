@@ -188,6 +188,9 @@ class AppPermissionViewModel(
     /* Whether the current ViewModel is Location permission with both Coarse and Fine */
     private var shouldShowCustomLocation: Boolean? = null
 
+    /* Tracking previous CUSTOM BUTTON state to avoid flickering */
+    private var prevCustomLocationState: ButtonState? = null
+
     /** A livedata which determines which detail string, if any, should be shown */
     val detailResIdLiveData = MutableLiveData<Pair<Int, Int?>>()
     /** A livedata which stores the device admin, if there is one */
@@ -680,13 +683,23 @@ class AppPermissionViewModel(
                             group.permissions.containsKey(ACCESS_FINE_LOCATION)
                 }
                 val hasCustom = KotlinUtils.isCustomLocationAppOpAllowed(app, packageName, user)
-                val customLocationState =
-                    ButtonState(hasCustom, true, false, null)
-                if (shouldShowCustomLocation == true && !deniedState.isChecked) {
-                    customLocationState.isShown = true
-                }
-                if (group.foreground.isSystemFixed || group.foreground.isPolicyFixed) {
-                    customLocationState.isEnabled = false
+                val newCustomLocationState = ButtonState(
+                    isChecked = hasCustom,
+                    isEnabled = !(group.foreground.isSystemFixed || group.foreground.isPolicyFixed),
+                    isShown = shouldShowCustomLocation == true && !deniedState.isChecked,
+                    customRequest = null
+                )
+
+                // Avoid flickering: reuse previous state if identical
+                val customLocationState = if (prevCustomLocationState != null &&
+                    prevCustomLocationState!!.isChecked == newCustomLocationState.isChecked &&
+                    prevCustomLocationState!!.isEnabled == newCustomLocationState.isEnabled &&
+                    prevCustomLocationState!!.isShown == newCustomLocationState.isShown
+                ) {
+                    prevCustomLocationState!!
+                } else {
+                    prevCustomLocationState = newCustomLocationState
+                    newCustomLocationState
                 }
 
                 Log.d(LOG_TAG, "shouldShowCustomLocation=$shouldShowCustomLocation for group=$permGroupName")
