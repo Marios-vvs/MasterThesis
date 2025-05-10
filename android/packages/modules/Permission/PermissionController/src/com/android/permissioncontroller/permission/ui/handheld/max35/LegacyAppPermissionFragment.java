@@ -133,6 +133,7 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
     private @NonNull View mSelectPhotosDivider;
     private @NonNull View mLocationAccuracy;
     private @NonNull Switch mLocationAccuracySwitch;
+    private @NonNull View mCustomLocation;
     private @NonNull Switch mCustomLocationSwitch;
 
     private @NonNull View mDivider;
@@ -268,6 +269,7 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
         mPermissionDetails = root.requireViewById(R.id.permission_details);
         mLocationAccuracy = root.requireViewById(R.id.location_accuracy);
         mLocationAccuracySwitch = root.requireViewById(R.id.location_accuracy_switch);
+        mCustomLocation = root.requireViewById(R.id.custom_location);
         mCustomLocationSwitch = root.requireViewById(R.id.custom_location_switch);
         mAllowLimitedPhotosLayout = root.requireViewById(R.id.radio_select_layout);
         mEditSelectedPhotosButton = root.requireViewById(R.id.edit_selected_button);
@@ -285,6 +287,7 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
             mDenyButton.setVisibility(View.GONE);
             mDenyForegroundButton.setVisibility(View.GONE);
             mLocationAccuracy.setVisibility(View.GONE);
+            mCustomLocation.setVisibility(View.GONE);
             mAllowLimitedPhotosLayout.setVisibility(View.GONE);
             mSelectPhotosDivider.setAlpha(0f);
             mEditSelectedPhotosButton.setAlpha(0f);
