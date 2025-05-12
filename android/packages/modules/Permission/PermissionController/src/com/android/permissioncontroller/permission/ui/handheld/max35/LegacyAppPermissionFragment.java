@@ -136,7 +136,9 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
     private @NonNull View mLocationAccuracy;
     private @NonNull Switch mLocationAccuracySwitch;
     private @NonNull View mCustomLocation;
+    
     private @NonNull Switch mCustomLocationSwitch;
+    private OnOpChangedListener mCustomLocationOpListener;
 
     private @NonNull View mDivider;
     private @NonNull ViewGroup mWidgetFrame;
@@ -369,6 +371,27 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
         }
 
         ActionBarShadowController.attachToView(getActivity(), getLifecycle(), mNestedScrollView);
+
+        AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
+        mCustomLocationOpListener = (op, packageName) -> {
+            if (AppOpsManager.OPSTR_CUSTOM_LOCATION.equals(op) && mPackageName.equals(packageName)) {
+                int uid = getUidForPackage(mPackageName, mUser);
+                int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, mPackageName);
+                boolean enabled = (mode == AppOpsManager.MODE_ALLOWED);
+                Log.d(LOG_TAG, "AppOps changed. Updating custom location switch: " + enabled);
+                requireActivity().runOnUiThread(() -> mCustomLocationSwitch.setChecked(enabled));
+            }
+        };
+        appOpsManager.startWatchingMode(AppOpsManager.OPSTR_CUSTOM_LOCATION, /* packageName */ null, mCustomLocationOpListener);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        if (mCustomLocationOpListener != null) {
+            AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
+            appOpsManager.stopWatchingMode(mCustomLocationOpListener);
+        }
     }
 
     @Override
@@ -491,16 +514,21 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
                 boolean enabled = mCustomLocationSwitch.isChecked();
                 Log.d(LOG_TAG, "Custom location switch new state: " + enabled);
 
-                int uid = getUidForPackage(mPackageName, mUser);
-                AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
-                int before = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
-                Log.d(LOG_TAG, "Before AppOps change: OP_CUSTOM_LOCATION = " + before);
-
-                ChangeRequest req = enabled ? ChangeRequest.GRANT_CUSTOM_LOCATION : ChangeRequest.REVOKE_CUSTOM_LOCATION;
-                mViewModel.requestChange(false, this, this, req, -1);
-
-                int after = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
-                Log.d(LOG_TAG, "After AppOps change: OP_CUSTOM_LOCATION = " + after);
+                /** int uid = getUidForPackage(mPackageName, mUser);
+                * AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
+                * int before = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
+                * Log.d(LOG_TAG, "Before AppOps change: OP_CUSTOM_LOCATION = " + before);
+                * 
+                * ChangeRequest req = enabled ? ChangeRequest.GRANT_CUSTOM_LOCATION : ChangeRequest.REVOKE_CUSTOM_LOCATION;
+                * mViewModel.requestChange(false, this, this, req, -1);
+                * 
+                * int after = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
+                * Log.d(LOG_TAG, "After AppOps change: OP_CUSTOM_LOCATION = " + after);
+                */
+                Application app = requireActivity().getApplication();
+                int mode = enabled ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED;
+                KotlinUtils.INSTANCE.setCustomLocationAppOp(app, mPackageName, mUser, mode);
+                Log.i(LOG_TAG, "Custom location AppOp set via KotlinUtils. Mode=" + mode);
             });
         }
 

@@ -189,7 +189,7 @@ class AppPermissionViewModel(
     private var shouldShowCustomLocation: Boolean? = null
 
     /* Tracking previous CUSTOM BUTTON state to avoid flickering */
-    private var prevCustomLocationState: ButtonState? = null
+    // private var prevCustomLocationState: ButtonState? = null
 
     /** A livedata which determines which detail string, if any, should be shown */
     val detailResIdLiveData = MutableLiveData<Pair<Int, Int?>>()
@@ -684,7 +684,7 @@ class AppPermissionViewModel(
                 }
                 val hasCustom = KotlinUtils.isCustomLocationAppOpAllowed(app, packageName, user)
                 val customLocationState =
-                    ButtonState(hasCustom, true, false, null)
+                    ButtonState(hasCustom, hasCustom, false, null)
                 if (shouldShowCustomLocation == true && !deniedState.isChecked) {
                     customLocationState.isShown = true
                 }
