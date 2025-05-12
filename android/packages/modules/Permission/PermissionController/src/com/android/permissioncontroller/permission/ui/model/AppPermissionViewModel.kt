@@ -682,7 +682,11 @@ class AppPermissionViewModel(
                         isCustomLocationAvailableForApp(group) &&
                             group.permissions.containsKey(ACCESS_FINE_LOCATION)
                 }
-                val hasCustom = KotlinUtils.isCustomLocationAppOpAllowed(app, packageName, user)
+                // val hasCustom = KotlinUtils.isCustomLocationAppOpAllowed(app, packageName, user)
+                val appOps = app.getSystemService(AppOpsManager::class.java)
+                val uid = KotlinUtils.getPackageUid(app, packageName, user)
+                val mode = appOps?.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid ?: -1, packageName)
+                val hasCustom = mode == AppOpsManager.MODE_ALLOWED
                 val customLocationState =
                     ButtonState(hasCustom, hasCustom, false, null)
                 if (shouldShowCustomLocation == true && !deniedState.isChecked) {

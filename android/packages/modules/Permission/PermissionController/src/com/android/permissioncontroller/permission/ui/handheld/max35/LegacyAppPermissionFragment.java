@@ -44,7 +44,9 @@ import static com.android.permissioncontroller.permission.ui.handheld.UtilsKt.pr
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
+import android.app.Application;
 import android.app.AppOpsManager;
+import android.app.AppOpsManager.OnOpChangedListener;
 import android.app.Dialog;
 import android.app.role.RoleManager;
 import android.content.Context;
@@ -382,6 +384,7 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
                 boolean enabled = (mode == AppOpsManager.MODE_ALLOWED);
                 Log.d(LOG_TAG, "AppOps changed. Updating custom location switch: " + enabled);
                 requireActivity().runOnUiThread(() -> mCustomLocationSwitch.setChecked(enabled));
+                mViewModel.buttonStateLiveData.update(); 
             }
         };
         appOpsManager.startWatchingMode(AppOpsManager.OPSTR_CUSTOM_LOCATION, /* packageName */ null, mCustomLocationOpListener);
