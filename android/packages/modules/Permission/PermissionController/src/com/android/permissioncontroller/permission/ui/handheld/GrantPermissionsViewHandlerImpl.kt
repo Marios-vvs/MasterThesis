@@ -27,6 +27,7 @@ import android.text.method.LinkMovementMethod
 import android.transition.ChangeBounds
 import android.transition.TransitionManager
 import android.util.SparseIntArray
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -625,6 +626,7 @@ class GrantPermissionsViewHandlerImpl(
                     groupName,
                     affectedForegroundPermissions,
                     GRANTED_CUSTOM_LOCATION 
+                )
                 android.util.Log.i(TAG, "Custom Location selected for group=$groupName")
             }
         }
