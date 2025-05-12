@@ -378,10 +378,6 @@ class AppPermissionViewModel(
         constructor() : this(false, true, false, null)
     }
 
-    fun refreshAppOps() {
-        buttonStateLiveData.update()
-    }
-
 
     /** A livedata which computes the state of the radio buttons */
     val buttonStateLiveData =
