@@ -373,6 +373,8 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
         ActionBarShadowController.attachToView(getActivity(), getLifecycle(), mNestedScrollView);
 
         AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
+
+        // Register the listener
         mCustomLocationOpListener = (op, packageName) -> {
             if (AppOpsManager.OPSTR_CUSTOM_LOCATION.equals(op) && mPackageName.equals(packageName)) {
                 int uid = getUidForPackage(mPackageName, mUser);
@@ -383,7 +385,16 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
             }
         };
         appOpsManager.startWatchingMode(AppOpsManager.OPSTR_CUSTOM_LOCATION, /* packageName */ null, mCustomLocationOpListener);
+
+        // Immediately query AppOp state and update toggle
+        int uid = getUidForPackage(mPackageName, mUser);
+        int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, mPackageName);
+        boolean enabled = (mode == AppOpsManager.MODE_ALLOWED);
+        Log.d(LOG_TAG, "onStart: Initial AppOp mode=" + mode + ", setting switch to: " + enabled);
+        mCustomLocationSwitch.setChecked(enabled);
+        mCustomLocationSwitch.setEnabled(true);
     }
+
 
     @Override
     public void onStop() {
