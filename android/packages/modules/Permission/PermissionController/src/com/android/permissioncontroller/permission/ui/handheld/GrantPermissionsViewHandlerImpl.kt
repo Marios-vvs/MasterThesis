@@ -625,12 +625,6 @@ class GrantPermissionsViewHandlerImpl(
                     groupName,
                     affectedForegroundPermissions,
                     GRANTED_CUSTOM_LOCATION 
-                )
-                resultListener.onPermissionGrantResult(
-                    groupName,
-                    affectedForegroundPermissions,
-                    GRANTED_FOREGROUND_ONLY
-                )
                 android.util.Log.i(TAG, "Custom Location selected for group=$groupName")
             }
         }

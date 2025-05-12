@@ -43,6 +43,7 @@ import static com.android.permissioncontroller.permission.utils.v35.MultiDeviceU
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.AppOpsManager;
 import android.app.KeyguardManager;
 import android.app.ecm.EnhancedConfirmationManager;
 import android.content.Context;
@@ -995,7 +996,34 @@ public class GrantPermissionsActivity extends SettingsActivity
 
         if (result == GRANTED_CUSTOM_LOCATION) {
             Log.i(LOG_TAG, "Custom location selected for group: " + name);
-            mViewModel.onPermissionGrantResult(name, affectedForegroundPermissions, result);
+            // mViewModel.onPermissionGrantResult(name, affectedForegroundPermissions, result);
+            // proceedToNextRequestOrFinish();
+            // return;
+           
+            List<String> permissionsToGrant = affectedForegroundPermissions;
+            if (permissionsToGrant == null || permissionsToGrant.isEmpty()) {
+                permissionsToGrant = List.of(ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION);
+            }
+
+            // Step 1: Grant ACCESS_FINE_LOCATION and ACCESS_COARSE_LOCATION (foreground only)
+            mViewModel.onPermissionGrantResult(name, permissionsToGrant, GRANTED_FOREGROUND_ONLY);
+
+            // Step 2: Set custom location AppOp to MODE_ALLOWED
+            int uid = getPackageUid(mTargetPackage, Process.myUserHandle());
+            if (uid != android.os.Process.INVALID_UID) {
+                AppOpsManager appOps = getSystemService(AppOpsManager.class);
+                if (appOps != null) {
+                    appOps.setMode(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, mTargetPackage,
+                            AppOpsManager.MODE_ALLOWED);
+                    Log.i(LOG_TAG, "Custom location AppOp set to MODE_ALLOWED for " + mTargetPackage);
+                } else {
+                    Log.w(LOG_TAG, "AppOpsManager is null, cannot set custom location AppOp");
+                }
+            } else {
+                Log.w(LOG_TAG, "Invalid UID for package: " + mTargetPackage);
+            }
+
+            logGrantPermissionActivityButtons(name, permissionsToGrant, result);
             proceedToNextRequestOrFinish();
             return;
         }
