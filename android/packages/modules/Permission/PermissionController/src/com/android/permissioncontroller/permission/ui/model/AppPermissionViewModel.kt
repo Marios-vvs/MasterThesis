@@ -382,7 +382,11 @@ class AppPermissionViewModel(
         val app = getApplication<Application>()
         val uid = KotlinUtils.getPackageUid(app, packageName, user) ?: return
         val appOps = app.getSystemService(AppOpsManager::class.java) ?: return
-        val mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, packageName)
+        val mode = appOps.checkOpNoThrow(
+            AppOpsManager.OPSTR_CUSTOM_LOCATION,
+            uid,
+            packageName
+        )
         val enabled = (mode == AppOpsManager.MODE_ALLOWED)
 
         Log.d(LOG_TAG, "updateCustomLocationState: mode=$mode, enabled=$enabled")
