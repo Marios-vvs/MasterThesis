@@ -40,6 +40,7 @@ import android.health.connect.HealthPermissions.HEALTH_PERMISSION_GROUP
 import android.os.Build
 import android.os.Bundle
 import android.os.Process
+import android.os.UserHandle
 import android.permission.PermissionManager
 import android.util.Log
 import androidx.core.util.Consumer
