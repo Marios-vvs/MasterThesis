@@ -43,7 +43,6 @@ import static com.android.server.location.LocationManagerService.TAG;
 import static com.android.server.location.LocationPermissions.PERMISSION_COARSE;
 import static com.android.server.location.LocationPermissions.PERMISSION_FINE;
 import static com.android.server.location.LocationPermissions.PERMISSION_NONE;
-import static com.android.server.location.LocationPermissions.PERMISSION_CUSTOM;
 import static com.android.server.location.eventlog.LocationEventLog.EVENT_LOG;
 
 import static java.lang.Math.max;
