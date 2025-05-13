@@ -1016,6 +1016,7 @@ public class GrantPermissionsActivity extends SettingsActivity
                     // appOps.setMode(AppOpsManager.OP_CUSTOM_LOCATION, uid, mTargetPackage, AppOpsManager.MODE_ALLOWED);
                     appOps.setMode("android:custom_location", uid, mTargetPackage, AppOpsManager.MODE_ALLOWED);
                     mViewModel.refreshAppOps();
+                    mViewModel.updateCustomLocationState(mTargetPackage, Process.myUserHandle());
                     Log.i(LOG_TAG, "Custom location AppOp set to MODE_ALLOWED for " + mTargetPackage);
                 } else {
                     Log.w(LOG_TAG, "AppOpsManager is null, cannot set custom location AppOp");

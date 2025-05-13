@@ -378,6 +378,18 @@ class AppPermissionViewModel(
         constructor() : this(false, true, false, null)
     }
 
+    fun updateCustomLocationState(packageName: String, user: UserHandle) {
+        val app = getApplication<Application>()
+        val uid = KotlinUtils.getPackageUid(app, packageName, user) ?: return
+        val appOps = app.getSystemService(AppOpsManager::class.java) ?: return
+        val mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, packageName)
+        val enabled = (mode == AppOpsManager.MODE_ALLOWED)
+
+        Log.d(LOG_TAG, "updateCustomLocationState: mode=$mode, enabled=$enabled")
+
+        buttonStateLiveData.update() // Or trigger whatever LiveData observes the switch
+    }
+
 
     /** A livedata which computes the state of the radio buttons */
     val buttonStateLiveData =
@@ -719,6 +731,7 @@ class AppPermissionViewModel(
                     )
             }
         }
+
 
     @ChecksSdkIntAtLeast(api = Build.VERSION_CODES.VANILLA_ICE_CREAM, codename = "VanillaIceCream")
     fun handleDisabledAllowButton(fragment: Fragment) {
