@@ -43,6 +43,7 @@ import static com.android.server.location.LocationManagerService.TAG;
 import static com.android.server.location.LocationPermissions.PERMISSION_COARSE;
 import static com.android.server.location.LocationPermissions.PERMISSION_FINE;
 import static com.android.server.location.LocationPermissions.PERMISSION_NONE;
+import static com.android.server.location.LocationPermissions.PERMISSION_CUSTOM;
 import static com.android.server.location.eventlog.LocationEventLog.EVENT_LOG;
 
 import static java.lang.Math.max;
@@ -2656,33 +2657,6 @@ public class LocationProviderManager extends
             // passive provider should get already processed results as input
             processed = locationResult;
         }
-
-        /*
-
-        boolean isCustomEnabled = Settings.Global.getInt(
-            mContext.getContentResolver(),
-            Settings.Global.CUSTOM_LOCATION_ENABLED,
-            0
-        ) == 1;
-
-        if(isCustomEnabled){
-            processed = mLocationFudger.createCoarse(processed);
-        }
-
-        
-        if(isCustomEnabled){
-            ArrayList<Location> obfuscatedLocations = new ArrayList<>();
-            for (Location location : processed.asList()){
-                Location obfuscated = mLocationFudger.createCoarse(location);
-                obfuscatedLocations.add(obfuscated);
-                Log.d(TAG, "non-obfuscated location coordiantes are: " + location.latitude + " ," + location.longitude);
-                Log.d(TAG, "obfuscated location coordiantes are: " + obfuscated.latitude + " ," + obfuscated.longitude);
-            }
-            processed = LocationResult.create(obfuscatedLocations);
-        }
-        */
-
-
         // check for non-monotonic locations if we're not the passive manager. the passive manager
         // is much more likely to see non-monotonic locations since it gets locations from all
         // providers, so this error log is not very useful there.
@@ -2865,23 +2839,22 @@ public class LocationProviderManager extends
         updateRegistrations(registration -> registration.getIdentity().getUserId() == userId);
     }
 
+    private boolean isCustomLocationEnabled(int uid, String packageName) {
+        AppOpsManager appOps = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
+        return appOps != null &&
+            appOps.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, packageName)
+                    == AppOpsManager.MODE_ALLOWED;
+    }
+
+
     @Nullable Location getPermittedLocation(@Nullable Location fineLocation,
             @PermissionLevel int permissionLevel) {
 
-        /**
-         * AppOpsManager appOps = mContext.getSystemService(AppOpsManager.class);
-         * int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName);
-         * boolean obfuscate = (mode == AppOpsManager.MODE_ALLOWED);         
-         */ 
-        
-        /*boolean isCustomEnabled = Settings.Global.getInt(
-            mContext.getContentResolver(),
-            Settings.Global.CUSTOM_LOCATION_ENABLED,
-            0
-        ) == 1;*/
-
         switch (permissionLevel) {
             case PERMISSION_FINE:
+                if (isCustomLocationEnabled(uid, packageName)) {
+                    return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult)
+                }
                 return fineLocation;
             case PERMISSION_COARSE:
                 return fineLocation != null ? mLocationFudger.createCoarse(fineLocation) : null;
@@ -2889,33 +2862,16 @@ public class LocationProviderManager extends
                 // shouldn't be possible to have a client added without location permissions
                 throw new AssertionError();
         }
-
-        /* if(isCustomEnabled){
-            return fineLocation != null ? mLocationFudger.createCoarse(fineLocation) : null;
-        } else{
-            return fineLocation;
-        } */
     }
 
     @Nullable LocationResult getPermittedLocationResult(
             @Nullable LocationResult fineLocationResult, @PermissionLevel int permissionLevel) {
-
-        /* boolean isCustomEnabled = Settings.Global.getInt(
-            mContext.getContentResolver(),
-            Settings.Global.CUSTOM_LOCATION_ENABLED,
-            0
-        ) == 1;*/
-
-        /**
-         *  AppOpsManager appOps = mContext.getSystemService(AppOpsManager.class);
-         *  int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION, uid, packageName);
-         *  boolean obfuscate = (mode == AppOpsManager.MODE_ALLOWED); 
-         */
-       
         
-
         switch (permissionLevel) {
             case PERMISSION_FINE:
+                if (isCustomLocationEnabled(uid, packageName)) {
+                    return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult)
+                }
                 return fineLocationResult;
             case PERMISSION_COARSE:
                 return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult)
@@ -2924,12 +2880,6 @@ public class LocationProviderManager extends
                 // shouldn't be possible to have a client added without location permissions
                 throw new AssertionError();
         }
-
-        /* if(isCustomEnabled){
-            return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult) : null;
-        } else{
-            return fineLocationResult;
-        } */
     }
 
     public void dump(FileDescriptor fd, IndentingPrintWriter ipw, String[] args) {
