@@ -379,16 +379,17 @@ class AppPermissionViewModel(
     }
 
     fun updateCustomLocationState(packageName: String, user: UserHandle) {
-        val app = getApplication<Application>()
+        val app = mApp  // Correct reference to the Application
         val uid = KotlinUtils.getPackageUid(app, packageName, user) ?: return
         val appOps = app.getSystemService(AppOpsManager::class.java) ?: return
-        val mode = appOps.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, packageName)
+        val mode = appOps.unsafeCheckOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, packageName)
         val enabled = (mode == AppOpsManager.MODE_ALLOWED)
 
         Log.d(LOG_TAG, "updateCustomLocationState: mode=$mode, enabled=$enabled")
 
-        buttonStateLiveData.update() // Or trigger whatever LiveData observes the switch
+        buttonStateLiveData.update()  // Triggers the LiveData recomputation
     }
+
 
 
     /** A livedata which computes the state of the radio buttons */
