@@ -44,6 +44,7 @@ import static com.android.permissioncontroller.permission.utils.v35.MultiDeviceU
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AppOpsManager;
+import android.app.AppOpsManager.OP_CUSTOM_LOCATION;
 import android.app.KeyguardManager;
 import android.app.ecm.EnhancedConfirmationManager;
 import android.content.Context;
