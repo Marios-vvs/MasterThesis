@@ -376,26 +376,44 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
 
         AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
 
-        // Register the listener
         mCustomLocationOpListener = (op, packageName) -> {
+        if (AppOpsManager.OPSTR_CUSTOM_LOCATION.equals(op) && mPackageName.equals(packageName)) {
+            requireActivity().runOnUiThread(() -> {
+                Log.d(LOG_TAG, "AppOps changed. Updating custom location UI state.");
+                mViewModel.getButtonStateLiveData().update();
+                });
+            }
+        };
+        appOpsManager.startWatchingMode(AppOpsManager.OPSTR_CUSTOM_LOCATION, null, mCustomLocationOpListener);
+
+        // Recheck AppOp state in case it changed while we were paused
+        mViewModel.getButtonStateLiveData().update(); // <-- this will re-trigger the full UI state update via LiveData
+
+        // Register the listener
+        /* mCustomLocationOpListener = (op, packageName) -> {
             if (AppOpsManager.OPSTR_CUSTOM_LOCATION.equals(op) && mPackageName.equals(packageName)) {
                 int uid = getUidForPackage(mPackageName, mUser);
                 int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, mPackageName);
                 boolean enabled = (mode == AppOpsManager.MODE_ALLOWED);
                 Log.d(LOG_TAG, "AppOps changed. Updating custom location switch: " + enabled);
-                requireActivity().runOnUiThread(() -> mCustomLocationSwitch.setChecked(enabled));
-                mViewModel.buttonStateLiveData.update(); 
+                requireActivity().runOnUiThread(() -> {
+                    mCustomLocationSwitch.setChecked(enabled);
+                    mViewModel.getButtonStateLiveData().update();
+                });
             }
         };
-        appOpsManager.startWatchingMode(AppOpsManager.OPSTR_CUSTOM_LOCATION, /* packageName */ null, mCustomLocationOpListener);
+        */
+        // appOpsManager.startWatchingMode(AppOpsManager.OPSTR_CUSTOM_LOCATION, /* packageName */ null, mCustomLocationOpListener);
 
         // Immediately query AppOp state and update toggle
-        int uid = getUidForPackage(mPackageName, mUser);
-        int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, mPackageName);
-        boolean enabled = (mode == AppOpsManager.MODE_ALLOWED);
-        Log.d(LOG_TAG, "onStart: Initial AppOp mode=" + mode + ", setting switch to: " + enabled);
-        mCustomLocationSwitch.setChecked(enabled);
-        mCustomLocationSwitch.setEnabled(true);
+        // int uid = getUidForPackage(mPackageName, mUser);
+        // int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, mPackageName);
+        // boolean enabled = (mode == AppOpsManager.MODE_ALLOWED);
+        // Log.d(LOG_TAG, "onStart: Initial AppOp mode=" + mode + ", setting switch to: " + enabled);
+        // mCustomLocationSwitch.setChecked(enabled);
+        // mCustomLocationSwitch.setEnabled(true);
+        // mViewModel.getButtonStateLiveData().update();
+
     }
 
 
@@ -528,17 +546,6 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
                 boolean enabled = mCustomLocationSwitch.isChecked();
                 Log.d(LOG_TAG, "Custom location switch new state: " + enabled);
 
-                /** int uid = getUidForPackage(mPackageName, mUser);
-                * AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
-                * int before = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
-                * Log.d(LOG_TAG, "Before AppOps change: OP_CUSTOM_LOCATION = " + before);
-                * 
-                * ChangeRequest req = enabled ? ChangeRequest.GRANT_CUSTOM_LOCATION : ChangeRequest.REVOKE_CUSTOM_LOCATION;
-                * mViewModel.requestChange(false, this, this, req, -1);
-                * 
-                * int after = appOpsManager.checkOpNoThrow("android:custom_location", uid, mPackageName);
-                * Log.d(LOG_TAG, "After AppOps change: OP_CUSTOM_LOCATION = " + after);
-                */
                 Application app = requireActivity().getApplication();
                 int mode = enabled ? AppOpsManager.MODE_ALLOWED : AppOpsManager.MODE_IGNORED;
                 KotlinUtils.INSTANCE.setCustomLocationAppOp(app, mPackageName, mUser, mode);

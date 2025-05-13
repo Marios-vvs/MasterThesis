@@ -712,7 +712,7 @@ class AppPermissionViewModel(
                 if (group.foreground.isSystemFixed || group.foreground.isPolicyFixed) {
                     customLocationState.isEnabled = false
                 }
-
+                Log.d(LOG_TAG, "AppOps check in onUpdate: uid=$uid, mode=$mode, hasCustom=$hasCustom")
                 Log.d(LOG_TAG, "shouldShowCustomLocation=$shouldShowCustomLocation for group=$permGroupName")
                 Log.d(LOG_TAG, "ACCESS_FINE_LOCATION present: ${group.permissions.containsKey(ACCESS_FINE_LOCATION)}")
 
