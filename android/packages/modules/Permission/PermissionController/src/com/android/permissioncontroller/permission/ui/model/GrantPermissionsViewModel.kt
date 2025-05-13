@@ -1397,6 +1397,10 @@ class GrantPermissionsViewModel(
         requestInfosLiveData.update()
     }
 
+    fun updateCustomLocationState(packageName: String, user: UserHandle) {
+        (appPermissionViewModel as? AppPermissionViewModel)?.updateCustomLocationState(packageName, user)
+    }
+
     private fun isStateUnknown(state: Int?): Boolean {
         return state == null || state == STATE_UNKNOWN || state == STATE_FG_GRANTED_BG_UNKNOWN
     }
