@@ -45,6 +45,7 @@ import android.util.Log
 import androidx.core.util.Consumer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelStore
 import com.android.modules.utils.build.SdkLevel
 import com.android.permission.safetylabel.SafetyLabel
 import com.android.permissioncontroller.Constants
@@ -1398,8 +1399,24 @@ class GrantPermissionsViewModel(
     }
 
     fun updateCustomLocationState(packageName: String, user: UserHandle) {
-        (appPermissionViewModel as? AppPermissionViewModel)?.updateCustomLocationState(packageName, user)
+        Log.d(LOG_TAG, "Attempting to update custom location AppOp state for $packageName")
+
+        try {
+            val viewModelProvider = ViewModelProvider(
+                ViewModelStore(),
+                AppPermissionViewModelFactory(app, packageName, LOCATION, user, sessionId)
+            )
+            val appPermissionViewModel =
+                viewModelProvider[AppPermissionViewModel::class.java]
+
+            appPermissionViewModel.updateCustomLocationState(packageName, user)
+
+            Log.d(LOG_TAG, "Successfully called updateCustomLocationState on AppPermissionViewModel")
+        } catch (e: Exception) {
+            Log.e(LOG_TAG, "Failed to update custom location state", e)
+        }
     }
+
 
     private fun isStateUnknown(state: Int?): Boolean {
         return state == null || state == STATE_UNKNOWN || state == STATE_FG_GRANTED_BG_UNKNOWN
