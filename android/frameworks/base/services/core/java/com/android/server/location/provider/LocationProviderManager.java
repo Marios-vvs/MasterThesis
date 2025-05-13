@@ -776,6 +776,17 @@ public class LocationProviderManager extends
         }
     }
 
+    private boolean shouldObfuscateLocationForCaller(CallerIdentity identity) {
+        AppOpsManager appOps = mContext.getSystemService(AppOpsManager.class);
+        if (appOps == null) return false;
+
+        int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION,
+                                        identity.getUid(),
+                                        identity.getPackageName());
+
+        return mode == AppOpsManager.MODE_ALLOWED;
+    }
+
     protected abstract class LocationRegistration extends Registration implements
             OnAlarmListener, ProviderEnabledListener {
 
@@ -925,6 +936,10 @@ public class LocationProviderManager extends
                 }
                 remove();
                 return null;
+            }
+
+            if (fineLocationResult != null && shouldObfuscateLocationForCaller(getIdentity())) {
+                fineLocationResult = mLocationFudger.createCoarse(fineLocationResult);
             }
 
             LocationResult permittedLocationResult = Objects.requireNonNull(
@@ -1353,7 +1368,9 @@ public class LocationProviderManager extends
                 }
             }
 
-            if (fineLocationResult != null) {
+             if (fineLocationResult != null && shouldObfuscateLocationForCaller(getIdentity())) {
+                fineLocationResult = mLocationFudger.createCoarse(fineLocationResult);
+            } else if(fineLocationResult != null) {
                 fineLocationResult = fineLocationResult.asLastLocationResult();
             }
 
@@ -2817,23 +2834,11 @@ public class LocationProviderManager extends
         updateRegistrations(registration -> registration.getIdentity().getUserId() == userId);
     }
 
-    private boolean isCustomLocationEnabled(int uid, String packageName) {
-        AppOpsManager appOps = (AppOpsManager) mContext.getSystemService(Context.APP_OPS_SERVICE);
-        return appOps != null &&
-            appOps.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, packageName)
-                    == AppOpsManager.MODE_ALLOWED;
-    }
-
-
     @Nullable Location getPermittedLocation(@Nullable Location fineLocation,
             @PermissionLevel int permissionLevel) {
 
         switch (permissionLevel) {
             case PERMISSION_FINE:
-                if (isCustomLocationEnabled(uid, packageName)) {
-                    return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult)
-                        : null;
-                }
                 return fineLocation;
             case PERMISSION_COARSE:
                 return fineLocation != null ? mLocationFudger.createCoarse(fineLocation) : null;
@@ -2848,10 +2853,6 @@ public class LocationProviderManager extends
         
         switch (permissionLevel) {
             case PERMISSION_FINE:
-                if (isCustomLocationEnabled(uid, packageName)) {
-                    return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult)
-                        : null;
-                }
                 return fineLocationResult;
             case PERMISSION_COARSE:
                 return fineLocationResult != null ? mLocationFudger.createCoarse(fineLocationResult)
