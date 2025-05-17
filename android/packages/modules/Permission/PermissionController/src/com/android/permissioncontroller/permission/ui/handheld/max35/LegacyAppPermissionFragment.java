@@ -168,11 +168,11 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
         public void onReceive(Context context, Intent intent) {
             if ("android.intent.action.OP_CUSTOM_LOCATION_CHANGED".equals(intent.getAction())) {
                 Log.d(LOG_TAG, "Broadcast received: OP_CUSTOM_LOCATION_CHANGED");
-                // Re-evaluate state
                 mViewModel.getButtonStateLiveData().update();
             }
         }
     };
+
 
 
     @Override
@@ -404,7 +404,20 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
         mViewModel.getButtonStateLiveData().update(); // <-- this will re-trigger the full UI state update via LiveData
 
         IntentFilter filter = new IntentFilter("android.intent.action.OP_CUSTOM_LOCATION_CHANGED");
-        requireContext().registerReceiver(mCustomLocationChangedReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requireContext().registerReceiver(
+                    mCustomLocationChangedReceiver,
+                    filter,
+                    Context.RECEIVER_NOT_EXPORTED
+            );
+        } else {
+            requireContext().registerReceiver(
+                    mCustomLocationChangedReceiver,
+                    filter
+            );
+        }
+
+        Log.d(LOG_TAG, "Registered OP_CUSTOM_LOCATION_CHANGED receiver");
     }
 
 
