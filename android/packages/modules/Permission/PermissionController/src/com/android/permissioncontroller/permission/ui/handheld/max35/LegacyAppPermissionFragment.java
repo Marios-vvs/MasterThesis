@@ -161,6 +161,18 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
     private Drawable mPackageIcon;
     private @NonNull RoleManager mRoleManager;
 
+    private final BroadcastReceiver mCustomLocationChangedReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("android.intent.action.OP_CUSTOM_LOCATION_CHANGED".equals(intent.getAction())) {
+                Log.d(LOG_TAG, "Broadcast received: OP_CUSTOM_LOCATION_CHANGED");
+                // Re-evaluate state
+                mViewModel.getButtonStateLiveData().update();
+            }
+        }
+    };
+
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -389,30 +401,8 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
         // Recheck AppOp state in case it changed while we were paused
         mViewModel.getButtonStateLiveData().update(); // <-- this will re-trigger the full UI state update via LiveData
 
-        // Register the listener
-        /* mCustomLocationOpListener = (op, packageName) -> {
-            if (AppOpsManager.OPSTR_CUSTOM_LOCATION.equals(op) && mPackageName.equals(packageName)) {
-                int uid = getUidForPackage(mPackageName, mUser);
-                int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, mPackageName);
-                boolean enabled = (mode == AppOpsManager.MODE_ALLOWED);
-                Log.d(LOG_TAG, "AppOps changed. Updating custom location switch: " + enabled);
-                requireActivity().runOnUiThread(() -> {
-                    mCustomLocationSwitch.setChecked(enabled);
-                    mViewModel.getButtonStateLiveData().update();
-                });
-            }
-        };
-        */
-        // appOpsManager.startWatchingMode(AppOpsManager.OPSTR_CUSTOM_LOCATION, /* packageName */ null, mCustomLocationOpListener);
-
-        // Immediately query AppOp state and update toggle
-        // int uid = getUidForPackage(mPackageName, mUser);
-        // int mode = appOpsManager.checkOpNoThrow(AppOpsManager.OPSTR_CUSTOM_LOCATION, uid, mPackageName);
-        // boolean enabled = (mode == AppOpsManager.MODE_ALLOWED);
-        // Log.d(LOG_TAG, "onStart: Initial AppOp mode=" + mode + ", setting switch to: " + enabled);
-        // mCustomLocationSwitch.setChecked(enabled);
-        // mCustomLocationSwitch.setEnabled(true);
-        // mViewModel.getButtonStateLiveData().update();
+        IntentFilter filter = new IntentFilter("android.intent.action.OP_CUSTOM_LOCATION_CHANGED");
+        requireContext().registerReceiver(mCustomLocationChangedReceiver, filter);
 
     }
 
@@ -424,6 +414,8 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
             AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
             appOpsManager.stopWatchingMode(mCustomLocationOpListener);
         }
+        requireContext().unregisterReceiver(mCustomLocationChangedReceiver);
+
     }
 
     @Override
