@@ -404,8 +404,7 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
         mViewModel.getButtonStateLiveData().update(); // <-- this will re-trigger the full UI state update via LiveData
 
         IntentFilter filter = new IntentFilter("android.intent.action.OP_CUSTOM_LOCATION_CHANGED");
-        requireContext().registerReceiver(mCustomLocationChangedReceiver, filter);
-
+        requireContext().registerReceiver(mCustomLocationChangedReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
     }
 
 
