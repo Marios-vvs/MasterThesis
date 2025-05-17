@@ -1017,9 +1017,11 @@ public class GrantPermissionsActivity extends SettingsActivity
                     appOps.setMode("android:custom_location", uid, mTargetPackage, AppOpsManager.MODE_ALLOWED);
 
                     Intent intent = new Intent("android.intent.action.OP_CUSTOM_LOCATION_CHANGED");
-                    intent.putExtra("android.intent.extra.PACKAGE_NAME", mTargetPackage);
+                    intent.setPackage(getPackageName());  
+                    intent.putExtra(Intent.EXTRA_PACKAGE_NAME, mTargetPackage);
                     Log.d(LOG_TAG, "Sending OP_CUSTOM_LOCATION_CHANGED broadcast for " + mTargetPackage);
                     sendBroadcast(intent);
+
 
                     mViewModel.refreshAppOps();
                     mViewModel.updateCustomLocationState(mTargetPackage, Process.myUserHandle());
