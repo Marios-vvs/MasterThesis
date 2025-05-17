@@ -164,17 +164,20 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
     private @NonNull RoleManager mRoleManager;
 
     private final BroadcastReceiver mCustomLocationChangedReceiver = new BroadcastReceiver() {
-       @Override
-       public void onReceive(Context context, Intent intent) {
-        if ("android.intent.action.OP_CUSTOM_LOCATION_CHANGED".equals(intent.getAction())) {
-            String pkg = intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
-            Log.d(LOG_TAG, "Broadcast received: OP_CUSTOM_LOCATION_CHANGED for " + pkg);
-            
-            if (mPackageName.equals(pkg)) {
-                mViewModel.getButtonStateLiveData().update();
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if ("android.intent.action.OP_CUSTOM_LOCATION_CHANGED".equals(intent.getAction())) {
+                String pkg = intent.getStringExtra(Intent.EXTRA_PACKAGE_NAME);
+                Log.d(LOG_TAG, "Broadcast received: OP_CUSTOM_LOCATION_CHANGED for " + pkg);
+
+                if (mPackageName.equals(pkg)) {
+                    mViewModel.getButtonStateLiveData().update();
+                }
             }
         }
-    }
+    };
+
+    
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
