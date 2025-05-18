@@ -1,124 +1,194 @@
 package com.android.server.location.fudger;
 
+import android.annotation.Nullable;
 import android.location.Location;
 import android.location.LocationResult;
 import android.os.SystemClock;
-
+import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
+import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Random;
 
-import com.android.internal.annotations.GuardedBy;
+/**
+ * Implements geo-indistinguishability (planar Laplace) based location obfuscation.
+ * Calibrated for ~200m average distortion (ε ≈ 0.01).
+ * Mirrors API and style of LocationFudger (random offset + grid), but replaces with DP noise.
+ */
+public class GeoDPFudger {
+    // Minimum coarse "accuracy" threshold (like LocationFudger)
+    private static final float MIN_ACCURACY_M = 200.0f;
 
-public class GeoDPFudger implements LocationObfuscator {
+    // Update interval (hourly) – present for symmetry, but DP uses independent noise
+    @VisibleForTesting
+    static final long NOISE_UPDATE_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
 
-    private static final long OFFSET_UPDATE_INTERVAL_MS = 60 * 60 * 1000;
-    private static final double DEFAULT_EPSILON = 0.05;  // Tune for privacy/accuracy
-    private static final int APPROX_METERS_PER_DEGREE = 111_000;
+    // Earth approximation: 111km per degree at equator, avoid cos(90°)=0
+    private static final int APPROX_METERS_PER_DEGREE_AT_EQUATOR = 111_000;
+    private static final double MAX_LATITUDE =
+            90.0 - (1.0 / APPROX_METERS_PER_DEGREE_AT_EQUATOR);
 
+    private final float mAccuracyM;
+    private final double mEpsilon;  // DP privacy parameter
     private final Clock mClock;
     private final Random mRandom;
-    private final double mEpsilon;
-
     @GuardedBy("this")
     private long mNextUpdateRealtimeMs;
     @GuardedBy("this")
-    private double mDxMeters;
+    @Nullable private Location mCachedFineLocation;
     @GuardedBy("this")
-    private double mDyMeters;
+    @Nullable private Location mCachedCoarseLocation;
     @GuardedBy("this")
-    private Location mCachedFine;
+    @Nullable private LocationResult mCachedFineLocationResult;
     @GuardedBy("this")
-    private Location mCachedObfuscated;
+    @Nullable private LocationResult mCachedCoarseLocationResult;
 
-    @GuardedBy("this")
-    private LocationResult mCachedFineResult;
-    @GuardedBy("this")
-    private LocationResult mCachedObfuscatedResult;
-
-    public GeoDPFudger() {
-        this(DEFAULT_EPSILON, SystemClock.elapsedRealtimeClock(), new Random());
+    /** 
+     * @param accuracyM Target average distortion (meters). Effective ε ≈ 2/accuracyM.
+     */
+    public GeoDPFudger(float accuracyM) {
+        this(accuracyM, SystemClock.elapsedRealtimeClock(), new SecureRandom());
     }
 
-    public GeoDPFudger(double epsilon, Clock clock, Random random) {
+    /** 
+     * @VisibleForTesting 
+     */
+    GeoDPFudger(float accuracyM, Clock clock, Random random) {
         mClock = clock;
         mRandom = random;
-        mEpsilon = epsilon;
-        updateOffset();
+        // Enforce minimum "accuracy" (hence maximum ε = 2/MIN_ACCURACY)
+        mAccuracyM = Math.max(accuracyM, MIN_ACCURACY_M);
+        // Calibrate ε so that expected noise distance ≈ 2/ε ≈ mAccuracyM
+        mEpsilon = 2.0 / mAccuracyM;
+        // Initialize (no-op) noise update time
+        mNextUpdateRealtimeMs = mClock.millis() + NOISE_UPDATE_INTERVAL_MS;
     }
 
-    @Override
-    public synchronized Location Obfuscate(Location fine) {
-        if (fine == mCachedFine) {
-            return mCachedObfuscated;
+    /** Resets the noise timer (for testing or if needed). */
+    public void resetNoise() {
+        synchronized (this) {
+            mNextUpdateRealtimeMs = mClock.millis() + NOISE_UPDATE_INTERVAL_MS;
         }
-
-        updateOffset();
-
-        double latOffset = metersToDegreesLatitude(mDyMeters);
-        double lonOffset = metersToDegreesLongitude(mDxMeters, fine.getLatitude());
-
-        Location obfuscatedLocation = new Location(fine);
-        obfuscatedLocation.setLatitude(wrapLatitude(fine.getLatitude() + latOffset));
-        obfuscatedLocation.setLongitude(wrapLongitude(fine.getLongitude() + lonOffset));
-
-        obfuscatedObfuscated.removeBearing();
-        obfuscatedObfuscation.removeSpeed();
-        obfuscatedObfuscation.removeAltitude();
-        obfuscatedObfuscation.setExtras(null);
-
-        obfuscatedLocation.setAccuracy(Math.max(fine.getAccuracy(), 200.0f));
-
-        mCachedFine = fine;
-        mCachedObfuscated = obfuscatedLocation;
-        return obfuscatedLocation;
     }
 
-    @Override
-    public synchronized LocationResult createCoarse(LocationResult fineResult) {
-        if (fineResult == mCachedFineResult) {
-            return mCachedObfuscatedResult;
+    /**
+     * Obfuscate a batch of locations by applying createCoarse to each.
+     */
+    public LocationResult createCoarse(LocationResult fineLocationResult) {
+        synchronized (this) {
+            if (fineLocationResult == mCachedFineLocationResult
+                    || fineLocationResult == mCachedCoarseLocationResult) {
+                return mCachedCoarseLocationResult;
+            }
         }
-
-        LocationResult result = fineResult.map(this::createCoarse);
-        mCachedFineResult = fineResult;
-        mCachedObfuscatedResult = result;
-        return result;
+        LocationResult coarseLocationResult =
+                fineLocationResult.map(this::createCoarse);
+        synchronized (this) {
+            mCachedFineLocationResult = fineLocationResult;
+            mCachedCoarseLocationResult = coarseLocationResult;
+        }
+        return coarseLocationResult;
     }
 
-    private synchronized void updateOffset() {
-        long now = mClock.millis();
-        if (now < mNextUpdateRealtimeMs) return;
+    /**
+     * Obfuscate a single location by adding planar Laplace noise to latitude/longitude.
+     */
+    public Location createCoarse(Location fine) {
+        synchronized (this) {
+            if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
+                // Same object, return cached result for efficiency
+                return mCachedCoarseLocation;
+            }
+        }
+        // (Mimic update pattern; no persistent offset is used in DP)
+        updateNoise();
 
-        double r = sampleRadius(mEpsilon);
-        double theta = 2 * Math.PI * mRandom.nextDouble();
+        // Copy the location and remove fine-grained metadata
+        Location coarse = new Location(fine);
+        coarse.removeBearing();
+        coarse.removeSpeed();
+        coarse.removeAltitude();
+        coarse.setExtras(null);
 
-        mDxMeters = r * Math.cos(theta);
-        mDyMeters = r * Math.sin(theta);
+        // Normalize base coordinates
+        double latitude = wrapLatitude(coarse.getLatitude());
+        double longitude = wrapLongitude(coarse.getLongitude());
 
-        mNextUpdateRealtimeMs = now + OFFSET_UPDATE_INTERVAL_MS;
-    }
-
-    private double sampleRadius(double epsilon) {
+        // Sample planar Laplace noise:
+        //   radius ~ Gamma(shape=2, scale=1/ε) = sum of two Exp(ε), angle uniform [0,2π)
         double u = mRandom.nextDouble();
-        return -Math.log(1 - u) / epsilon; // Inverse CDF of exponential with lambda=epsilon
+        double v = mRandom.nextDouble();
+        // Two independent Exp(ε): -ln(u)/ε and -ln(v)/ε. Sum = -ln(u*v)/ε.
+        double radius = -Math.log(u * v) / mEpsilon;
+        double theta = 2 * Math.PI * mRandom.nextDouble();
+        // Convert polar to Cartesian offsets (meters)
+        double dy = radius * Math.sin(theta);
+        double dx = radius * Math.cos(theta);
+
+        // Convert meter offsets to latitude/longitude differences
+        double dLat = metersToDegreesLatitude(dy);
+        double dLon = metersToDegreesLongitude(dx, latitude);
+
+        latitude += dLat;
+        longitude += dLon;
+        // Wrap coordinates to valid range
+        latitude = wrapLatitude(latitude);
+        longitude = wrapLongitude(longitude);
+
+        coarse.setLatitude(latitude);
+        coarse.setLongitude(longitude);
+        // Reported accuracy: at least the target coarse accuracy
+        coarse.setAccuracy(Math.max(mAccuracyM, coarse.getAccuracy()));
+
+        synchronized (this) {
+            mCachedFineLocation = fine;
+            mCachedCoarseLocation = coarse;
+        }
+        return coarse;
     }
 
-    private static double metersToDegreesLatitude(double meters) {
-        return meters / APPROX_METERS_PER_DEGREE;
+    /** 
+     * Periodic update (hourly) – no internal state change for DP noise 
+     * (present only to mirror LocationFudger structure).
+     */
+    private synchronized void updateNoise() {
+        long now = mClock.millis();
+        if (now < mNextUpdateRealtimeMs) {
+            return;
+        }
+        mNextUpdateRealtimeMs = now + NOISE_UPDATE_INTERVAL_MS;
     }
 
-    private static double metersToDegreesLongitude(double meters, double latitude) {
-        return meters / (APPROX_METERS_PER_DEGREE * Math.cos(Math.toRadians(latitude)));
-    }
-
+    /** Clamp latitude to avoid cos(±90°)=0 issues. */
     private static double wrapLatitude(double lat) {
-        return Math.max(-89.999, Math.min(89.999, lat));
+        if (lat > MAX_LATITUDE) {
+            lat = MAX_LATITUDE;
+        }
+        if (lat < -MAX_LATITUDE) {
+            lat = -MAX_LATITUDE;
+        }
+        return lat;
     }
 
+    /** Wrap longitude into [-180, +180) range. */
     private static double wrapLongitude(double lon) {
-        lon = lon % 360.0;
-        if (lon > 180.0) lon -= 360.0;
-        if (lon < -180.0) lon += 360.0;
+        lon %= 360.0;
+        if (lon >= 180.0) {
+            lon -= 360.0;
+        }
+        if (lon < -180.0) {
+            lon += 360.0;
+        }
         return lon;
+    }
+
+    /** Convert northward distance (meters) to degrees latitude. */
+    private static double metersToDegreesLatitude(double distance) {
+        return distance / APPROX_METERS_PER_DEGREE_AT_EQUATOR;
+    }
+
+    /** Convert eastward distance (meters) to degrees longitude at given latitude. */
+    private static double metersToDegreesLongitude(double distance, double lat) {
+        return distance / APPROX_METERS_PER_DEGREE_AT_EQUATOR / Math.cos(Math.toRadians(lat));
     }
 }
