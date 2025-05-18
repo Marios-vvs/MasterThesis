@@ -121,7 +121,7 @@ public class LocationFudger implements LocationObfuscationInterface{
             }
         }
 
-        LocationResult coarseLocationResult = fineLocationResult.map(this::obfuscate);
+        LocationResult coarseLocationResult = fineLocationResult.map(this::createCoarse);
 
         synchronized (this) {
             mCachedFineLocationResult = fineLocationResult;
@@ -141,7 +141,7 @@ public class LocationFudger implements LocationObfuscationInterface{
      * out a random offset.
      */
     @override
-    public Location obfuscate(Location fine) {
+    public Location createCoarse(Location fine) {
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
                 return mCachedCoarseLocation;
