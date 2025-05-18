@@ -390,22 +390,6 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
 
         // Recheck AppOp state in case it changed while we were paused
         mViewModel.getButtonStateLiveData().update(); // <-- this will re-trigger the full UI state update via LiveData
-
-        IntentFilter filter = new IntentFilter("android.intent.action.OP_CUSTOM_LOCATION_CHANGED");
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            requireContext().registerReceiver(
-                    mCustomLocationChangedReceiver,
-                    filter,
-                    Context.RECEIVER_NOT_EXPORTED
-            );
-        } else {
-            requireContext().registerReceiver(
-                    mCustomLocationChangedReceiver,
-                    filter
-            );
-        }
-
-        Log.d(LOG_TAG, "Registered OP_CUSTOM_LOCATION_CHANGED receiver");
     }
 
 
