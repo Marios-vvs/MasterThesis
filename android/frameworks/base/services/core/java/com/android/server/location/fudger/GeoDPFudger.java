@@ -18,7 +18,7 @@ import java.util.Random;
  * resembles function names, synchronization, and caching patterns of LocationFudger,
  * but replaces offset+grid with a differential‑privacy noise mechanism.
  */
-public class GeoDPFudger {
+public class GeoDPFudger implements ObfuscationInterface{
     private static final float MIN_ACCURACY_M = 200.0f;
 
     @VisibleForTesting
@@ -73,6 +73,7 @@ public class GeoDPFudger {
     /**
      * Obfuscate a batch of locations, mirroring LocationFudger's API.
      */
+    @override
     public LocationResult createCoarse(LocationResult fineLocationResult) {
         synchronized (this) {
             if (fineLocationResult == mCachedFineLocationResult
@@ -92,6 +93,7 @@ public class GeoDPFudger {
     /**
      * Obfuscate a single Location by adding planar Laplace noise.
      */
+    @override
     public Location createCoarse(Location fine) {
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
