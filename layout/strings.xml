@@ -52,6 +52,8 @@
     <string name="location_access_summary"><b>Allow apps that have asked your permission</b> to use your location information. This may include your current location and past locations.</string>
     <string name="location_agps_access_summary">When location is on, <b>download satellite assistance data from the internet</b>, which can greatly improve the GPS startup performance.</string>
     <string name="custom_location_access_summary"> This setting allows the user to increase location privacy</string>
+     <string name="fake_location_access_summary"> This setting allows the user to give apps a fake location</string>
+     
 
     <!-- Recovery update page -->
     <string name="update_recovery_title">Update Lineage Recovery</string>
