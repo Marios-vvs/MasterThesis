@@ -18,7 +18,7 @@ import java.util.Random;
  * resembles function names, synchronization, and caching patterns of LocationFudger,
  * but replaces offset+grid with a differential‑privacy noise mechanism.
  */
-public class GeoDPFudger implements ObfuscationInterface{
+public class GeoDPFudger implements LocationObfuscationInterface{
     private static final float MIN_ACCURACY_M = 200.0f;
 
     @VisibleForTesting
