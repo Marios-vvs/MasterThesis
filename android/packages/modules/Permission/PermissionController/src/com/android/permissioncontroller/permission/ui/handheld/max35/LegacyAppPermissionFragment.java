@@ -416,8 +416,6 @@ public class LegacyAppPermissionFragment extends SettingsWithLargeHeader
             AppOpsManager appOpsManager = requireContext().getSystemService(AppOpsManager.class);
             appOpsManager.stopWatchingMode(mCustomLocationOpListener);
         }
-        requireContext().unregisterReceiver(mCustomLocationChangedReceiver);
-
     }
 
     @Override
