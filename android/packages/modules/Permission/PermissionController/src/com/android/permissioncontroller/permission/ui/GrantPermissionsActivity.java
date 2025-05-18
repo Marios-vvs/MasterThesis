@@ -1016,13 +1016,6 @@ public class GrantPermissionsActivity extends SettingsActivity
                     // appOps.setMode(AppOpsManager.OP_CUSTOM_LOCATION, uid, mTargetPackage, AppOpsManager.MODE_ALLOWED);
                     appOps.setMode("android:custom_location", uid, mTargetPackage, AppOpsManager.MODE_ALLOWED);
 
-                    Intent intent = new Intent("android.intent.action.OP_CUSTOM_LOCATION_CHANGED");
-                    intent.setPackage(getPackageName());  
-                    intent.putExtra(Intent.EXTRA_PACKAGE_NAME, mTargetPackage);
-                    Log.d(LOG_TAG, "Sending OP_CUSTOM_LOCATION_CHANGED broadcast for " + mTargetPackage);
-                    sendBroadcast(intent);
-
-
                     mViewModel.refreshAppOps();
                     mViewModel.updateCustomLocationState(mTargetPackage, Process.myUserHandle());
 
@@ -1051,6 +1044,18 @@ public class GrantPermissionsActivity extends SettingsActivity
 
         logGrantPermissionActivityButtons(name, affectedForegroundPermissions, result);
         mViewModel.onPermissionGrantResult(name, affectedForegroundPermissions, result);
+        if (!LOCATION.equals(name) || result != GRANTED_CUSTOM_LOCATION) {
+            int uid = getPackageUid(mTargetPackage, Process.myUserHandle());
+            if (uid != android.os.Process.INVALID_UID) {
+                AppOpsManager appOps = getSystemService(AppOpsManager.class);
+                if (appOps != null) {
+                    appOps.setMode("android:custom_location", uid, mTargetPackage, AppOpsManager.MODE_IGNORED);
+                    mViewModel.refreshAppOps();
+                    mViewModel.updateCustomLocationState(mTargetPackage, Process.myUserHandle());
+                    Log.i(LOG_TAG, "Custom location AppOp set to MODE_IGNORED for " + mTargetPackage);
+                }
+            }
+        }
         if (result == CANCELED) {
             setResultAndFinish();
         }
