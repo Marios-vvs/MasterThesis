@@ -6865,6 +6865,8 @@ public final class Settings {
             MOVED_TO_GLOBAL.add(Settings.Global.ADB_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.ASSISTED_GPS_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.CUSTOM_LOCATION_ENABLED);
+            MOVED_TO_GLOBAL.add(Settings.Global.FAKE_LOCATION_ENABLED);
+            MOVED_TO_GLOBAL.add(Settings.Global.FAKE_LOCATION_DROPDOWN_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.BLUETOOTH_ON);
             MOVED_TO_GLOBAL.add(Settings.Global.CDMA_CELL_BROADCAST_SMS);
             MOVED_TO_GLOBAL.add(Settings.Global.CDMA_ROAMING_MODE);
@@ -13384,6 +13386,20 @@ public final class Settings {
          */
          @Readable
         public static final String CUSTOM_LOCATION_ENABLED = "custom_location_enabled";
+
+        /**
+         * Whether custom location should be enabled or not.
+         * @hide
+         */
+         @Readable
+        public static final String FAKE_LOCATION_ENABLED = "fake_location_enabled";
+        
+        /**
+         * Whether custom location should be enabled or not.
+         * @hide
+         */
+         @Readable
+        public static final String FAKE_LOCATION_DROPDOWN_ENABLED = "fake_location_dropdown_enabled";
 
         /**
          * Whether bluetooth is enabled/disabled
