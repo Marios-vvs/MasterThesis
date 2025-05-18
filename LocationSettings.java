@@ -17,6 +17,10 @@
 package com.android.settings.location;
 
 import static android.app.admin.DevicePolicyResources.Strings.Settings.WORK_PROFILE_LOCATION_SWITCH_TITLE;
+//imports for fake location
+import com.android.settings.location.FakeLocationPreferenceController;
+import com.android.settings.location.FakeLocationDistancePreferenceController;
+
 
 import android.app.settings.SettingsEnums;
 import android.content.Context;
@@ -122,6 +126,10 @@ public class LocationSettings extends DashboardFragment implements
         use(LocationForPrivateProfilePreferenceController.class).init(this);
         use(AgpsPreferenceController.class).init(this);
         use(CustomLocationPreferenceController.class).init(this);
+        // Manage the ON/OFF toggle for fake location
+        use(FakeLocationPreferenceController.class).init(this);
+       // Manages the distance dropdown, visible only when toggle is ON
+        use(FakeLocationDistancePreferenceController.class).init(this);
     }
 
     @Override
