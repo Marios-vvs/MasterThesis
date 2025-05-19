@@ -4,46 +4,25 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.provider.Settings;
 
-
-import androidx.lifecycle.LifecycleObserver;
-import androidx.annotation.VisibleForTesting;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
 
-import com.android.settings.core.BasePreferenceController;
-import com.android.settings.core.PreferenceControllerMixin;
-import com.android.settingslib.core.lifecycle.Lifecycle;
-
-
-
-/**
- * Controller for the "Fake Location Distance" ListPreference.
- * Shows three options (10 km, 100 km, 500 km) when Fake Location is enabled,
- * and persists the chosen value to Settings.Global.FAKE_LOCATION_DISTANCE.
- */
-public class FakeLocationDistancePreferenceController 
-        extends LocationBasePreferenceController  implements PreferenceControllerMixin,
-        Preference.OnPreferenceChangeListener, LifecycleObserver {
+public class FakeLocationDistancePreferenceController extends LocationBasePreferenceController
+        implements Preference.OnPreferenceChangeListener {
 
     private static final String KEY = "fake_location_distance";
     private ListPreference mListPreference;
     private final ContentResolver mResolver;
 
-    public FakeLocationDistancePreferenceController(Context context, Lifecycle lifecycle) {
-        super(context, KEY);
+    public FakeLocationDistancePreferenceController(Context context, String key) {
+        super(context, key);
         mResolver = context.getContentResolver();
-        if (lifecycle != null) {
-            lifecycle.addObserver(this);
-        }
     }
 
     @Override
     public int getAvailabilityStatus() {
-        // Only available when Fake Location toggle is ON
-        int enabled = Settings.Global.getInt(
-                mResolver,
-                Settings.Global.FAKE_LOCATION_ENABLED,
-                0);
+        int enabled = Settings.Global.getInt(mResolver, Settings.Global.FAKE_LOCATION_ENABLED, 0);
         return (enabled == 1) ? AVAILABLE : CONDITIONALLY_UNAVAILABLE;
     }
 
@@ -53,9 +32,9 @@ public class FakeLocationDistancePreferenceController
     }
 
     @Override
-    public void displayPreference(androidx.preference.PreferenceScreen screen) {
+    public void displayPreference(PreferenceScreen screen) {
         super.displayPreference(screen);
-        mListPreference = (ListPreference) screen.findPreference(KEY);
+        mListPreference = screen.findPreference(KEY);
         if (mListPreference != null) {
             mListPreference.setOnPreferenceChangeListener(this);
         }
@@ -66,20 +45,17 @@ public class FakeLocationDistancePreferenceController
         super.updateState(preference);
         if (mListPreference == null) return;
 
-        // Read current distance value, default to 10
         int current = Settings.Global.getInt(
                 mResolver,
                 Settings.Global.FAKE_LOCATION_DISTANCE,
-                10);
+                10); // default value
 
         String valueStr = String.valueOf(current);
         mListPreference.setValue(valueStr);
 
         int index = mListPreference.findIndexOfValue(valueStr);
         if (index >= 0) {
-            mListPreference.setSummary(
-                mListPreference.getEntries()[index]
-            );
+            mListPreference.setSummary(mListPreference.getEntries()[index]);
         }
     }
 
@@ -88,23 +64,17 @@ public class FakeLocationDistancePreferenceController
         String strValue = (String) newValue;
         int newDistance = Integer.parseInt(strValue);
 
-        // Persist the chosen distance
-        Settings.Global.putInt(
-                mResolver,
-                Settings.Global.FAKE_LOCATION_DISTANCE,
-                newDistance
-        );
+        Settings.Global.putInt(mResolver, Settings.Global.FAKE_LOCATION_DISTANCE, newDistance);
 
-        // Update summary to reflect the new selection
         int index = mListPreference.findIndexOfValue(strValue);
         if (index >= 0) {
-            mListPreference.setSummary(
-                mListPreference.getEntries()[index]
-            );
+            mListPreference.setSummary(mListPreference.getEntries()[index]);
         }
         return true;
     }
 
     @Override
-    public void onLocationModeChanged(int mode, boolean restricted) {}
+    public void onLocationModeChanged(int mode, boolean restricted) {
+        // Optional: dynamically show/hide based on location state
+    }
 }

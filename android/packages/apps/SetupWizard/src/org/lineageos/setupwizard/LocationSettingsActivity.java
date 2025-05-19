@@ -19,6 +19,8 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
     private CheckBox mLocationAccess;
     private CheckBox mLocationAgpsAccess;
     private CheckBox mCustomLocationAccess;
+    private CheckBox mFakeLocationAccess;
+
 
     private LocationManager mLocationManager;
 
@@ -48,6 +50,14 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
             locationAgpsAccessView.setVisibility(View.GONE);
             customLocationAccessView.setVisibility(View.GONE);
         }
+        mFakeLocationAccess = findViewById(R.id.location_fake_checkbox);
+        View locationFakeAccessView = findViewById(R.id.location_fake);
+        if (mUserManager.isMainUser()) {
+            locationFakeAccessView.setOnClickListener(
+                v -> mFakeLocationAccess.setChecked(!mFakeLocationAccess.isChecked()));
+        } else {
+            locationFakeAccessView.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -73,6 +83,8 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
         super.onNextPressed();
         Settings.Global.putInt(getContentResolver(), Settings.Global.CUSTOM_LOCATION_ENABLED,
                 mCustomLocationAccess.isChecked() ? 1 : 0);
+        Settings.Global.putInt(getContentResolver(), Settings.Global.FAKE_LOCATION_ENABLED,
+                mFakeLocationAccess.isChecked() ? 1 : 0);
         super.onNextPressed();
     }
 

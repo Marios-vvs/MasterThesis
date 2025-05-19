@@ -1,44 +1,63 @@
 package com.android.settings.location;
 
+import android.content.ContentResolver;
 import android.content.Context;
 import android.provider.Settings;
-import com.android.settings.core.TogglePreferenceController;
 
-/**
- * Controller for the "Fake Location" switch in Settings > Location.
- * Reads/writes the global setting FAKE_LOCATION_ENABLED.
- */
+import androidx.preference.Preference;
+import androidx.preference.PreferenceScreen;
+import androidx.preference.SwitchPreferenceCompat;
+
 public class FakeLocationPreferenceController extends LocationBasePreferenceController {
 
-    private static final String KEY = "fake_location_enabled";
+    private static final String KEY_FAKE_LOCATION = "fake_location_enabled";
 
-    public FakeLocationPreferenceController(Context context) {
-        super(context, KEY);
+    private SwitchPreferenceCompat mPreference;
+
+    public FakeLocationPreferenceController(Context context, String key) {
+        super(context, key);
     }
 
     @Override
+    public String getPreferenceKey() {
+        return KEY_FAKE_LOCATION;
+    }
+
+    @AvailabilityStatus
     public int getAvailabilityStatus() {
-        // Always available in the Location settings screen
         return AVAILABLE;
     }
 
     @Override
-    public boolean isChecked() {
-        // Returns true if the global setting is 1, false otherwise
-        return Settings.Global.getInt(
-                mContext.getContentResolver(),
-                Settings.Global.FAKE_LOCATION_ENABLED, 0) == 1;
+    public void displayPreference(PreferenceScreen screen) {
+        super.displayPreference(screen);
+        mPreference = screen.findPreference(KEY_FAKE_LOCATION);
     }
 
     @Override
-    public boolean setChecked(boolean isChecked) {
-        // Write 1 (true) or 0 (false) to Settings.Global
-        return Settings.Global.putInt(
-                mContext.getContentResolver(),
-                Settings.Global.FAKE_LOCATION_ENABLED,
-                isChecked ? 1 : 0);
+    public void updateState(Preference preference) {
+        if (mPreference != null) {
+            boolean isEnabled = Settings.Global.getInt(
+                    mContext.getContentResolver(),
+                    Settings.Global.FAKE_LOCATION_ENABLED,
+                    0) == 1;
+            mPreference.setChecked(isEnabled);
+        }
     }
 
     @Override
-    public void onLocationModeChanged(int mode, boolean restricted) {}
+    public boolean handlePreferenceTreeClick(Preference preference) {
+        if (KEY_FAKE_LOCATION.equals(preference.getKey())) {
+            final ContentResolver cr = mContext.getContentResolver();
+            boolean checked = mPreference.isChecked();
+            Settings.Global.putInt(cr, Settings.Global.FAKE_LOCATION_ENABLED, checked ? 1 : 0);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void onLocationModeChanged(int mode, boolean restricted) {
+        // Optional: dynamically update UI if needed
+    }
 }
