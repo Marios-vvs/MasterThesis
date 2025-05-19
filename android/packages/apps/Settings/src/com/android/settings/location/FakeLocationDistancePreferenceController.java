@@ -104,4 +104,7 @@ public class FakeLocationDistancePreferenceController
         }
         return true;
     }
+
+    @Override
+    public void onLocationModeChanged(int mode, boolean restricted) {}
 }

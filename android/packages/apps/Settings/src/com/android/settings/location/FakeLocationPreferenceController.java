@@ -40,12 +40,5 @@ public class FakeLocationPreferenceController extends LocationBasePreferenceCont
     }
 
     @Override
-    public int getSliceHighlightMenuRes() {
-        return 0; // or a valid menu resource ID if you have one
-    }
-
-    @Override
-    public int getSliceHighlightMenuRes() {
-        return 0; // Or return something like R.string.menu_key_location if you use slices
-    }
+    public void onLocationModeChanged(int mode, boolean restricted) {}
 }
