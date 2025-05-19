@@ -43,12 +43,25 @@ public class FakeLocationDistancePreferenceController extends LocationBasePrefer
     @Override
     public void updateState(Preference preference) {
         super.updateState(preference);
+
+        if (preference == null) return;
+
+        boolean isFakeLocationEnabled = Settings.Global.getInt(
+                mResolver,
+                Settings.Global.FAKE_LOCATION_ENABLED,
+                0) == 1;
+
+        preference.setVisible(isFakeLocationEnabled);
+
+        if (!isFakeLocationEnabled) return;
+
+        // Update value & summary if visible
         if (mListPreference == null) return;
 
         int current = Settings.Global.getInt(
                 mResolver,
                 Settings.Global.FAKE_LOCATION_DISTANCE,
-                10); // default value
+                10);
 
         String valueStr = String.valueOf(current);
         mListPreference.setValue(valueStr);
@@ -58,6 +71,7 @@ public class FakeLocationDistancePreferenceController extends LocationBasePrefer
             mListPreference.setSummary(mListPreference.getEntries()[index]);
         }
     }
+
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {

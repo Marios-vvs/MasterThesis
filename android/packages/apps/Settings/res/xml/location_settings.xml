@@ -71,7 +71,6 @@
             android:entries="@array/fake_location_distance_entries"
             android:entryValues="@array/fake_location_distance_values"
             android:defaultValue="10"
-            android:dependency="fake_location_enabled"
             android:persistent="false" 
             settings:controller="com.android.settings.location.FakeLocationDistancePreferenceController" />
     </PreferenceCategory>
