@@ -47,6 +47,10 @@
     <integer name="def_paired_device_location_mode">1</integer>
     <bool name="assisted_gps_enabled">false</bool>
     <bool name="custom_location_enabled">false</bool>
+    <!-- Default values for Fake Location feature -->
+    <bool name="fake_location_enabled">false</bool>
+    <integer name="fake_location_dropdown_enabled">10</integer>
+
     <bool name="def_netstats_enabled">true</bool>
     <bool name="def_usb_mass_storage_enabled">true</bool>
     <bool name="def_wifi_on">false</bool>

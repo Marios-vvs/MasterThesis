@@ -3733,6 +3733,12 @@
     <string name="custom_location">Custom Location</string>  
     <!-- Summary for custom location on Location settings page when location is on -->
     <string name="custom_location_summary">Enable location obfuscation</string>  
+  
+    <string name="fake_location_title">Fake Location</string>
+    <string name="fake_location_summary">Report a spoofed location to all apps</string>
+    <string name="fake_location_distance_title">Fake Location Distance</string>
+    <string name="keywords_fake_location">fake location</string>
+    
     <!--
     Summary for Location settings when location is on, explaining how many apps have location
     permission.

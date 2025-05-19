@@ -18,6 +18,20 @@
 */
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+   
+    <!-- fake location dropdown entries and values-->
+    <string-array name="fake_location_entries">
+    <item>10 km</item>
+    <item>100 km</item>
+    <item>500 km</item>
+    </string-array>
+    
+    <string-array name="fake_location_values">
+    <item>10</item>
+    <item>100</item>
+    <item>500</item>
+    </string-array>
+    
     <!-- Display settings.  The delay in inactivity before the screen is turned off. These are shown in a list dialog. -->
     <string-array name="screen_timeout_entries">
         <item>15 seconds</item>

@@ -83,8 +83,13 @@ public class SettingsBackupTest {
                     Settings.Global.APP_STANDBY_ENABLED,
                     Settings.Global.APP_TIME_LIMIT_USAGE_SOURCE,
                     Settings.Global.ART_VERIFIER_VERIFY_DEBUGGABLE,
+                    
                     Settings.Global.ASSISTED_GPS_ENABLED,
                     Settings.Global.CUSTOM_LOCATION_ENABLED,
+                    Settings.Global.FAKE_LOCATION_DISTANCE,
+                    Settings.Global.FAKE_LOCATION_ENABLED,
+
+                
                     Settings.Global.AUDIO_SAFE_VOLUME_STATE,
                     Settings.Global.AUDIO_SAFE_CSD_CURRENT_VALUE,
                     Settings.Global.AUDIO_SAFE_CSD_NEXT_WARNING,

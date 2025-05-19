@@ -47,6 +47,35 @@
         android:summary="@string/custom_location_summary"
         settings:controller="com.android.settings.location.CustomLocationPreferenceController"/>
 
+         <!-- === Fake Location Privacy Section === -->
+    <PreferenceCategory
+        android:key="location_privacy"
+        android:title="@string/fake_location_title"
+        android:layout="@layout/preference_category_divider">
+
+        <!-- 1. SwitchPreference: Fake Location toggle -->
+        <SwitchPreference
+            android:key="fake_location_enabled"
+            android:title="@string/fake_location_title"
+            android:summaryOff="@string/fake_location_summary"
+            android:summaryOn="@string/fake_location_summary"
+            android:defaultValue="false"
+            android:persistent="false"
+            settings:keywords="@string/fake_location_keywords" />
+
+        <!-- 2. ListPreference: Fake Location Distance -->
+        <ListPreference
+            android:key="fake_location_distance"
+            android:title="@string/fake_location_distance_title"
+            android:dialogTitle="@string/fake_location_distance_title"
+            android:entries="@array/fake_location_distance_entries"
+            android:entryValues="@array/fake_location_distance_values"
+            android:defaultValue="10"
+            android:dependency="fake_location_enabled"
+            android:persistent="false" />
+    </PreferenceCategory>
+
+
     <PreferenceCategory
         android:key="location_advanced_settings"
         android:layout="@layout/preference_category_no_label">
