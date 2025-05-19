@@ -67,6 +67,8 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
         if (mUserManager.isManagedProfile()) {
             checked &= mUserManager.hasUserRestriction(UserManager.DISALLOW_SHARE_LOCATION);
         }
+        mFakeLocationAccess.setChecked(Settings.Global.getInt(
+            getContentResolver(), Settings.Global.FAKE_LOCATION_ENABLED, 0) == 1);
         mLocationAccess.setChecked(checked);
     }
 
@@ -74,19 +76,22 @@ public class LocationSettingsActivity extends BaseSetupWizardActivity {
     protected void onNextPressed() {
         mLocationManager.setLocationEnabledForUser(mLocationAccess.isChecked(),
                 Process.myUserHandle());
+
         if (mUserManager.isManagedProfile()) {
             mUserManager.setUserRestriction(UserManager.DISALLOW_SHARE_LOCATION,
                     !mLocationAccess.isChecked());
         }
+
         Settings.Global.putInt(getContentResolver(), Settings.Global.ASSISTED_GPS_ENABLED,
                 mLocationAgpsAccess.isChecked() ? 1 : 0);
-        super.onNextPressed();
         Settings.Global.putInt(getContentResolver(), Settings.Global.CUSTOM_LOCATION_ENABLED,
                 mCustomLocationAccess.isChecked() ? 1 : 0);
         Settings.Global.putInt(getContentResolver(), Settings.Global.FAKE_LOCATION_ENABLED,
                 mFakeLocationAccess.isChecked() ? 1 : 0);
+
         super.onNextPressed();
     }
+
 
     @Override
     protected int getLayoutResId() {
