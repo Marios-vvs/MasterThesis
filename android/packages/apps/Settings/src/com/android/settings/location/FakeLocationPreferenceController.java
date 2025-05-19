@@ -8,7 +8,7 @@ import com.android.settings.core.TogglePreferenceController;
  * Controller for the "Fake Location" switch in Settings > Location.
  * Reads/writes the global setting FAKE_LOCATION_ENABLED.
  */
-public class FakeLocationPreferenceController extends TogglePreferenceController {
+public class FakeLocationPreferenceController extends LocationBasePreferenceController {
 
     private static final String KEY = "fake_location_enabled";
 
@@ -37,5 +37,15 @@ public class FakeLocationPreferenceController extends TogglePreferenceController
                 mContext.getContentResolver(),
                 Settings.Global.FAKE_LOCATION_ENABLED,
                 isChecked ? 1 : 0);
+    }
+
+    @Override
+    public int getSliceHighlightMenuRes() {
+        return 0; // or a valid menu resource ID if you have one
+    }
+
+    @Override
+    public int getSliceHighlightMenuRes() {
+        return 0; // Or return something like R.string.menu_key_location if you use slices
     }
 }

@@ -13387,6 +13387,9 @@ public final class Settings {
          @Readable
         public static final String CUSTOM_LOCATION_ENABLED = "custom_location_enabled";
 
+        @Readable
+        public static final String FAKE_LOCATION_DISTANCE = "fake_location_distance";
+
         /**
          * Whether custom location should be enabled or not.
          * @hide

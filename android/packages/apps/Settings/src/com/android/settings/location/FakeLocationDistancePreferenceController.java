@@ -4,6 +4,8 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.provider.Settings;
 
+
+import androidx.lifecycle.LifecycleObserver;
 import androidx.annotation.VisibleForTesting;
 import androidx.preference.ListPreference;
 import androidx.preference.Preference;
@@ -12,14 +14,16 @@ import com.android.settings.core.BasePreferenceController;
 import com.android.settings.core.PreferenceControllerMixin;
 import com.android.settingslib.core.lifecycle.Lifecycle;
 
+
+
 /**
  * Controller for the "Fake Location Distance" ListPreference.
  * Shows three options (10 km, 100 km, 500 km) when Fake Location is enabled,
  * and persists the chosen value to Settings.Global.FAKE_LOCATION_DISTANCE.
  */
 public class FakeLocationDistancePreferenceController 
-        extends BasePreferenceController implements PreferenceControllerMixin,
-        Preference.OnPreferenceChangeListener {
+        extends LocationBasePreferenceController  implements PreferenceControllerMixin,
+        Preference.OnPreferenceChangeListener, LifecycleObserver {
 
     private static final String KEY = "fake_location_distance";
     private ListPreference mListPreference;
