@@ -60,7 +60,8 @@
             android:summaryOff="@string/fake_location_summary"
             android:summaryOn="@string/fake_location_summary"
             android:defaultValue="false"
-            android:persistent="false" />
+            android:persistent="false" 
+            settings:controller="com.android.settings.location.FakeLocationPreferenceController" />
 
         <!-- 2. ListPreference: Fake Location Distance -->
         <ListPreference
@@ -71,7 +72,9 @@
             android:entryValues="@array/fake_location_distance_values"
             android:defaultValue="10"
             android:dependency="fake_location_enabled"
-            android:persistent="false" />
+            android:persistent="false" 
+            settings:controller="com.android.settings.location.FakeLocationDistancePreferenceController" />
+/>
     </PreferenceCategory>
 
 
