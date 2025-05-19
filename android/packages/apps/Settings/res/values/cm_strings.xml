@@ -186,7 +186,11 @@
     <!-- Location settings screen. This is the button that allows custom obfuscation -->
     <string name="custom_location">Custom Location</string>  
     <!-- Summary for custom location on Location settings page when location is on -->
-    <string name="custom_location_summary">Enable location obfuscation</string>  
+    <string name="custom_location_summary">Enable location obfuscation</string> 
+
+    <string name="fake_location_title">Fake Location</string> 
+     <string name="fake_location_summary">Provide fake location to specific radius</string> 
+ 
 
     <!-- Battery Info: Technology -->
     <string name="battery_technology">Technology</string>
