@@ -54,7 +54,7 @@
         android:layout="@layout/preference_category_no_label">
 
         <!-- 1. SwitchPreference: Fake Location toggle -->
-        <SwitchPreference
+        <SwitchPreferenceCompat
             android:key="fake_location_enabled"
             android:title="@string/fake_location_title"
             android:summaryOff="@string/fake_location_summary"
@@ -74,7 +74,6 @@
             android:dependency="fake_location_enabled"
             android:persistent="false" 
             settings:controller="com.android.settings.location.FakeLocationDistancePreferenceController" />
-/>
     </PreferenceCategory>
 
 
