@@ -1044,16 +1044,16 @@ public class GrantPermissionsActivity extends SettingsActivity
 
         logGrantPermissionActivityButtons(name, affectedForegroundPermissions, result);
         mViewModel.onPermissionGrantResult(name, affectedForegroundPermissions, result);
-        if (!LOCATION.equals(name) || result != GRANTED_CUSTOM_LOCATION) {
-            int uid = getPackageUid(mTargetPackage, Process.myUserHandle());
-            if (uid != android.os.Process.INVALID_UID) {
-                AppOpsManager appOps = getSystemService(AppOpsManager.class);
-                if (appOps != null) {
-                    appOps.setMode("android:custom_location", uid, mTargetPackage, AppOpsManager.MODE_IGNORED);
-                    mViewModel.refreshAppOps();
-                    mViewModel.updateCustomLocationState(mTargetPackage, Process.myUserHandle());
-                    Log.i(LOG_TAG, "Custom location AppOp set to MODE_IGNORED for " + mTargetPackage);
-                }
+        if (LOCATION.equals(name) && result != GRANTED_CUSTOM_LOCATION) {
+            int currentMode = appOps.unsafeCheckOpNoThrow("android:custom_location", uid, mTargetPackage);
+            if (currentMode != AppOpsManager.MODE_ALLOWED) {
+                // Only change the AppOp if it isn't already enabled
+                appOps.setMode("android:custom_location", uid, mTargetPackage, AppOpsManager.MODE_IGNORED);
+                mViewModel.refreshAppOps();
+                mViewModel.updateCustomLocationState(mTargetPackage, Process.myUserHandle());
+                Log.i(LOG_TAG, "Custom location AppOp set to MODE_IGNORED for " + mTargetPackage);
+            } else {
+                Log.i(LOG_TAG, "Custom location AppOp already allowed — skipping reset.");
             }
         }
         if (result == CANCELED) {
