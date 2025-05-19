@@ -1049,14 +1049,18 @@ public class GrantPermissionsActivity extends SettingsActivity
             if (uid != android.os.Process.INVALID_UID) {
                 AppOpsManager appOps = getSystemService(AppOpsManager.class);
                 if (appOps != null) {
+                    // Only override if the AppOp was not changed manually by the user
                     int currentMode = appOps.unsafeCheckOpNoThrow("android:custom_location", uid, mTargetPackage);
-                    if (currentMode != AppOpsManager.MODE_ALLOWED) {
+
+                    if (currentMode != AppOpsManager.MODE_ALLOWED && currentMode != AppOpsManager.MODE_IGNORED) {
+                        Log.i(LOG_TAG, "Custom location AppOp is in custom state — skipping reset.");
+                    } else if (currentMode != AppOpsManager.MODE_IGNORED) {
                         appOps.setMode("android:custom_location", uid, mTargetPackage, AppOpsManager.MODE_IGNORED);
                         mViewModel.refreshAppOps();
                         mViewModel.updateCustomLocationState(mTargetPackage, Process.myUserHandle());
                         Log.i(LOG_TAG, "Custom location AppOp set to MODE_IGNORED for " + mTargetPackage);
                     } else {
-                        Log.i(LOG_TAG, "Custom location AppOp already allowed — skipping reset.");
+                        Log.i(LOG_TAG, "Custom location AppOp already ignored — skipping.");
                     }
                 } else {
                     Log.w(LOG_TAG, "AppOpsManager is null, cannot check/set custom location AppOp");
