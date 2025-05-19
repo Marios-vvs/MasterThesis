@@ -20,13 +20,13 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
    
     <!-- fake location dropdown entries and values-->
-    <string-array name="fake_location_entries">
+    <string-array name="fake_location_distance_entries">
     <item>10 km</item>
     <item>100 km</item>
     <item>500 km</item>
     </string-array>
     
-    <string-array name="fake_location_values">
+    <string-array name="fake_location_distance_values">
     <item>10</item>
     <item>100</item>
     <item>500</item>

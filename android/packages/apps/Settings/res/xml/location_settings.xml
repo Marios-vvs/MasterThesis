@@ -60,8 +60,7 @@
             android:summaryOff="@string/fake_location_summary"
             android:summaryOn="@string/fake_location_summary"
             android:defaultValue="false"
-            android:persistent="false"
-            settings:keywords="@string/fake_location_keywords" />
+            android:persistent="false" />
 
         <!-- 2. ListPreference: Fake Location Distance -->
         <ListPreference
