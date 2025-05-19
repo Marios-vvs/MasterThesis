@@ -89,8 +89,8 @@ message GlobalSettingsProto {
     optional SettingProto assisted_gps_enabled = 14 [ (android.privacy).dest = DEST_AUTOMATIC ];
     optional SettingProto custom_loation_enabled = 16 [ (android.privacy).dest = DEST_AUTOMATIC];
     // Add fake location settings:
-    optional SettingProto fake_location_enabled = 9 [ (android.privacy).dest = DEST_EXPLICIT ];
-    optional SettingProto fake_location_dropdown_enabled = 10 [ (android.privacy).dest = DEST_EXPLICIT ];
+    optional SettingProto fake_location_enabled = 137 [ (android.privacy).dest = DEST_EXPLICIT ];
+    optional SettingProto fake_location_dropdown_enabled = 138 [ (android.privacy).dest = DEST_EXPLICIT ];
     
     optional SettingProto audio_safe_volume_state = 15 [ (android.privacy).dest = DEST_AUTOMATIC ];
     optional SettingProto audio_safe_csd_current_value = 157 [ (android.privacy).dest = DEST_AUTOMATIC ];
