@@ -51,7 +51,7 @@
     <PreferenceCategory
         android:key="location_privacy"
         android:title="@string/fake_location_title"
-        android:layout="@layout/preference_category_divider">
+        android:layout="@layout/preference_category_no_label">
 
         <!-- 1. SwitchPreference: Fake Location toggle -->
         <SwitchPreference
