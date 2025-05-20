@@ -67,7 +67,12 @@ public class DistanceFudger implements LocationObfuscationInterface {
     DistanceFudger(int distanceKm, Clock clock, Random random) {
         mClock = clock;
         mRandom = random;
+        if(distanceKm > 0){
         mDistanceKm = distanceKm;
+        }
+        else{
+            mDistanceKm = 10;
+        }
         resetDirectionDistance();
     }
 
@@ -88,7 +93,12 @@ public class DistanceFudger implements LocationObfuscationInterface {
      */
     public void setDistanceKm(int distanceKm) {
         synchronized (this) {
+            if(distanceKm > 0){
             mDistanceKm = distanceKm;
+            }
+            else{
+            mDistanceKm = 10;
+            }
             resetDirectionDistance();
             // Clear caches as the obfuscation parameters changed.
             mCachedFineLocation = null;
