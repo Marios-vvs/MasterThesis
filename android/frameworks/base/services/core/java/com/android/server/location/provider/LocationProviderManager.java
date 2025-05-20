@@ -777,15 +777,32 @@ public class LocationProviderManager extends
     }
 
     private boolean shouldObfuscateLocationForCaller(CallerIdentity identity) {
+        // Top-level override: if fake location is globally enabled, we do not use custom location.
+        if (isFakeLocationEnabled()) {
+            return false;
+        }
+
         AppOpsManager appOps = mContext.getSystemService(AppOpsManager.class);
         if (appOps == null) return false;
 
-        int mode = appOps.checkOpNoThrow(AppOpsManager.OP_CUSTOM_LOCATION,
-                                        identity.getUid(),
-                                        identity.getPackageName());
+        int mode = appOps.checkOpNoThrow(
+                AppOpsManager.OP_CUSTOM_LOCATION,
+                identity.getUid(),
+                identity.getPackageName());
 
         return mode == AppOpsManager.MODE_ALLOWED;
     }
+
+
+    private boolean isFakeLocationEnabled() {
+        return Settings.Global.getInt(mContentResolver, Settings.Global.FAKE_LOCATION_ENABLED, 0) == 1;
+    }
+
+    private int getFakeLocationDistanceFromSettings() {
+        return Settings.Global.getInt(mContentResolver, Settings.Global.FAKE_LOCATION_DISTANCE, 10);
+    }
+
+
 
     protected abstract class LocationRegistration extends Registration implements
             OnAlarmListener, ProviderEnabledListener {
@@ -1469,6 +1486,8 @@ public class LocationProviderManager extends
     protected final ScreenInteractiveHelper mScreenInteractiveHelper;
     protected final LocationUsageLogger mLocationUsageLogger;
     protected final LocationFudger mLocationFudger;
+    protected final DistanceFudger mDistanceFudger;
+    protected final ContentResolver mContentResolver;
     protected final EmergencyHelper mEmergencyHelper;
     private final PackageResetHelper mPackageResetHelper;
 
@@ -1580,6 +1599,8 @@ public class LocationProviderManager extends
         mScreenInteractiveHelper = injector.getScreenInteractiveHelper();
         mLocationUsageLogger = injector.getLocationUsageLogger();
         mLocationFudger = new LocationFudger(mSettingsHelper.getCoarseLocationAccuracyM());
+        mDistanceFudger = new DistanceFudger(getFakeLocationDistanceFromSettings());
+        mContentResolver = context.getContentResolver();
         mEmergencyHelper = injector.getEmergencyHelper();
         mPackageResetHelper = injector.getPackageResetHelper();
 
@@ -2837,6 +2858,11 @@ public class LocationProviderManager extends
     @Nullable Location getPermittedLocation(@Nullable Location fineLocation,
             @PermissionLevel int permissionLevel) {
 
+         if (isFakeLocationEnabled()) {
+            mDistanceFudger.setDistanceKm(getFakeLocationDistanceFromSettings());
+            return fineLocation != null ? mDistanceFudger.createCoarse(fineLocation) : null;
+        }
+
         switch (permissionLevel) {
             case PERMISSION_FINE:
                 return fineLocation;
@@ -2850,7 +2876,13 @@ public class LocationProviderManager extends
 
     @Nullable LocationResult getPermittedLocationResult(
             @Nullable LocationResult fineLocationResult, @PermissionLevel int permissionLevel) {
-        
+
+        if (isFakeLocationEnabled()) {
+            mDistanceFudger.setDistanceKm(getFakeLocationDistanceFromSettings());
+            return fineLocationResult != null ? mDistanceFudger.createCoarse(fineLocationResult) : null;
+        }
+
+
         switch (permissionLevel) {
             case PERMISSION_FINE:
                 return fineLocationResult;

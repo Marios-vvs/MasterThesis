@@ -47,27 +47,6 @@ public class FakeLocationDistancePreferenceController extends LocationBasePrefer
         }
     }
 
-    /* @Override
-    public void updateState(Preference preference) {
-        super.updateState(preference);
-        if (mListPreference == null) return;
-
-        int current = Settings.Global.getInt(
-                mResolver,
-                Settings.Global.FAKE_LOCATION_DISTANCE,
-                10); // default value
-        Log.d(TAG, "updateState(): current stored value = " + current + " km");
-
-
-        String valueStr = String.valueOf(current);
-        mListPreference.setValue(valueStr);
-
-        int index = mListPreference.findIndexOfValue(valueStr);
-        if (index >= 0) {
-            mListPreference.setSummary(mListPreference.getEntries()[index]);
-        }
-    } */
-
    @Override
     public void updateState(Preference preference) {
         super.updateState(preference);
@@ -111,7 +90,6 @@ public class FakeLocationDistancePreferenceController extends LocationBasePrefer
         updateSummary(newDistance);
         return true;
     }
-
 
     private void showCustomDistanceDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
@@ -158,7 +136,6 @@ public class FakeLocationDistancePreferenceController extends LocationBasePrefer
         dialog.show();
     }
 
-
     private void updateSummary(int value) {
         if (mListPreference != null) {
             mListPreference.setSummary(value + " km");
@@ -166,24 +143,6 @@ public class FakeLocationDistancePreferenceController extends LocationBasePrefer
             mListPreference.setValue("custom");
         }
     }
-
-
-
-
-
-    /* @Override
-    public boolean onPreferenceChange(Preference preference, Object newValue) {
-        String strValue = (String) newValue;
-        int newDistance = Integer.parseInt(strValue);
-
-        Settings.Global.putInt(mResolver, Settings.Global.FAKE_LOCATION_DISTANCE, newDistance);
-
-        int index = mListPreference.findIndexOfValue(strValue);
-        if (index >= 0) {
-            mListPreference.setSummary(mListPreference.getEntries()[index]);
-        }
-        return true;
-    } */
 
     @Override
     public void onLocationModeChanged(int mode, boolean restricted) {
