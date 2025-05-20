@@ -73,7 +73,7 @@ public class GeoDPFudger implements LocationObfuscationInterface{
     /**
      * Obfuscate a batch of locations, mirroring LocationFudger's API.
      */
-    @override
+    @Override
     public LocationResult createCoarse(LocationResult fineLocationResult) {
         synchronized (this) {
             if (fineLocationResult == mCachedFineLocationResult
@@ -93,7 +93,7 @@ public class GeoDPFudger implements LocationObfuscationInterface{
     /**
      * Obfuscate a single Location by adding planar Laplace noise.
      */
-    @override
+    @Override
     public Location createCoarse(Location fine) {
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {

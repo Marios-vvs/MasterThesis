@@ -112,7 +112,7 @@ public class LocationFudger implements LocationObfuscationInterface{
      * Coarsens a LocationResult by coarsening every location within the location result with
      * {@link #createCoarse(Location)}.
      */
-    @override
+    @Override
     public LocationResult createCoarse(LocationResult fineLocationResult) {
         synchronized (this) {
             if (fineLocationResult == mCachedFineLocationResult
@@ -140,7 +140,7 @@ public class LocationFudger implements LocationObfuscationInterface{
      * property of producing stable results, and mitigating against taking many samples to average
      * out a random offset.
      */
-    @override
+    @Override
     public Location createCoarse(Location fine) {
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
