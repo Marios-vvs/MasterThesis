@@ -56,7 +56,7 @@ import android.app.AppOpsManager;
 import android.app.BroadcastOptions;
 import android.app.PendingIntent;
 import android.content.Context;
-import andoird.content.ContentResolver;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.location.ILocationCallback;
 import android.location.ILocationListener;
@@ -801,8 +801,15 @@ public class LocationProviderManager extends
     }
 
     private int getFakeLocationDistanceFromSettings() {
-        return Settings.Global.getInt(mContentResolver, Settings.Global.FAKE_LOCATION_DISTANCE, 10);
+        try {
+      
+            return Settings.Global.getInt(mContentResolver, Settings.Global.FAKE_LOCATION_DISTANCE, 10);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to read FAKE_LOCATION_DISTANCE, using default", e);
+            return 10;
+        }
     }
+
 
 
 
@@ -1601,8 +1608,9 @@ public class LocationProviderManager extends
         mScreenInteractiveHelper = injector.getScreenInteractiveHelper();
         mLocationUsageLogger = injector.getLocationUsageLogger();
         mLocationFudger = new LocationFudger(mSettingsHelper.getCoarseLocationAccuracyM());
-        mDistanceFudger = new DistanceFudger(getFakeLocationDistanceFromSettings());
         mContentResolver = context.getContentResolver();
+        int fakeDistance = getFakeLocationDistanceFromSettings();
+        mDistanceFudger = new DistanceFudger(fakeDistance);
         mEmergencyHelper = injector.getEmergencyHelper();
         mPackageResetHelper = injector.getPackageResetHelper();
 
