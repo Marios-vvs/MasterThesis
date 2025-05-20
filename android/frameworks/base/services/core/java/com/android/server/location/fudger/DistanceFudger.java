@@ -191,6 +191,12 @@ public class DistanceFudger implements LocationObfuscationInterface {
         if (mDirectionDeg < 0) {
             mDirectionDeg += 360.0;
         }
+        // clear caches when interval elapsed.
+        mCachedFineLocation         = null;
+        mCachedCoarseLocation       = null;
+        mCachedFineLocationResult   = null;
+        mCachedCoarseLocationResult = null;
+        
         // Schedule next update.
         mNextUpdateRealtimeMs = now + UPDATE_INTERVAL_MS;
     }
