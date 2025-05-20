@@ -137,51 +137,45 @@ public class DistanceFudger implements LocationObfuscationInterface {
                 return mCachedCoarseLocation;
             }
         }
-        // Possibly update direction and distance based on elapsed time.
         updateDirectionDistance();
-        // Make a copy of the fine location to modify.
+
         Location coarse = new Location(fine);
-        // Remove fine-grained attributes that should not be leaked.
         coarse.removeBearing();
         coarse.removeSpeed();
         coarse.removeAltitude();
         coarse.setExtras(null);
 
-        // Compute offset in meters using current direction.
-        double angleRad;
-        double distanceForLat;
-        double distanceForLon;
+        double baseLat = wrapLatitude(coarse.getLatitude());
+        double baseLon = wrapLongitude(coarse.getLongitude());
+        
+        double angleRad, dyMeters, dxMeters;
         synchronized (this) {
-            angleRad = Math.toRadians(mDirectionDeg);
-            // North component and east component of offset.
-            distanceForLat = mDistanceM * Math.cos(angleRad);
-            distanceForLon = mDistanceM * Math.sin(angleRad);
+            angleRad  = Math.toRadians(mDirectionDeg);
+            dyMeters  = mDistanceM * Math.cos(angleRad);  
+            dxMeters  = mDistanceM * Math.sin(angleRad);  
         }
 
-        // Apply latitude offset.
-        double lat = coarse.getLatitude();
-        double latOffsetDeg = metersToDegreesLatitude(distanceForLat);
-        double newLat = wrapLatitude(lat + latOffsetDeg);
+        double newLatDeg = baseLat + metersToDegreesLatitude(dyMeters);
+        newLatDeg = wrapLatitude(newLatDeg);
+        
+        double newLonDeg = baseLon + metersToDegreesLongitude(dxMeters, newLatDeg);
+        newLonDeg = wrapLongitude(newLonDeg);
 
-        // Apply longitude offset with updated latitude for accuracy.
-        double lon = coarse.getLongitude();
-        double lonOffsetDeg = metersToDegreesLongitude(distanceForLon, newLat);
-        double newLon = wrapLongitude(lon + lonOffsetDeg);
+        coarse.setLatitude(newLatDeg);
+        coarse.setLongitude(newLonDeg);
 
-        coarse.setLatitude(newLat);
-        coarse.setLongitude(newLon);
-
-        // Ensure accuracy reflects the obfuscation distance.
         float originalAccuracy = coarse.getAccuracy();
-        float offsetAccuracy = (float) mDistanceM;
+        float offsetAccuracy   = (float) mDistanceM;
         coarse.setAccuracy(Math.max(offsetAccuracy, originalAccuracy));
 
         synchronized (this) {
-            mCachedFineLocation = fine;
+            mCachedFineLocation   = fine;
             mCachedCoarseLocation = coarse;
         }
+
         return coarse;
     }
+
 
     /**
      * Updates the direction and distance variation if the update interval has elapsed.
