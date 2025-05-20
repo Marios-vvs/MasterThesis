@@ -59,12 +59,12 @@ public class DistanceFudger implements LocationObfuscationInterface {
      *
      * @param distanceKm distance in kilometers to offset the location.
      */
-    public DirectionalDistanceFudger(int distanceKm) {
+    public DistanceFudger(int distanceKm) {
         this(distanceKm, SystemClock.elapsedRealtimeClock(), new SecureRandom());
     }
 
     @VisibleForTesting
-    DirectionalDistanceFudger(int distanceKm, Clock clock, Random random) {
+    DistanceFudger(int distanceKm, Clock clock, Random random) {
         mClock = clock;
         mRandom = random;
         mDistanceKm = distanceKm;
