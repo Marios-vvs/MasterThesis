@@ -47,7 +47,7 @@ public class FakeLocationDistancePreferenceController extends LocationBasePrefer
         }
     }
 
-    @Override
+    /* @Override
     public void updateState(Preference preference) {
         super.updateState(preference);
         if (mListPreference == null) return;
@@ -65,6 +65,31 @@ public class FakeLocationDistancePreferenceController extends LocationBasePrefer
         int index = mListPreference.findIndexOfValue(valueStr);
         if (index >= 0) {
             mListPreference.setSummary(mListPreference.getEntries()[index]);
+        }
+    } */
+
+   @Override
+    public void updateState(Preference preference) {
+        super.updateState(preference);
+        if (mListPreference == null) return;
+
+        int current = Settings.Global.getInt(
+                mResolver,
+                Settings.Global.FAKE_LOCATION_DISTANCE,
+                10); // default value
+        Log.d(TAG, "updateState(): current stored value = " + current + " km");
+
+        String valueStr = String.valueOf(current);
+        int index = mListPreference.findIndexOfValue(valueStr);
+
+        if (index >= 0) {
+            // User picked a predefined option (10, 100, 500)
+            mListPreference.setValue(valueStr);
+            mListPreference.setSummary(mListPreference.getEntries()[index]);
+        } else {
+            // Custom value (not in entryValues)
+            mListPreference.setValue("custom");
+            mListPreference.setSummary(current + " km");
         }
     }
 

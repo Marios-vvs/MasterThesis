@@ -45,7 +45,7 @@ public class FakeLocationPreferenceController extends LocationBasePreferenceCont
         }
     }
 
-    @Override
+    /* @Override
     public boolean handlePreferenceTreeClick(Preference preference) {
         if (KEY_FAKE_LOCATION.equals(preference.getKey())) {
             final ContentResolver cr = mContext.getContentResolver();
@@ -54,7 +54,29 @@ public class FakeLocationPreferenceController extends LocationBasePreferenceCont
             return true;
         }
         return false;
+    } */
+
+   @Override
+    public boolean handlePreferenceTreeClick(Preference preference) {
+        if (KEY_FAKE_LOCATION.equals(preference.getKey())) {
+            final ContentResolver cr = mContext.getContentResolver();
+            boolean checked = mPreference.isChecked();
+            Settings.Global.putInt(cr, Settings.Global.FAKE_LOCATION_ENABLED, checked ? 1 : 0);
+
+            // Refresh the dependent preference immediately
+            PreferenceScreen screen = mPreference.getPreferenceManager().getPreferenceScreen();
+            if (screen != null) {
+                Preference dep = screen.findPreference("fake_location_distance");
+                if (dep != null) {
+                    dep.setVisible(checked);  // Show or hide it based on toggle
+                }
+            }
+
+            return true;
+        }
+        return false;
     }
+
 
     @Override
     public void onLocationModeChanged(int mode, boolean restricted) {
