@@ -95,14 +95,14 @@ public class GeoDPFudger implements LocationObfuscationInterface{
      */
     @Override
     public Location createCoarse(Location fine) {
+        // Update noise interval and clear caches if needed
+        updateNoise();
+        
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
                 return mCachedCoarseLocation;
             }
         }
-
-        // Update noise interval and clear caches if needed
-        updateNoise();
 
         // Copy and sanitize
         Location coarse = new Location(fine);
