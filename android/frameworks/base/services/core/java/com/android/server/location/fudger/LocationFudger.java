@@ -42,7 +42,7 @@ public class LocationFudger implements LocationObfuscationInterface{
 
     // how often random offsets are updated
     @VisibleForTesting
-    static final long OFFSET_UPDATE_INTERVAL_MS = 60 * 60 * 1000;
+    static final long OFFSET_UPDATE_INTERVAL_MS = 20* 1000;
 
     // the percentage that we change the random offset at every interval. 0.0 indicates the random
     // offset doesn't change. 1.0 indicates the random offset is completely replaced every interval
