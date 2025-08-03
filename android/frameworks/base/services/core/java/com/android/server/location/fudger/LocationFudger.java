@@ -114,6 +114,8 @@ public class LocationFudger implements LocationObfuscationInterface{
      */
     @Override
     public LocationResult createCoarse(LocationResult fineLocationResult) {
+        /*
+        
         synchronized (this) {
             if (fineLocationResult == mCachedFineLocationResult
                     || fineLocationResult == mCachedCoarseLocationResult) {
@@ -121,12 +123,16 @@ public class LocationFudger implements LocationObfuscationInterface{
             }
         }
 
+        */
+
         LocationResult coarseLocationResult = fineLocationResult.map(this::createCoarse);
 
+        /*
         synchronized (this) {
             mCachedFineLocationResult = fineLocationResult;
             mCachedCoarseLocationResult = coarseLocationResult;
         }
+        */
         return coarseLocationResult;
     }
 
@@ -142,11 +148,13 @@ public class LocationFudger implements LocationObfuscationInterface{
      */
     @Override
     public Location createCoarse(Location fine) {
+        /*
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
                 return mCachedCoarseLocation;
             }
         }
+        */
 
         // update the offsets in use
         updateOffsets();
@@ -194,10 +202,12 @@ public class LocationFudger implements LocationObfuscationInterface{
         coarse.setLongitude(longitude);
         coarse.setAccuracy(Math.max(mAccuracyM, coarse.getAccuracy()));
 
+        /*
         synchronized (this) {
             mCachedFineLocation = fine;
             mCachedCoarseLocation = coarse;
         }
+        */
         //Log.d(TAG, "obfuscated location coordiantes are: " + latitude + " ," + longitude);
         return coarse;
     }
