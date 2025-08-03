@@ -14,16 +14,12 @@ import java.util.Random;
 
 /**
  * Implements geo-indistinguishability (planar Laplace) based location obfuscation.
- * Calibrated for ~200 m average distortion (ε ≈ 2/mAccuracy).
- * resembles function names, synchronization, and caching patterns of LocationFudger,
- * but replaces offset+grid with a differential‑privacy noise mechanism.
+ * Uses global noise offsets refreshed once per interval, mirroring LocationFudger control flow.
  */
-public class GeoDPFudger implements LocationObfuscationInterface{
+public class GeoDPFudger implements LocationObfuscationInterface {
     private static final float MIN_ACCURACY_M = 200.0f;
-
     @VisibleForTesting
     static final long NOISE_UPDATE_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
-
     private static final int APPROX_METERS_PER_DEGREE_AT_EQUATOR = 111_000;
     private static final double MAX_LATITUDE =
             90.0 - (1.0 / APPROX_METERS_PER_DEGREE_AT_EQUATOR);
@@ -33,22 +29,22 @@ public class GeoDPFudger implements LocationObfuscationInterface{
     private final Clock mClock;
     private final Random mRandom;
 
+    // Global offsets applied to all calls within the same interval
+    @GuardedBy("this")
+    private double mLatitudeOffsetM;
+    @GuardedBy("this")
+    private double mLongitudeOffsetM;
     @GuardedBy("this")
     private long mNextUpdateRealtimeMs;
 
     // Caches for single Location
-    @GuardedBy("this")
-    @Nullable private Location mCachedFineLocation;
-    @GuardedBy("this")
-    @Nullable private Location mCachedCoarseLocation;
-
+    @GuardedBy("this") @Nullable private Location mCachedFineLocation;
+    @GuardedBy("this") @Nullable private Location mCachedCoarseLocation;
     // Caches for LocationResult
-    @GuardedBy("this")
-    @Nullable private LocationResult mCachedFineLocationResult;
-    @GuardedBy("this")
-    @Nullable private LocationResult mCachedCoarseLocationResult;
+    @GuardedBy("this") @Nullable private LocationResult mCachedFineLocationResult;
+    @GuardedBy("this") @Nullable private LocationResult mCachedCoarseLocationResult;
 
-    /** Public constructor mirrors LocationFudger. */
+    /** Public constructor initializes clock, random, accuracy, and seeds offsets. */
     public GeoDPFudger(float accuracyM) {
         this(accuracyM, SystemClock.elapsedRealtimeClock(), new SecureRandom());
     }
@@ -59,20 +55,24 @@ public class GeoDPFudger implements LocationObfuscationInterface{
         mRandom = random;
         mAccuracyM = Math.max(accuracyM, MIN_ACCURACY_M);
         mEpsilon = 2.0 / mAccuracyM;  // calibrate privacy budget
-        // initialize next update time immediately
+        resetOffsets(); // seed initial noise offsets and timer
+    }
+
+    /** Reset the noise offsets and timer (for testing or on demand). */
+    public synchronized void resetOffsets() {
+        // Sample new planar Laplace offsets for latitude & longitude
+        double[] offsets = samplePlanarLaplaceOffsets();
+        mLatitudeOffsetM = offsets[0];
+        mLongitudeOffsetM = offsets[1];
+        // Schedule next refresh
         mNextUpdateRealtimeMs = mClock.millis() + NOISE_UPDATE_INTERVAL_MS;
+        // Clear caches so new offsets apply immediately
+        mCachedFineLocation = null;
+        mCachedCoarseLocation = null;
+        mCachedFineLocationResult = null;
+        mCachedCoarseLocationResult = null;
     }
 
-    /** Reset the noise timer (for testing). */
-    public void resetNoise() {
-        synchronized (this) {
-            mNextUpdateRealtimeMs = mClock.millis() + NOISE_UPDATE_INTERVAL_MS;
-        }
-    }
-
-    /**
-     * Obfuscate a batch of locations, mirroring LocationFudger's API.
-     */
     @Override
     public LocationResult createCoarse(LocationResult fineLocationResult) {
         synchronized (this) {
@@ -81,7 +81,6 @@ public class GeoDPFudger implements LocationObfuscationInterface{
                 return mCachedCoarseLocationResult;
             }
         }
-        // Delegate to single-location method via map()
         LocationResult coarseLocationResult = fineLocationResult.map(this::createCoarse);
         synchronized (this) {
             mCachedFineLocationResult = fineLocationResult;
@@ -90,55 +89,36 @@ public class GeoDPFudger implements LocationObfuscationInterface{
         return coarseLocationResult;
     }
 
-    /**
-     * Obfuscate a single Location by adding planar Laplace noise.
-     */
     @Override
     public Location createCoarse(Location fine) {
-        // Update noise interval and clear caches if needed
-        updateNoise();
-        
+        updateNoise(); // refresh offsets if interval elapsed
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
                 return mCachedCoarseLocation;
             }
         }
-
-        // Copy and sanitize
+        // Clone and strip metadata
         Location coarse = new Location(fine);
         coarse.removeBearing();
         coarse.removeSpeed();
         coarse.removeAltitude();
         coarse.setExtras(null);
-
-        // Base coordinates
+        // Base coordinates clamp
         double lat = wrapLatitude(coarse.getLatitude());
         double lon = wrapLongitude(coarse.getLongitude());
-
-        // --- Planar Laplace noise sampling ---
-        double u = mRandom.nextDouble();
-        double v = mRandom.nextDouble();
-        // Radius ~ Gamma(shape=2, scale=1/ε): sum of two Exp(ε)
-        double radius = -Math.log(u * v) / mEpsilon;
-        double theta = 2 * Math.PI * mRandom.nextDouble();
-        double dy = radius * Math.sin(theta);
-        double dx = radius * Math.cos(theta);
-
-        // Convert meters to degrees
-        double dLat = metersToDegreesLatitude(dy);
-        double dLon = metersToDegreesLongitude(dx, lat);
-
-        lat += dLat;
-        lon += dLon;
-
-        // Wrap after noise
+        // Apply global offsets
+        synchronized (this) {
+            lat += metersToDegreesLatitude(mLatitudeOffsetM);
+            lon += metersToDegreesLongitude(mLongitudeOffsetM, lat);
+        }
+        // Wrap to valid range
         lat = wrapLatitude(lat);
         lon = wrapLongitude(lon);
-
+        // Set new values & accuracy
         coarse.setLatitude(lat);
         coarse.setLongitude(lon);
         coarse.setAccuracy(Math.max(mAccuracyM, coarse.getAccuracy()));
-
+        // Cache
         synchronized (this) {
             mCachedFineLocation = fine;
             mCachedCoarseLocation = coarse;
@@ -146,44 +126,54 @@ public class GeoDPFudger implements LocationObfuscationInterface{
         return coarse;
     }
 
-    /**
-     * Update the noise interval once per hour.
-     * FIX: also clear caches when new interval begins.
-     */
+    /** Refresh offsets once per interval, clearing caches on rollover. */
     private synchronized void updateNoise() {
         long now = mClock.millis();
         if (now < mNextUpdateRealtimeMs) {
-            return;
+            return; // not yet time
         }
-        mNextUpdateRealtimeMs = now + NOISE_UPDATE_INTERVAL_MS;
-        // FIX: invalidate caches to force recompute with fresh noise
+        // Reseed global offsets
+        double[] offsets = samplePlanarLaplaceOffsets();
+        mLatitudeOffsetM = offsets[0];
+        mLongitudeOffsetM = offsets[1];
+        // Clear caches so new offsets take effect
         mCachedFineLocation = null;
         mCachedCoarseLocation = null;
         mCachedFineLocationResult = null;
         mCachedCoarseLocationResult = null;
+        // Schedule next refresh
+        mNextUpdateRealtimeMs = now + NOISE_UPDATE_INTERVAL_MS;
     }
 
-    // --- Helper methods (copied from LocationFudger) ---
+    /** Sample a pair of planar Laplace offsets (in meters). */
+    private double[] samplePlanarLaplaceOffsets() {
+        // Draw two uniforms
+        double u = mRandom.nextDouble();
+        double v = mRandom.nextDouble();
+        // Radius from Gamma(shape=2, scale=1/ε)
+        double radius = -Math.log(u * v) / mEpsilon;
+        double theta = 2 * Math.PI * mRandom.nextDouble();
+        double dy = radius * Math.sin(theta);
+        double dx = radius * Math.cos(theta);
+        return new double[]{dy, dx};
+    }
 
+    // Helper methods copied unchanged:
     private static double wrapLatitude(double lat) {
         if (lat > MAX_LATITUDE) lat = MAX_LATITUDE;
         if (lat < -MAX_LATITUDE) lat = -MAX_LATITUDE;
         return lat;
     }
-
     private static double wrapLongitude(double lon) {
         lon %= 360.0;
         if (lon >= 180.0) lon -= 360.0;
         if (lon < -180.0) lon += 360.0;
         return lon;
     }
-
-    private static double metersToDegreesLatitude(double distance) {
-        return distance / APPROX_METERS_PER_DEGREE_AT_EQUATOR;
+    private static double metersToDegreesLatitude(double m) {
+        return m / APPROX_METERS_PER_DEGREE_AT_EQUATOR;
     }
-
-    private static double metersToDegreesLongitude(double distance, double latitudeDegrees) {
-        return distance
-                / (APPROX_METERS_PER_DEGREE_AT_EQUATOR * Math.cos(Math.toRadians(latitudeDegrees)));
+    private static double metersToDegreesLongitude(double m, double lat) {
+        return m / (APPROX_METERS_PER_DEGREE_AT_EQUATOR * Math.cos(Math.toRadians(lat)));
     }
 }
