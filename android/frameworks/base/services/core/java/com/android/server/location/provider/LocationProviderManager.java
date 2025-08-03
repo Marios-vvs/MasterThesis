@@ -966,7 +966,7 @@ public class LocationProviderManager extends
             }
 
             if (fineLocationResult != null && shouldObfuscateLocationForCaller(getIdentity())) {
-                fineLocationResult = mGeoDPFudger.createCoarse(fineLocationResult);
+                fineLocationResult = mLocationFudger.createCoarse(fineLocationResult);
             }
 
             LocationResult permittedLocationResult = Objects.requireNonNull(
@@ -1396,7 +1396,7 @@ public class LocationProviderManager extends
             }
 
              if (fineLocationResult != null && shouldObfuscateLocationForCaller(getIdentity())) {
-                fineLocationResult = mGeoDPFudger.createCoarse(fineLocationResult);
+                fineLocationResult = mLocationFudger.createCoarse(fineLocationResult);
             } else if(fineLocationResult != null) {
                 fineLocationResult = fineLocationResult.asLastLocationResult();
             }
