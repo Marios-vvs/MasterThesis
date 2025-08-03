@@ -75,28 +75,34 @@ public class GeoDPFudger implements LocationObfuscationInterface {
 
     @Override
     public LocationResult createCoarse(LocationResult fineLocationResult) {
+        /*
         synchronized (this) {
             if (fineLocationResult == mCachedFineLocationResult
                     || fineLocationResult == mCachedCoarseLocationResult) {
                 return mCachedCoarseLocationResult;
             }
         }
+        */
         LocationResult coarseLocationResult = fineLocationResult.map(this::createCoarse);
+        /*
         synchronized (this) {
             mCachedFineLocationResult = fineLocationResult;
             mCachedCoarseLocationResult = coarseLocationResult;
         }
+        */
         return coarseLocationResult;
     }
 
     @Override
     public Location createCoarse(Location fine) {
         updateNoise(); // refresh offsets if interval elapsed
+        /*
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
                 return mCachedCoarseLocation;
             }
         }
+        */
         // Clone and strip metadata
         Location coarse = new Location(fine);
         coarse.removeBearing();
@@ -119,10 +125,12 @@ public class GeoDPFudger implements LocationObfuscationInterface {
         coarse.setLongitude(lon);
         coarse.setAccuracy(Math.max(mAccuracyM, coarse.getAccuracy()));
         // Cache
+        /*
         synchronized (this) {
             mCachedFineLocation = fine;
             mCachedCoarseLocation = coarse;
         }
+        */
         return coarse;
     }
 
@@ -137,10 +145,12 @@ public class GeoDPFudger implements LocationObfuscationInterface {
         mLatitudeOffsetM = offsets[0];
         mLongitudeOffsetM = offsets[1];
         // Clear caches so new offsets take effect
+        /*
         mCachedFineLocation = null;
         mCachedCoarseLocation = null;
         mCachedFineLocationResult = null;
         mCachedCoarseLocationResult = null;
+        */
         // Schedule next refresh
         mNextUpdateRealtimeMs = now + NOISE_UPDATE_INTERVAL_MS;
     }
