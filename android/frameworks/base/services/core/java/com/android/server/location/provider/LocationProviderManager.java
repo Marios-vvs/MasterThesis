@@ -107,6 +107,7 @@ import com.android.server.location.LocationPermissions;
 import com.android.server.location.LocationPermissions.PermissionLevel;
 import com.android.server.location.fudger.LocationFudger;
 import com.android.server.location.fudger.DistanceFudger;
+import com.android.server.location.fudger.GeoDPFudger;
 import com.android.server.location.injector.AlarmHelper;
 import com.android.server.location.injector.AppForegroundHelper;
 import com.android.server.location.injector.AppForegroundHelper.AppForegroundListener;
@@ -965,7 +966,7 @@ public class LocationProviderManager extends
             }
 
             if (fineLocationResult != null && shouldObfuscateLocationForCaller(getIdentity())) {
-                fineLocationResult = mLocationFudger.createCoarse(fineLocationResult);
+                fineLocationResult = mGeoDPFudger.createCoarse(fineLocationResult);
             }
 
             LocationResult permittedLocationResult = Objects.requireNonNull(
@@ -1395,7 +1396,7 @@ public class LocationProviderManager extends
             }
 
              if (fineLocationResult != null && shouldObfuscateLocationForCaller(getIdentity())) {
-                fineLocationResult = mLocationFudger.createCoarse(fineLocationResult);
+                fineLocationResult = mGeoDPFudger.createCoarse(fineLocationResult);
             } else if(fineLocationResult != null) {
                 fineLocationResult = fineLocationResult.asLastLocationResult();
             }
@@ -1496,6 +1497,7 @@ public class LocationProviderManager extends
     protected final LocationUsageLogger mLocationUsageLogger;
     protected final LocationFudger mLocationFudger;
     protected final DistanceFudger mDistanceFudger;
+    protected final GeoDPFudger mGeoDPFudger;
     protected final ContentResolver mContentResolver;
     protected final EmergencyHelper mEmergencyHelper;
     private final PackageResetHelper mPackageResetHelper;
@@ -1611,6 +1613,7 @@ public class LocationProviderManager extends
         mContentResolver = context.getContentResolver();
         int fakeDistance = getFakeLocationDistanceFromSettings();
         mDistanceFudger = new DistanceFudger(fakeDistance);
+        mGeoDPFudger = new GeoDPFudger(mSettingsHelper.getCoarseLocationAccuracyM());
         mEmergencyHelper = injector.getEmergencyHelper();
         mPackageResetHelper = injector.getPackageResetHelper();
 
