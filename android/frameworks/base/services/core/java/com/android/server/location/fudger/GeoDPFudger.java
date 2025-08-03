@@ -19,7 +19,7 @@ import java.util.Random;
 public class GeoDPFudger implements LocationObfuscationInterface {
     private static final float MIN_ACCURACY_M = 200.0f;
     @VisibleForTesting
-    static final long NOISE_UPDATE_INTERVAL_MS = 60 * 60 * 1000; // 1 hour
+    static final long NOISE_UPDATE_INTERVAL_MS = 60 * 1000; // 1 min for test
     private static final int APPROX_METERS_PER_DEGREE_AT_EQUATOR = 111_000;
     private static final double MAX_LATITUDE =
             90.0 - (1.0 / APPROX_METERS_PER_DEGREE_AT_EQUATOR);
