@@ -37,12 +37,14 @@ public class GeoDPFudger implements LocationObfuscationInterface {
     @GuardedBy("this")
     private long mNextUpdateRealtimeMs;
 
+    /*
     // Caches for single Location
     @GuardedBy("this") @Nullable private Location mCachedFineLocation;
     @GuardedBy("this") @Nullable private Location mCachedCoarseLocation;
     // Caches for LocationResult
     @GuardedBy("this") @Nullable private LocationResult mCachedFineLocationResult;
     @GuardedBy("this") @Nullable private LocationResult mCachedCoarseLocationResult;
+    */
 
     /** Public constructor initializes clock, random, accuracy, and seeds offsets. */
     public GeoDPFudger(float accuracyM) {
@@ -68,10 +70,12 @@ public class GeoDPFudger implements LocationObfuscationInterface {
         // Schedule next refresh
         mNextUpdateRealtimeMs = mClock.millis() + NOISE_UPDATE_INTERVAL_MS;
         // Clear caches so new offsets apply immediately
+        /*
         mCachedFineLocation = null;
         mCachedCoarseLocation = null;
         mCachedFineLocationResult = null;
         mCachedCoarseLocationResult = null;
+        */
     }
 
     @Override
@@ -124,7 +128,7 @@ public class GeoDPFudger implements LocationObfuscationInterface {
         // Set new values & accuracy
         coarse.setLatitude(lat);
         coarse.setLongitude(lon);
-        coarse.setAccuracy(Math.max(mAccuracyM, coarse.getAccuracy()));
+        coarse.setAccuracy(mAccuracyM);
         // Cache
         /*
         synchronized (this) {
