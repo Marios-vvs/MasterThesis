@@ -11,6 +11,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Random;
+import android.util.Log;
 
 /**
  * Contains the logic to obfuscate (fudge) locations for coarse applications by
@@ -18,6 +19,7 @@ import java.util.Random;
  * distance are periodically updated to prevent tracking of the obfuscation pattern.
  */
 public class DistanceFudger implements LocationObfuscationInterface {
+    private static final String TAG = "DistanceFudger";
     // Distance (in kilometers) to offset the location.
     private volatile int mDistanceKm;
 
@@ -88,6 +90,9 @@ public class DistanceFudger implements LocationObfuscationInterface {
         mDistanceM = mDistanceKm * 1000.0;
         // Schedule next update in one hour.
         mNextUpdateRealtimeMs = mClock.millis() + UPDATE_INTERVAL_MS;
+        //log reset
+        Log.i(TAG, String.format("resetDirectionDistance: directionDeg=%.3f°, distanceM=%.1f, nextUpdateInMs=%d",
+                mDirectionDeg, mDistanceM, UPDATE_INTERVAL_MS));
     }
 
     /**
@@ -158,11 +163,18 @@ public class DistanceFudger implements LocationObfuscationInterface {
         double baseLat = wrapLatitude(coarse.getLatitude());
         double baseLon = wrapLongitude(coarse.getLongitude());
         
-        double angleRad, dyMeters, dxMeters;
+         double angleRad;
+        double dyMeters;
+        double dxMeters;
+        double usedDirectionDeg;
+        double usedDistanceM;
         synchronized (this) {
-            angleRad  = Math.toRadians(mDirectionDeg);
-            dyMeters  = mDistanceM * Math.cos(angleRad);  
-            dxMeters  = mDistanceM * Math.sin(angleRad);  
+            usedDirectionDeg = mDirectionDeg;
+            usedDistanceM = mDistanceM;
+            angleRad = Math.toRadians(usedDirectionDeg);
+            // Bearing convention: 0° means north (increase latitude). Decompose into dy/dx.
+            dyMeters = usedDistanceM * Math.cos(angleRad); 
+            dxMeters = usedDistanceM * Math.sin(angleRad); 
         }
 
         double newLatDeg = baseLat + metersToDegreesLatitude(dyMeters);
@@ -175,8 +187,11 @@ public class DistanceFudger implements LocationObfuscationInterface {
         coarse.setLongitude(newLonDeg);
 
         float originalAccuracy = coarse.getAccuracy();
-        float offsetAccuracy   = (float) mDistanceM;
+        float offsetAccuracy   = (float) usedDistanceM;
         coarse.setAccuracy(Math.max(offsetAccuracy, originalAccuracy));
+        Log.d(TAG, String.format("createCoarse: input=(%.6f,%.6f) -> obfuscated=(%.6f,%.6f);"
+                        + " bearing=%.3f°, dy=%.1fm dx=%.1fm distance=%.1fm",
+                baseLat, baseLon, newLatDeg, newLonDeg, usedDirectionDeg, dyMeters, dxMeters, usedDistanceM));
 
         /*
         synchronized (this) {
@@ -191,31 +206,38 @@ public class DistanceFudger implements LocationObfuscationInterface {
     /**
      * Updates the direction and distance variation if the update interval has elapsed.
      */
-    private synchronized void updateDirectionDistance() {
+   private synchronized void updateDirectionDistance() {
         long now = mClock.millis();
         if (now < mNextUpdateRealtimeMs) {
             return;
         }
-        // Vary distance ±5% around base distance.
+        double oldDirection = mDirectionDeg;
+        double oldDistanceM = mDistanceM;
+
+        // Vary distance ±VARIATION_PERCENT around base distance.
         double baseDistanceM = mDistanceKm * 1000.0;
         double factor = 1.0 + (mRandom.nextDouble() * 2.0 - 1.0) * VARIATION_PERCENT;
         mDistanceM = baseDistanceM * factor;
+
         // Jitter direction by a random amount up to ±DIRECTION_JITTER_DEGREES.
         double jitter = (mRandom.nextDouble() * 2.0 - 1.0) * DIRECTION_JITTER_DEGREES;
         mDirectionDeg = (mDirectionDeg + jitter) % 360.0;
         if (mDirectionDeg < 0) {
             mDirectionDeg += 360.0;
         }
+
         // clear caches when interval elapsed.
-        /*
-        mCachedFineLocation         = null;
-        mCachedCoarseLocation       = null;
-        mCachedFineLocationResult   = null;
+       /* 
+       mCachedFineLocation = null;
+        mCachedCoarseLocation = null;
+        mCachedFineLocationResult = null;
         mCachedCoarseLocationResult = null;
         */
-        
         // Schedule next update.
         mNextUpdateRealtimeMs = now + UPDATE_INTERVAL_MS;
+
+        Log.i(TAG, String.format("updateDirectionDistance: oldDir=%.3f° oldDist=%.1fm -> newDir=%.3f° newDist=%.1fm jitter=%.3f° factor=%.4f nextInMs=%d",
+                oldDirection, oldDistanceM, mDirectionDeg, mDistanceM, jitter, factor, UPDATE_INTERVAL_MS));
     }
 
     /**
