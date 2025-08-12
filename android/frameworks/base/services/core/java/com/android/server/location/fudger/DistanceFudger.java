@@ -28,14 +28,14 @@ public class DistanceFudger implements LocationObfuscationInterface {
 
     // Interval for updating direction and distance (1 hour).
     @VisibleForTesting
-    static final long UPDATE_INTERVAL_MS = 60 * 60 * 1000;
+    static final long UPDATE_INTERVAL_MS =  60 * 1000; //1 min for test
 
     // Maximum latitude to avoid cos(lat)=0 at poles.
     private static final int APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR = 111_000;
     private static final double MAX_LATITUDE = 90.0 - (1.0 / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR);
 
     // Jitter parameters
-    private static final double DIRECTION_JITTER_DEGREES = 10.0; // max ±10° jitter per update
+    private static final double DIRECTION_JITTER_DEGREES = 3.0; // max ±3° jitter per update
     private static final double VARIATION_PERCENT = 0.05;        // ±5% distance variation
 
     // Current offset direction (degrees) and distance (meters).
@@ -49,11 +49,13 @@ public class DistanceFudger implements LocationObfuscationInterface {
     private long mNextUpdateRealtimeMs;
 
     // Caches for fine/coarse locations and location results.
+    /*
     @GuardedBy("this") @Nullable private Location mCachedFineLocation;
     @GuardedBy("this") @Nullable private Location mCachedCoarseLocation;
     @GuardedBy("this") @Nullable private LocationResult mCachedFineLocationResult;
     @GuardedBy("this") @Nullable private LocationResult mCachedCoarseLocationResult;
-
+    */
+    
     /**
      * Constructs a DirectionalDistanceFudger with the given base distance.
      *
@@ -115,28 +117,34 @@ public class DistanceFudger implements LocationObfuscationInterface {
 
     @Override
     public LocationResult createCoarse(LocationResult fineLocationResult) {
+        /*
         synchronized (this) {
             if (fineLocationResult == mCachedFineLocationResult
                     || fineLocationResult == mCachedCoarseLocationResult) {
                 return mCachedCoarseLocationResult;
             }
         }
+        */
         // Apply coarse to each location in the result.
         LocationResult coarseLocationResult = fineLocationResult.map(this::createCoarse);
+        /*
         synchronized (this) {
             mCachedFineLocationResult = fineLocationResult;
             mCachedCoarseLocationResult = coarseLocationResult;
         }
+        */
         return coarseLocationResult;
     }
 
     @Override
     public Location createCoarse(Location fine) {
+        /*
         synchronized (this) {
             if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
                 return mCachedCoarseLocation;
             }
         }
+        */
         updateDirectionDistance();
 
         Location coarse = new Location(fine);
@@ -168,11 +176,12 @@ public class DistanceFudger implements LocationObfuscationInterface {
         float offsetAccuracy   = (float) mDistanceM;
         coarse.setAccuracy(Math.max(offsetAccuracy, originalAccuracy));
 
+        /*
         synchronized (this) {
             mCachedFineLocation   = fine;
             mCachedCoarseLocation = coarse;
         }
-
+        */
         return coarse;
     }
 
