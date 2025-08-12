@@ -12,11 +12,17 @@ import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.Random;
 
+import android.util.Log;
+
 /**
  * Implements geo-indistinguishability (planar Laplace) based location obfuscation.
  * Uses global noise offsets refreshed once per interval, mirroring LocationFudger control flow.
+ *
+ * Added logging: lifecycle (reset/update), and per-location before/after coarsening with timestamps.
  */
 public class GeoDPFudger implements LocationObfuscationInterface {
+    private static final String TAG = "GeoDPFudger";
+
     private static final float MIN_ACCURACY_M = 200.0f;
     @VisibleForTesting
     static final long NOISE_UPDATE_INTERVAL_MS = 10 * 1000; // 10s for evaluation
@@ -29,7 +35,7 @@ public class GeoDPFudger implements LocationObfuscationInterface {
     private final Clock mClock;
     private final Random mRandom;
 
-    // Global offsets applied to all calls within the same interval
+    // Global offsets applied to all calls within the same interval (meters).
     @GuardedBy("this")
     private double mLatitudeOffsetM;
     @GuardedBy("this")
@@ -58,6 +64,10 @@ public class GeoDPFudger implements LocationObfuscationInterface {
         //mAccuracyM = Math.max(accuracyM, MIN_ACCURACY_M);
         mAccuracyM = MIN_ACCURACY_M;
         mEpsilon = 2.0 / mAccuracyM;  // calibrate privacy budget
+
+        Log.i(TAG, String.format("construct: mAccuracyM=%.1fm mEpsilon=%.6f time(monotonic)=%d wall=%d",
+                mAccuracyM, mEpsilon, mClock.millis(), System.currentTimeMillis()));
+
         resetOffsets(); // seed initial noise offsets and timer
     }
 
@@ -76,119 +86,14 @@ public class GeoDPFudger implements LocationObfuscationInterface {
         mCachedFineLocationResult = null;
         mCachedCoarseLocationResult = null;
         */
+
+        Log.i(TAG, String.format(
+                "resetOffsets: latOffsetM=%.3f lonOffsetM=%.3f nextUpdateAt(monotonic)=%d (in %dms) wall=%d",
+                mLatitudeOffsetM, mLongitudeOffsetM, mNextUpdateRealtimeMs,
+                NOISE_UPDATE_INTERVAL_MS, System.currentTimeMillis()));
     }
 
     @Override
     public LocationResult createCoarse(LocationResult fineLocationResult) {
         /*
-        synchronized (this) {
-            if (fineLocationResult == mCachedFineLocationResult
-                    || fineLocationResult == mCachedCoarseLocationResult) {
-                return mCachedCoarseLocationResult;
-            }
-        }
-        */
-        LocationResult coarseLocationResult = fineLocationResult.map(this::createCoarse);
-        /*
-        synchronized (this) {
-            mCachedFineLocationResult = fineLocationResult;
-            mCachedCoarseLocationResult = coarseLocationResult;
-        }
-        */
-        return coarseLocationResult;
-    }
-
-    @Override
-    public Location createCoarse(Location fine) {
-        updateNoise(); // refresh offsets if interval elapsed
-        /*
-        synchronized (this) {
-            if (fine == mCachedFineLocation || fine == mCachedCoarseLocation) {
-                return mCachedCoarseLocation;
-            }
-        }
-        */
-        // Clone and strip metadata
-        Location coarse = new Location(fine);
-        coarse.removeBearing();
-        coarse.removeSpeed();
-        coarse.removeAltitude();
-        coarse.setExtras(null);
-        // Base coordinates clamp
-        double lat = wrapLatitude(coarse.getLatitude());
-        double lon = wrapLongitude(coarse.getLongitude());
-        // Apply global offsets
-        synchronized (this) {
-            lat += metersToDegreesLatitude(mLatitudeOffsetM);
-            lon += metersToDegreesLongitude(mLongitudeOffsetM, lat);
-        }
-        // Wrap to valid range
-        lat = wrapLatitude(lat);
-        lon = wrapLongitude(lon);
-        // Set new values & accuracy
-        coarse.setLatitude(lat);
-        coarse.setLongitude(lon);
-        coarse.setAccuracy(mAccuracyM);
-        // Cache
-        /*
-        synchronized (this) {
-            mCachedFineLocation = fine;
-            mCachedCoarseLocation = coarse;
-        }
-        */
-        return coarse;
-    }
-
-    /** Refresh offsets once per interval, clearing caches on rollover. */
-    private synchronized void updateNoise() {
-        long now = mClock.millis();
-        if (now < mNextUpdateRealtimeMs) {
-            return; // not yet time
-        }
-        // Reseed global offsets
-        double[] offsets = samplePlanarLaplaceOffsets();
-        mLatitudeOffsetM = offsets[0];
-        mLongitudeOffsetM = offsets[1];
-        // Clear caches so new offsets take effect
-        /*
-        mCachedFineLocation = null;
-        mCachedCoarseLocation = null;
-        mCachedFineLocationResult = null;
-        mCachedCoarseLocationResult = null;
-        */
-        // Schedule next refresh
-        mNextUpdateRealtimeMs = now + NOISE_UPDATE_INTERVAL_MS;
-    }
-
-    /** Sample a pair of planar Laplace offsets (in meters). */
-    private double[] samplePlanarLaplaceOffsets() {
-        // Draw two uniforms
-        double u = mRandom.nextDouble();
-        double v = mRandom.nextDouble();
-        // Radius from Gamma(shape=2, scale=1/ε)
-        double radius = -Math.log(u * v) / mEpsilon;
-        double theta = 2 * Math.PI * mRandom.nextDouble();
-        double dy = radius * Math.sin(theta);
-        double dx = radius * Math.cos(theta);
-        return new double[]{dy, dx};
-    }
-
-    // Helper methods copied unchanged:
-    private static double wrapLatitude(double lat) {
-        if (lat > MAX_LATITUDE) lat = MAX_LATITUDE;
-        if (lat < -MAX_LATITUDE) lat = -MAX_LATITUDE;
-        return lat;
-    }
-    private static double wrapLongitude(double lon) {
-        lon %= 360.0;
-        if (lon >= 180.0) lon -= 360.0;
-        if (lon < -180.0) lon += 360.0;
-        return lon;
-    }
-    private static double metersToDegreesLatitude(double m) {
-        return m / APPROX_METERS_PER_DEGREE_AT_EQUATOR;
-    }
-    private static double metersToDegreesLongitude(double m, double lat) {
-        return m / (APPROX_METERS_PER_DEGREE_AT_EQUATOR * Math.cos(Math.toRadians(lat)));
-    }
-}
+        synchroni
