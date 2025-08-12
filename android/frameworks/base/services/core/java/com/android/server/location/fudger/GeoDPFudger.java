@@ -23,7 +23,7 @@ import android.util.Log;
 public class GeoDPFudger implements LocationObfuscationInterface {
     private static final String TAG = "GeoDPFudger";
 
-    private static final float MIN_ACCURACY_M = 200.0f;
+    private static final float MIN_ACCURACY_M = 500.0f;
     @VisibleForTesting
     static final long NOISE_UPDATE_INTERVAL_MS = 10 * 1000; // 10s for evaluation
     private static final int APPROX_METERS_PER_DEGREE_AT_EQUATOR = 111_000;
