@@ -103,10 +103,12 @@ public class DistanceFudger implements LocationObfuscationInterface {
             }
             resetDirectionDistance();
             // Clear caches as the obfuscation parameters changed.
+            /*
             mCachedFineLocation = null;
             mCachedCoarseLocation = null;
             mCachedFineLocationResult = null;
             mCachedCoarseLocationResult = null;
+            */
         }
     }
 
@@ -205,10 +207,12 @@ public class DistanceFudger implements LocationObfuscationInterface {
             mDirectionDeg += 360.0;
         }
         // clear caches when interval elapsed.
+        /*
         mCachedFineLocation         = null;
         mCachedCoarseLocation       = null;
         mCachedFineLocationResult   = null;
         mCachedCoarseLocationResult = null;
+        */
         
         // Schedule next update.
         mNextUpdateRealtimeMs = now + UPDATE_INTERVAL_MS;
