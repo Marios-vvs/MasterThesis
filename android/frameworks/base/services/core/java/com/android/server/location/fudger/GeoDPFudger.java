@@ -53,7 +53,8 @@ public class GeoDPFudger implements LocationObfuscationInterface {
     GeoDPFudger(float accuracyM, Clock clock, Random random) {
         mClock = clock;
         mRandom = random;
-        mAccuracyM = Math.max(accuracyM, MIN_ACCURACY_M);
+        //mAccuracyM = Math.max(accuracyM, MIN_ACCURACY_M);
+        mAccuracyM = MIN_ACCURACY_M;
         mEpsilon = 2.0 / mAccuracyM;  // calibrate privacy budget
         resetOffsets(); // seed initial noise offsets and timer
     }
