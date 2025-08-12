@@ -26,10 +26,11 @@ public class DistanceFudger implements LocationObfuscationInterface {
     private final Random mRandom;
 
     @VisibleForTesting
-    static final long UPDATE_INTERVAL_MS =  60 * 1000; // 1 min for test
+    static final long UPDATE_INTERVAL_MS = 60 * 1000; // 1 min for test
 
     private static final int APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR = 111_000;
-    private static final double MAX_LATITUDE = 90.0 - (1.0 / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR);
+    private static final double MAX_LATITUDE =
+            90.0 - (1.0 / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR);
 
     private static final double DIRECTION_JITTER_DEGREES = 3.0;
     private static final double VARIATION_PERCENT = 0.05;
@@ -40,8 +41,11 @@ public class DistanceFudger implements LocationObfuscationInterface {
     private double mDistanceM;
     @GuardedBy("this")
     private long mNextUpdateRealtimeMs;
+    @GuardedBy("this")
+    private long mLastUpdateRealtimeMs; // new guard
 
     public DistanceFudger(int distanceKm) {
+        // Force monotonic clock by default to avoid jumps when system clock changes
         this(distanceKm, SystemClock.elapsedRealtimeClock(), new SecureRandom());
     }
 
@@ -60,9 +64,12 @@ public class DistanceFudger implements LocationObfuscationInterface {
     private synchronized void resetDirectionDistance() {
         mDirectionDeg = mRandom.nextDouble() * 360.0;
         mDistanceM = mDistanceKm * 1000.0;
-        mNextUpdateRealtimeMs = mClock.millis() + UPDATE_INTERVAL_MS;
+        long now = mClock.millis();
+        mLastUpdateRealtimeMs = now;
+        mNextUpdateRealtimeMs = now + UPDATE_INTERVAL_MS;
 
-        Log.i(TAG, String.format("[%d] resetDirectionDistance: directionDeg=%.3f°, distanceM=%.1f, nextUpdateInMs=%d",
+        Log.i(TAG, String.format(
+                "[%d] resetDirectionDistance: directionDeg=%.3f°, distanceM=%.1f, nextUpdateInMs=%d",
                 System.currentTimeMillis(), mDirectionDeg, mDistanceM, UPDATE_INTERVAL_MS));
     }
 
@@ -90,9 +97,9 @@ public class DistanceFudger implements LocationObfuscationInterface {
     public Location createCoarse(Location fine) {
         updateDirectionDistance();
 
-        // Log the incoming fine location
         Log.d(TAG, String.format("[%d] createCoarse: fine=(%.6f, %.6f) acc=%.1f",
-                System.currentTimeMillis(), fine.getLatitude(), fine.getLongitude(), fine.getAccuracy()));
+                System.currentTimeMillis(),
+                fine.getLatitude(), fine.getLongitude(), fine.getAccuracy()));
 
         Location coarse = new Location(fine);
         coarse.removeBearing();
@@ -126,8 +133,8 @@ public class DistanceFudger implements LocationObfuscationInterface {
         float offsetAccuracy = (float) usedDistanceM;
         coarse.setAccuracy(Math.max(offsetAccuracy, originalAccuracy));
 
-        // Log the obfuscated result
-        Log.d(TAG, String.format("[%d] createCoarse: obfuscated=(%.6f, %.6f) acc=%.1f bearing=%.3f° dy=%.1fm dx=%.1fm distance=%.1fm",
+        Log.d(TAG, String.format(
+                "[%d] createCoarse: obfuscated=(%.6f, %.6f) acc=%.1f bearing=%.3f° dy=%.1fm dx=%.1fm distance=%.1fm",
                 System.currentTimeMillis(), newLatDeg, newLonDeg, coarse.getAccuracy(),
                 usedDirectionDeg, dyMeters, dxMeters, usedDistanceM));
 
@@ -136,9 +143,17 @@ public class DistanceFudger implements LocationObfuscationInterface {
 
     private synchronized void updateDirectionDistance() {
         long now = mClock.millis();
-        if (now < mNextUpdateRealtimeMs) {
+
+        // Debug log to inspect behaviour
+        Log.d(TAG, String.format(
+                "updateDirectionDistance: now=%d lastUpdate=%d nextUpdate=%d",
+                now, mLastUpdateRealtimeMs, mNextUpdateRealtimeMs));
+
+        // Guard: do not update if less than UPDATE_INTERVAL_MS has passed since last update
+        if (now - mLastUpdateRealtimeMs < UPDATE_INTERVAL_MS) {
             return;
         }
+
         double oldDirection = mDirectionDeg;
         double oldDistanceM = mDistanceM;
 
@@ -152,10 +167,13 @@ public class DistanceFudger implements LocationObfuscationInterface {
             mDirectionDeg += 360.0;
         }
 
+        mLastUpdateRealtimeMs = now;
         mNextUpdateRealtimeMs = now + UPDATE_INTERVAL_MS;
 
-        Log.i(TAG, String.format("[%d] updateDirectionDistance: oldDir=%.3f° oldDist=%.1fm -> newDir=%.3f° newDist=%.1fm jitter=%.3f° factor=%.4f nextInMs=%d",
-                System.currentTimeMillis(), oldDirection, oldDistanceM, mDirectionDeg, mDistanceM, jitter, factor, UPDATE_INTERVAL_MS));
+        Log.i(TAG, String.format(
+                "[%d] updateDirectionDistance: oldDir=%.3f° oldDist=%.1fm -> newDir=%.3f° newDist=%.1fm jitter=%.3f° factor=%.4f nextInMs=%d",
+                System.currentTimeMillis(), oldDirection, oldDistanceM,
+                mDirectionDeg, mDistanceM, jitter, factor, UPDATE_INTERVAL_MS));
     }
 
     private static double wrapLatitude(double lat) {
@@ -176,6 +194,7 @@ public class DistanceFudger implements LocationObfuscationInterface {
     }
 
     private static double metersToDegreesLongitude(double distance, double lat) {
-        return distance / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR / Math.cos(Math.toRadians(lat));
+        return distance / APPROXIMATE_METERS_PER_DEGREE_AT_EQUATOR
+                / Math.cos(Math.toRadians(lat));
     }
 }
